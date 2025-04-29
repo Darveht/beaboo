@@ -3134,13 +3134,22 @@ function saveNote() {
   function publishNote() {
     const content = document.getElementById('note-content').value.trim();
     const imageInput = document.getElementById('note-image');
-    if (!content && !imageInput.files.length) return;
+    
+    if (!content && !imageInput.files.length) {
+      alert('Por favor escribe algo o agrega una imagen');
+      return;
+    }
 
     const user = firebase.auth().currentUser;
     if (!user) {
       alert('Debes iniciar sesión para publicar notas');
       return;
     }
+
+    // Mostrar indicador de carga
+    const publishButton = document.querySelector('button[onclick="publishNote()"]');
+    publishButton.disabled = true;
+    publishButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
 
     firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val();
@@ -3157,17 +3166,50 @@ function saveNote() {
         const reader = new FileReader();
         reader.onload = function(e) {
           note.imageUrl = e.target.result;
-          publishNoteToDatabase(note);
+          firebase.database().ref('communityNotes').push(note).then(() => {
+            document.getElementById('note-content').value = '';
+            imageInput.value = '';
+            document.getElementById('image-preview').classList.add('hidden');
+            switchCommunityTab('feed');
+            publishButton.disabled = false;
+            publishButton.innerHTML = 'Publicar Nota';
+            alert('¡Nota publicada con éxito!');
+          }).catch(error => {
+            console.error('Error al publicar:', error);
+            alert('Error al publicar la nota. Por favor intenta de nuevo.');
+            publishButton.disabled = false;
+            publishButton.innerHTML = 'Publicar Nota';
+          });
         };
         reader.readAsDataURL(imageInput.files[0]);
       } else {
-        publishNoteToDatabase(note);
+        firebase.database().ref('communityNotes').push(note).then(() => {
+          document.getElementById('note-content').value = '';
+          switchCommunityTab('feed');
+          publishButton.disabled = false;
+          publishButton.innerHTML = 'Publicar Nota';
+          alert('¡Nota publicada con éxito!');
+        }).catch(error => {
+          console.error('Error al publicar:', error);
+          alert('Error al publicar la nota. Por favor intenta de nuevo.');
+          publishButton.disabled = false;
+          publishButton.innerHTML = 'Publicar Nota';
+        });
       }
     });
   }
 
   function publishNoteToDatabase(note) {
-    firebase.database().ref('communityNotes').push(note).then(() => {
+    // Verifica el contenido de la nota específicamente
+    if (moderarContenidoNota(note.content)) {
+      alert('Tu nota no puede ser publicada porque contiene contenido inapropiado.');
+      return;
+    }
+    
+    firebase.database().ref('communityNotes').push(note).then((ref) => {
+      // Verifica una vez más después de publicar (por si acaso)
+      moderarContenidoAutomaticamente(ref.key, note.content);
+      
       document.getElementById('note-content').value = '';
       document.getElementById('note-image').value = '';
       document.getElementById('image-preview').classList.add('hidden');
@@ -3207,10 +3249,10 @@ function saveNote() {
             </button>
             ${note.authorId === firebase.auth().currentUser?.uid ? 
               `<button onclick="deleteNote('${note.id}')" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash"></i>
+                <i class="fas fa-trash"></i> Eliminar
               </button>` : 
-              `<button onclick="reportNote('${note.id}')" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-flag"></i>
+              `<button onclick="reportNote('${note.id}')" class="text-gray-500 hover:text-gray-700 flex items-center">
+                <i class="fas fa-flag mr-1"></i> Reportar
               </button>`
             }
           </div>
@@ -3220,20 +3262,49 @@ function saveNote() {
     });
   }
 
-  function contienePalabrasOfensivas(texto) {
-  const palabrasOfensivas = [
+  function moderarContenidoNota(texto) {
+  const palabrasProhibidasNotas = [
+    // Insultos y lenguaje ofensivo
     "idiota", "estúpido", "imbécil", "tonto", "pendejo",
     "maldito", "puta", "mierda", "carajo", "joder",
     "perra", "zorra", "maricón", "puto", "cabrón",
-    "bastardo", "maldición", "verga", "coño", "culo"
+    // Discriminación
+    "negro", "sudaca", "indio", "gitano", "judio",
+    // Contenido inapropiado
+    "xxx", "porn", "sex", "desnudo",
+    // Violencia
+    "matar", "muerte", "suicidio", "sangre",
+    // Spam y estafas
+    "ganar dinero", "hazte rico", "click aquí",
+    // Enlaces maliciosos
+    "bit.ly", "acortar.link", "short.io"
   ];
   
   const textoNormalizado = texto.toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  
-  return palabrasOfensivas.some(palabra => 
-    textoNormalizado.includes(palabra.toLowerCase()));
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z\s]/g, ''); // Elimina caracteres especiales
+    
+  // Busca palabras completas, no partes de palabras
+  const palabras = textoNormalizado.split(/\s+/);
+  return palabras.some(palabra => 
+    palabrasOfensivas.includes(palabra) ||
+    palabrasOfensivas.some(palabraOfensiva => 
+      palabra.includes(palabraOfensiva) && palabra.length < palabraOfensiva.length + 3
+    )
+  );
+}
+
+function moderarContenidoAutomaticamente(noteId, content) {
+  if (contienePalabrasOfensivas(content)) {
+    firebase.database().ref('communityNotes/' + noteId).remove()
+      .then(() => {
+        console.log('Nota eliminada por contener lenguaje ofensivo');
+        alert('Tu nota ha sido eliminada por contener lenguaje inapropiado.');
+      });
+    return true;
+  }
+  return false;
 }
 
 function contieneContenidoInapropiado(texto) {
