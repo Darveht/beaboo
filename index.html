@@ -1518,7 +1518,19 @@ firebase.auth().onAuthStateChanged(user => {
 
     <!-- Formulario para Agregar Nota -->
     <div id="add-note-form" class="hidden">
-      <textarea id="note-content" placeholder="¿Qué quieres compartir?" class="w-full p-4 border border-gray-200 rounded-xl resize-none h-32 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]"></textarea>
+      <textarea id="note-content" placeholder="¿Qué quieres compartir? (máx. 200 caracteres)" maxlength="200" class="w-full p-4 border border-gray-200 rounded-xl resize-none h-32 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]"></textarea>
+<div id="char-counter" class="text-sm text-gray-500 mt-2">200 caracteres restantes</div>
+<script>
+document.getElementById('note-content').addEventListener('input', function() {
+  const remaining = 200 - this.value.length;
+  document.getElementById('char-counter').textContent = remaining + ' caracteres restantes';
+  if (remaining <= 20) {
+    document.getElementById('char-counter').classList.add('text-[#FE2C55]');
+  } else {
+    document.getElementById('char-counter').classList.remove('text-[#FE2C55]');
+  }
+});
+</script>
       <div class="mt-4 flex items-center space-x-4">
         <label class="flex-1 cursor-pointer bg-gray-100 p-3 rounded-xl hover:bg-gray-200 transition text-center">
           <input type="file" id="note-image" accept="image/*" class="hidden" onchange="handleNoteImagePreview(event)">
