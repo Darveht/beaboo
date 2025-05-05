@@ -1,4 +1,3 @@
-
 <!-- Protección anti-debugging y anti-inspección -->
 <script>
 // Deshabilitar clic derecho
@@ -1545,9 +1544,19 @@ firebase.auth().onAuthStateChanged(user => {
       <button onclick="switchCommunityTab('feed')" class="flex-1 py-2 text-center text-[#FE2C55] border-b-2 border-[#FE2C55]" id="feed-tab">
         Feed
       </button>
+      <button onclick="switchCommunityTab('photos'); loadPhotos();" class="flex-1 py-2 text-center text-gray-500" id="photos-tab">
+        Fotos
+      </button>
       <button onclick="switchCommunityTab('add')" class="flex-1 py-2 text-center text-gray-500" id="add-tab">
         Agregar Nota
       </button>
+    </div>
+    
+    <!-- Sección de Fotos -->
+    <div id="photos-feed" class="hidden">
+      <div class="grid grid-cols-2 gap-2">
+        <!-- Las fotos se cargarán aquí dinámicamente -->
+      </div>
     </div>
 
     <!-- Feed de Notas -->
@@ -3008,6 +3017,71 @@ function toggleVoiceInput() {
   <div class="gift-container">
     <h2 class="text-xl font-bold mb-4 text-center text-white">Enviar Regalo</h2>
     <div class="gift-grid">
+
+function loadPhotos() {
+  const photosFeed = document.getElementById('photos-feed');
+  const photosContainer = photosFeed.querySelector('.grid');
+  photosContainer.innerHTML = '';
+
+  firebase.database().ref('communityNotes').orderByChild('timestamp').once('value').then(snapshot => {
+    const photos = [];
+    snapshot.forEach(child => {
+      const note = child.val();
+      if (note.imageUrl) {
+        photos.push(note);
+      }
+    });
+
+    photos.reverse().forEach(photo => {
+      const photoCard = document.createElement('div');
+      photoCard.className = 'relative aspect-square cursor-pointer';
+      photoCard.innerHTML = `
+        <img src="${photo.imageUrl}" alt="" class="w-full h-full object-cover">
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+          <div class="flex items-center">
+            <img src="${photo.authorImage}" alt="${photo.authorName}" class="w-6 h-6 rounded-full mr-2">
+            <span class="text-white text-sm truncate">${photo.authorName}</span>
+          </div>
+        </div>
+      `;
+      photoCard.onclick = () => {
+        openPhotoDetail(photo);
+      };
+      photosContainer.appendChild(photoCard);
+    });
+  });
+}
+
+function openPhotoDetail(photo) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class="max-w-2xl w-full bg-white rounded-xl overflow-hidden">
+      <img src="${photo.imageUrl}" alt="" class="w-full h-auto">
+      <div class="p-4">
+        <div class="flex items-center mb-4">
+          <img src="${photo.authorImage}" alt="${photo.authorName}" class="w-8 h-8 rounded-full mr-2">
+          <span class="font-bold">${photo.authorName}</span>
+        </div>
+        ${photo.content ? `<p class="text-gray-700">${photo.content}</p>` : ''}
+        <div class="mt-4 flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <button onclick="likePhoto('${photo.id}')" class="flex items-center text-gray-600">
+              <i class="fas fa-heart mr-1"></i>
+              <span>${photo.likes || 0}</span>
+            </button>
+          </div>
+          <span class="text-gray-500 text-sm">${new Date(photo.timestamp).toLocaleDateString()}</span>
+        </div>
+      </div>
+    </div>
+    <button onclick="this.parentElement.remove()" class="absolute top-4 right-4 text-white text-xl">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  document.body.appendChild(modal);
+}
+
       <!-- Ítems originales (algunos se muestran como GIF y otros en video para un look moderno) -->
       <div class="gift-item bg-black/20 backdrop-blur-sm rounded-lg" onclick="sendGift('cupido')">
         <img src="https://i.pinimg.com/originals/2d/f8/97/2df897364f655a0b14070a9e2f95d602.gif" alt="Cupido">
@@ -3428,20 +3502,34 @@ function toggleVoiceInput() {
 
   function switchCommunityTab(tab) {
     const feedTab = document.getElementById('feed-tab');
+    const photosTab = document.getElementById('photos-tab');
     const addTab = document.getElementById('add-tab');
     const notesFeed = document.getElementById('notes-feed');
+    const photosFeed = document.getElementById('photos-feed');
     const addNoteForm = document.getElementById('add-note-form');
 
     if (tab === 'feed') {
       feedTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      photosTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       addTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       notesFeed.classList.remove('hidden');
+      photosFeed.classList.add('hidden');
       addNoteForm.classList.add('hidden');
       loadNotes();
+    } else if (tab === 'photos') {
+      photosTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      feedTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      addTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      photosFeed.classList.remove('hidden');
+      notesFeed.classList.add('hidden');
+      addNoteForm.classList.add('hidden');
+      loadPhotos();
     } else {
       addTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       feedTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      photosTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       notesFeed.classList.add('hidden');
+      photosFeed.classList.add('hidden');
       addNoteForm.classList.remove('hidden');
     }
   }
