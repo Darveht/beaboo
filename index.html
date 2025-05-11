@@ -3,6 +3,7 @@
 
 
 
+
 <!-- Protección anti-debugging y anti-inspección -->
 <script>
 // Deshabilitar clic derecho
@@ -1124,6 +1125,31 @@ setInterval(checkScheduledChapters, 60000);
 
 <!–– AUTENTICACIÓN A PANTALLA COMPLETA (ESTILO TIKTOK) ––>
 <body class="bg-white font-sans text-[#161823]">
+  <!-- Maintenance Mode Overlay -->
+  <div id="maintenance-overlay" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999] backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-2xl max-w-lg mx-4 text-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/6357/6357049.png" alt="Maintenance" class="w-32 h-32 mx-auto mb-6">
+      <h2 class="text-2xl font-bold mb-4">Sitio en Mantenimiento</h2>
+      <p class="text-gray-600 mb-4">Estamos realizando mejoras en nuestro sistema. La página no estará disponible temporalmente.</p>
+      <p class="text-gray-600">Gracias por tu comprensión y paciencia.</p>
+      <div class="mt-6 flex justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FE2C55]"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Forzar cierre de sesión
+    window.onload = function() {
+      if (firebase && firebase.auth) {
+        firebase.auth().signOut().then(() => {
+          console.log('Sesión cerrada por mantenimiento');
+        }).catch((error) => {
+          console.error('Error al cerrar sesión:', error);
+        });
+      }
+    }
+  </script>
   <div id="auth-form" class="w-full h-screen flex flex-col justify-center p-6">
     <!-- Título centrado -->
     <h1 id="auth-title" class="text-4xl font-bold text-center mb-8">BeaBoo</h1>
