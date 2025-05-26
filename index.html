@@ -1125,31 +1125,7 @@ setInterval(checkScheduledChapters, 60000);
 
 <!–– AUTENTICACIÓN A PANTALLA COMPLETA (ESTILO TIKTOK) ––>
 <body class="bg-white font-sans text-[#161823]">
-  <!-- Maintenance Mode Overlay -->
-  <div id="maintenance-overlay" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999] backdrop-blur-sm">
-    <div class="bg-white p-8 rounded-2xl max-w-lg mx-4 text-center">
-      <img src="https://cdn-icons-png.flaticon.com/512/6357/6357049.png" alt="Maintenance" class="w-32 h-32 mx-auto mb-6">
-      <h2 class="text-2xl font-bold mb-4">Sitio en Mantenimiento</h2>
-      <p class="text-gray-600 mb-4">Estamos realizando mejoras en nuestro sistema. La página no estará disponible temporalmente.</p>
-      <p class="text-gray-600">Gracias por tu comprensión y paciencia.</p>
-      <div class="mt-6 flex justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FE2C55]"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Forzar cierre de sesión
-    window.onload = function() {
-      if (firebase && firebase.auth) {
-        firebase.auth().signOut().then(() => {
-          console.log('Sesión cerrada por mantenimiento');
-        }).catch((error) => {
-          console.error('Error al cerrar sesión:', error);
-        });
-      }
-    }
-  </script>
+  
   <div id="auth-form" class="w-full h-screen flex flex-col justify-center p-6">
     <!-- Título centrado -->
     <h1 id="auth-title" class="text-4xl font-bold text-center mb-8">BeaBoo</h1>
@@ -2671,7 +2647,7 @@ function toggleVoiceInput() {
 
 <!-- MODAL DE DETALLE DE HISTORIA -->
 <div id="story-detail-modal" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
-  <div class="p-6 relative max-w-4xl mx-auto bg-white rounded-2xl shadow-lg">
+  <div class="p-6 relative max-w-4xl mx-auto bg-white min-h-screen">
 
     <!-- Botón de volver -->
     <button onclick="closeStoryDetail()" class="text-[#FE2C55] mb-6 flex items-center">
@@ -2702,15 +2678,15 @@ function toggleVoiceInput() {
 
     <!-- Lista de capítulos -->
     <div class="w-full mb-8">
-      <h3 class="text-lg font-bold mb-2 text-[#FE2C55]">Capítulos</h3>
-      <ul id="detail-chapters" class="space-y-3 divide-y divide-gray-200">
+      <h3 class="text-lg font-bold mb-4 text-[#FE2C55]">Capítulos</h3>
+      <ul id="detail-chapters" class="space-y-3">
         <!-- Aquí insertar cada <li> de capítulo -->
       </ul>
     </div>
 
     <!-- Sinopsis -->
     <div class="w-full mb-6">
-      <h3 class="text-lg font-semibold mb-2 text-[#FE2C55]">Sinopsis</h3>
+      <h3 class="text-lg font-semibold mb-3 text-[#FE2C55]">Sinopsis</h3>
       <p id="detail-synopsis" class="text-gray-600 leading-relaxed">
         Sinopsis de la historia...
       </p>
@@ -4604,8 +4580,12 @@ function saveNote() {
   function openStoryDetail(story) {
     const user = firebase.auth().currentUser;
     if (!user) return;
+    
+    console.log('Abriendo historia:', story); // Debug
+    
     window.currentStoryId = story.id;
     listenForStoryBlock(story.id);
+    
     const viewRef = firebase.database().ref('storyViews/' + story.id + '/' + user.uid);
     viewRef.once('value').then(snapshot => {
       if (!snapshot.exists()) {
@@ -4614,29 +4594,34 @@ function saveNote() {
         storyViewsRef.transaction(current => (current || 0) + 1);
       }
     });
+    
+    // Actualizar contenido del modal
     document.getElementById('detail-cover').src = story.coverImage || '/api/placeholder/800/400';
     document.getElementById('detail-title').textContent = story.title;
     let authorDisplay = (story.username || "Autor Desconocido") + getVerificationIcon(story.email || "");
-    document.getElementById('detail-author').innerHTML = translations[currentLanguage].authorProfile + " " + authorDisplay;
+    document.getElementById('detail-author').innerHTML = "Por " + authorDisplay;
     document.getElementById('detail-author').dataset.userid = story.userId;
     document.getElementById('detail-author').onclick = () => openAuthorProfile(story.userId);
     document.getElementById('detail-synopsis').textContent = story.synopsis || "Sinopsis no disponible.";
+    
+    // Cargar capítulos
     firebase.database().ref('stories/' + story.id + '/chapters').on('value', snapshot => {
       const chaptersList = document.getElementById('detail-chapters');
       chaptersList.innerHTML = "";
       currentChapters = [];
       let chapterCount = snapshot.numChildren();
-      let totalRating = 0,
-        ratingCount = 0;
+      let totalRating = 0, ratingCount = 0;
+      
       snapshot.forEach(child => {
         const chapter = child.val();
         chapter.id = child.key;
         currentChapters.push(chapter);
         const li = document.createElement('li');
         li.className = "p-4 border border-gray-200 rounded-xl hover:bg-gray-50 flex justify-between items-center";
-        li.innerHTML = `<span>${translations[currentLanguage].readChapter} ${chapter.chapterNumber}</span>
-                          <button class="bg-[#58CC02] text-white px-2 py-1 rounded" onclick='openChapterReadModal("${story.id}", "${child.key}")'>Leer</button>`;
+        li.innerHTML = `<span>Capítulo ${chapter.chapterNumber}</span>
+                          <button class="bg-[#58CC02] text-white px-3 py-2 rounded hover:bg-green-600 transition-colors" onclick='openChapterReadModal("${story.id}", "${child.key}")'>Leer</button>`;
         chaptersList.appendChild(li);
+        
         if (chapter.ratings) {
           Object.values(chapter.ratings).forEach(r => {
             totalRating += r;
@@ -4644,24 +4629,55 @@ function saveNote() {
           });
         }
       });
+      
       currentChapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
       currentEditingStory = {
         id: story.id,
         currentChapterId: currentChapters.length ? currentChapters[0].id : null
       };
+      
       let overallRating = ratingCount ? (totalRating / ratingCount).toFixed(1) : 0;
       document.getElementById('detail-metrics').innerHTML =
-        `<span><strong>${story.views || 0}</strong> Visitas</span>
-           <span><strong>${overallRating}</strong> ${translations[currentLanguage].ratings}</span>
-           <span><strong>${chapterCount}</strong> Capítulos</span>`;
+        `<div class="bg-white p-2 rounded-lg shadow-sm flex flex-col items-center w-20">
+          <span class="text-lg font-bold text-black">${story.views || 0}</span>
+          <p class="text-xs text-[#FE2C55] mt-1">Visitas</p>
+        </div>
+        <div class="bg-white p-2 rounded-lg shadow-sm flex flex-col items-center w-20">
+          <span class="text-lg font-bold text-black">${overallRating}</span>
+          <p class="text-xs text-[#FE2C55] mt-1">Rating</p>
+        </div>
+        <div class="bg-white p-2 rounded-lg shadow-sm flex flex-col items-center w-20">
+          <span class="text-lg font-bold text-black">${chapterCount}</span>
+          <p class="text-xs text-[#FE2C55] mt-1">Capítulos</p>
+        </div>`;
     });
-    document.getElementById('story-detail-modal').classList.remove('hidden');
-    mainApp.classList.add('hidden');
+    
+    // Mostrar el modal
+    const modal = document.getElementById('story-detail-modal');
+    const mainAppElement = document.getElementById('main-app');
+    
+    console.log('Modal element:', modal); // Debug
+    console.log('MainApp element:', mainAppElement); // Debug
+    
+    if (modal && mainAppElement) {
+      modal.classList.remove('hidden');
+      mainAppElement.classList.add('hidden');
+      console.log('Modal mostrado correctamente'); // Debug
+    } else {
+      console.error('No se pudo encontrar el modal o main-app'); // Debug
+    }
   }
 
   function closeStoryDetail() {
-    document.getElementById('story-detail-modal').classList.add('hidden');
-    mainApp.classList.remove('hidden');
+    const modal = document.getElementById('story-detail-modal');
+    const mainAppElement = document.getElementById('main-app');
+    
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+    if (mainAppElement) {
+      mainAppElement.classList.remove('hidden');
+    }
   }
 
   function openStoryEdit(story) {
@@ -5613,16 +5629,29 @@ document.getElementById('category-filter').addEventListener('change', performRea
   }
 
   function openChapterReadModal(storyId, chapterId) {
+    console.log('Abriendo capítulo:', storyId, chapterId); // Debug
+    
+    // Ocultar el modal de detalle de historia
     const storyDetailModal = document.getElementById('story-detail-modal');
-    if (!storyDetailModal.classList.contains('hidden')) {
+    if (storyDetailModal && !storyDetailModal.classList.contains('hidden')) {
       storyDetailModal.classList.add('hidden');
     }
+    
+    // Ocultar la app principal si está visible
+    const mainApp = document.getElementById('main-app');
+    if (mainApp && !mainApp.classList.contains('hidden')) {
+      mainApp.classList.add('hidden');
+    }
+    
     firebase.database().ref('stories/' + storyId + '/chapters/' + chapterId).once('value').then(snapshot => {
       const chapter = snapshot.val();
+      console.log('Datos del capítulo:', chapter); // Debug
+      
       if (chapter) {
-        document.getElementById('read-chapter-number').textContent = translations[currentLanguage].readChapter + " " + chapter.chapterNumber;
+        document.getElementById('read-chapter-number').textContent = "Capítulo " + chapter.chapterNumber;
         document.getElementById('read-chapter-text').innerHTML = chapter.content.replace(/\n/g, '<br>');
         setupStarRating(storyId, chapterId);
+        
         if (!currentEditingStory) {
           currentEditingStory = {
             id: storyId,
@@ -5631,6 +5660,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
         } else {
           currentEditingStory.currentChapterId = chapterId;
         }
+        
         const user = firebase.auth().currentUser;
         if (user) {
           const chapterViewRef = firebase.database().ref('chapterViews/' + chapterId + '/' + user.uid);
@@ -5642,16 +5672,42 @@ document.getElementById('category-filter').addEventListener('change', performRea
             }
           });
         }
-        document.getElementById('chapter-read-modal').classList.remove('hidden');
+        
+        // Mostrar el modal de lectura
+        const chapterReadModal = document.getElementById('chapter-read-modal');
+        console.log('Modal de lectura:', chapterReadModal); // Debug
+        
+        if (chapterReadModal) {
+          chapterReadModal.classList.remove('hidden');
+          console.log('Modal mostrado correctamente'); // Debug
+        } else {
+          console.error('No se encontró el modal de lectura'); // Debug
+          alert('Error: No se pudo abrir el capítulo');
+        }
       } else {
-        alert(translations[currentLanguage].chapterNotFound);
+        alert('Capítulo no encontrado');
       }
+    }).catch(error => {
+      console.error('Error al cargar capítulo:', error);
+      alert('Error al cargar el capítulo');
     });
   }
 
   function closeChapterReadModal() {
-    document.getElementById('chapter-read-modal').classList.add('hidden');
-    document.getElementById('story-detail-modal').classList.remove('hidden');
+    const chapterReadModal = document.getElementById('chapter-read-modal');
+    const storyDetailModal = document.getElementById('story-detail-modal');
+    const mainApp = document.getElementById('main-app');
+    
+    if (chapterReadModal) {
+      chapterReadModal.classList.add('hidden');
+    }
+    
+    // Si hay un modal de detalle, mostrarlo, sino mostrar la app principal
+    if (storyDetailModal && window.currentStoryId) {
+      storyDetailModal.classList.remove('hidden');
+    } else if (mainApp) {
+      mainApp.classList.remove('hidden');
+    }
   }
 
   function prevChapter() {
