@@ -2565,7 +2565,7 @@ document.getElementById('note-content').addEventListener('input', function() {
       <!-- Historias del usuario -->
       <hr class="border-t border-gray-300 w-full my-4">
       <div class="mt-6 w-full">
-        <h3 id="profile-stories-title" class="text-lg font-bold mb-2 text-[#FE2C55]">Mis Historias</h3>
+        <h3 id="profile-stories-title" class="text-lg font-bold mb-2 text-[#FE2C55]">0 Historias</h3>
         <div id="user-stories" class="grid grid-cols-2 gap-4"></div>
       </div>
     </div>
@@ -2693,8 +2693,8 @@ document.getElementById('note-content').addEventListener('input', function() {
               <!-- Header de historias con botón crear -->
               <div class="flex justify-between items-center mb-6">
                 <div>
-                  <h2 class="text-2xl font-bold text-gray-900">22 Historias</h2>
-                  <button class="text-[#FE2C55] hover:text-red-600 flex items-center mt-1">
+                  <h2 id="profile-stories-header" class="text-2xl font-bold text-gray-900">0 Historias</h2>
+                  <button onclick="openBeabooStudio()" class="text-[#FE2C55] hover:text-red-600 flex items-center mt-1">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -2725,21 +2725,21 @@ document.getElementById('note-content').addEventListener('input', function() {
 
           <!-- Sidebar derecho -->
           <div class="w-80">
-            <!-- Información adicional -->
+            <!-- Estadísticas -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border">
-              <h3 class="font-bold text-gray-900 mb-4">Actividad reciente</h3>
-              <div class="space-y-3">
-                <div class="flex items-center space-x-3">
-                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Historia publicada hace 2 días</span>
+              <h3 class="font-bold text-gray-900 mb-4">Estadísticas</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600">Historias publicadas</span>
+                  <span id="sidebar-stories-count" class="font-bold text-[#FE2C55]">0</span>
                 </div>
-                <div class="flex items-center space-x-3">
-                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Nuevo seguidor</span>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600">Total de lecturas</span>
+                  <span id="sidebar-total-views" class="font-bold text-[#FE2C55]">0</span>
                 </div>
-                <div class="flex items-center space-x-3">
-                  <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Comentario recibido</span>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600">Seguidores</span>
+                  <span id="sidebar-followers-count" class="font-bold text-[#FE2C55]">0</span>
                 </div>
               </div>
             </div>
