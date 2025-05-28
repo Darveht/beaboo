@@ -425,6 +425,200 @@ setInterval(checkScheduledChapters, 60000);
       padding: 5px;
     }
 
+    /* MARCOS ANIMADOS PARA FOTOS DE PERFIL */
+    .rainbow-frame {
+      border: 4px solid;
+      border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1;
+      animation: rainbow-rotate 3s linear infinite;
+    }
+
+    @keyframes rainbow-rotate {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .fire-frame {
+      border: 4px solid #ff4500;
+      animation: fire-pulse 1.5s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px #ff4500;
+    }
+
+    @keyframes fire-pulse {
+      0% { 
+        border-color: #ff4500; 
+        box-shadow: 0 0 20px #ff4500, inset 0 0 20px #ff6500;
+      }
+      50% { 
+        border-color: #ff6500; 
+        box-shadow: 0 0 30px #ff6500, inset 0 0 30px #ff8500;
+      }
+      100% { 
+        border-color: #ff8500; 
+        box-shadow: 0 0 40px #ff8500, inset 0 0 40px #ffa500;
+      }
+    }
+
+    .electric-frame {
+      border: 4px solid #00ffff;
+      animation: electric-spark 0.8s ease-in-out infinite;
+      box-shadow: 0 0 15px #00ffff;
+    }
+
+    @keyframes electric-spark {
+      0%, 100% { 
+        border-color: #00ffff; 
+        box-shadow: 0 0 15px #00ffff;
+      }
+      25% { 
+        border-color: #66ffff; 
+        box-shadow: 0 0 25px #66ffff, 0 0 35px #00ccff;
+      }
+      50% { 
+        border-color: #ffffff; 
+        box-shadow: 0 0 35px #ffffff, 0 0 45px #00ffff;
+      }
+      75% { 
+        border-color: #ccffff; 
+        box-shadow: 0 0 25px #ccffff, 0 0 35px #00aaff;
+      }
+    }
+
+    .galaxy-frame {
+      border: 4px solid #4b0082;
+      background: linear-gradient(45deg, #4b0082, #8a2be2, #9932cc, #ba55d3);
+      background-size: 400% 400%;
+      animation: galaxy-drift 4s ease-in-out infinite;
+      position: relative;
+    }
+
+    .galaxy-frame::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      background: linear-gradient(45deg, #ffffff, #ffff00, #ffffff);
+      border-radius: 50%;
+      z-index: -1;
+      animation: stars-twinkle 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes galaxy-drift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes stars-twinkle {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
+
+    .diamond-frame {
+      border: 4px solid #b9f2ff;
+      animation: diamond-sparkle 2s ease-in-out infinite;
+      box-shadow: 0 0 20px #b9f2ff;
+      position: relative;
+    }
+
+    .diamond-frame::before {
+      content: '✨';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 16px;
+      animation: sparkle-rotate 3s linear infinite;
+    }
+
+    .diamond-frame::after {
+      content: '💎';
+      position: absolute;
+      bottom: -10px;
+      left: -10px;
+      font-size: 16px;
+      animation: sparkle-rotate 3s linear infinite reverse;
+    }
+
+    @keyframes diamond-sparkle {
+      0%, 100% { 
+        border-color: #b9f2ff; 
+        box-shadow: 0 0 20px #b9f2ff;
+      }
+      50% { 
+        border-color: #ffffff; 
+        box-shadow: 0 0 30px #ffffff, 0 0 40px #b9f2ff;
+      }
+    }
+
+    @keyframes sparkle-rotate {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    /* Aplicar marcos al perfil */
+    #profile-frame.rainbow { 
+      border: 4px solid;
+      border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1;
+      animation: rainbow-rotate 3s linear infinite;
+    }
+
+    #profile-frame.fire { 
+      border: 4px solid #ff4500;
+      animation: fire-pulse 1.5s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px #ff4500;
+    }
+
+    #profile-frame.electric { 
+      border: 4px solid #00ffff;
+      animation: electric-spark 0.8s ease-in-out infinite;
+      box-shadow: 0 0 15px #00ffff;
+    }
+
+    #profile-frame.galaxy { 
+      border: 4px solid #4b0082;
+      background: linear-gradient(45deg, #4b0082, #8a2be2, #9932cc, #ba55d3);
+      background-size: 400% 400%;
+      animation: galaxy-drift 4s ease-in-out infinite;
+    }
+
+    #profile-frame.galaxy::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      background: linear-gradient(45deg, #ffffff, #ffff00, #ffffff);
+      border-radius: 50%;
+      z-index: -1;
+      animation: stars-twinkle 2s ease-in-out infinite alternate;
+    }
+
+    #profile-frame.diamond { 
+      border: 4px solid #b9f2ff;
+      animation: diamond-sparkle 2s ease-in-out infinite;
+      box-shadow: 0 0 20px #b9f2ff;
+    }
+
+    #profile-frame.diamond::before {
+      content: '✨';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 16px;
+      animation: sparkle-rotate 3s linear infinite;
+    }
+
+    #profile-frame.diamond::after {
+      content: '💎';
+      position: absolute;
+      bottom: -10px;
+      left: -10px;
+      font-size: 16px;
+      animation: sparkle-rotate 3s linear infinite reverse;
+    }
+
     #gift-animation.show {
       opacity: 1;
       animation: slideUpGift 0.8s ease-out;
@@ -1302,6 +1496,72 @@ setInterval(checkScheduledChapters, 60000);
 <!-- Input oculto para archivos -->
 <input type="file" id="file-input" class="hidden" onchange="handleFileAttachment(event)" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"></input>
 
+<!-- MODAL SELECTOR DE MARCOS ANIMADOS -->
+<div id="frame-selector-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-[#FE2C55]">Marcos Animados</h3>
+      <button onclick="closeFrameSelector()" class="text-gray-500 hover:text-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-4">
+      <!-- Sin marco -->
+      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('none')">
+        <div class="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <span class="text-sm">Sin marco</span>
+      </div>
+      
+      <!-- Marco Arcoíris -->
+      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('rainbow')">
+        <div class="w-16 h-16 mx-auto mb-2 rounded-full rainbow-frame flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+        </div>
+        <span class="text-sm">Arcoíris</span>
+      </div>
+      
+      <!-- Marco de Fuego -->
+      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('fire')">
+        <div class="w-16 h-16 mx-auto mb-2 rounded-full fire-frame flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+        </div>
+        <span class="text-sm">Fuego</span>
+      </div>
+      
+      <!-- Marco Eléctrico -->
+      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('electric')">
+        <div class="w-16 h-16 mx-auto mb-2 rounded-full electric-frame flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+        </div>
+        <span class="text-sm">Eléctrico</span>
+      </div>
+      
+      <!-- Marco Galaxia -->
+      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('galaxy')">
+        <div class="w-16 h-16 mx-auto mb-2 rounded-full galaxy-frame flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+        </div>
+        <span class="text-sm">Galaxia</span>
+      </div>
+      
+      <!-- Marco Diamante -->
+      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('diamond')">
+        <div class="w-16 h-16 mx-auto mb-2 rounded-full diamond-frame flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+        </div>
+        <span class="text-sm">Diamante</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL PARA NUEVO MENSAJE -->
 <div id="new-message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center" style="z-index: 10000;">
   <div class="bg-white rounded-xl p-6 w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto">
@@ -2075,18 +2335,31 @@ document.getElementById('note-content').addEventListener('input', function() {
     </button>
 
     <div class="flex flex-col items-center">
-      <!-- Contenedor de imagen con label para activar input -->
-      <label for="profile-image-input" class="relative cursor-pointer">
-        <img id="profile-image" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full object-cover border-2 border-[#FE2C55] hover:border-red-600 transition-all" alt="Foto de perfil">
-        <!-- Overlay de subir imagen -->
-        <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 rounded-full transition-opacity">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 12v-8" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 8l4-4 4 4" />
+      <!-- Contenedor de imagen con marcos animados -->
+      <div class="relative">
+        <!-- Marco animado seleccionado -->
+        <div id="profile-frame" class="absolute inset-0 rounded-full pointer-events-none z-10" style="display: none;"></div>
+        
+        <!-- Imagen de perfil -->
+        <label for="profile-image-input" class="relative cursor-pointer block">
+          <img id="profile-image" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full object-cover border-2 border-[#FE2C55] hover:border-red-600 transition-all relative z-0" alt="Foto de perfil">
+          <!-- Overlay de subir imagen -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 rounded-full transition-opacity z-20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12v-8" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 8l4-4 4 4" />
+            </svg>
+          </div>
+        </label>
+        
+        <!-- Botón para abrir selector de marcos -->
+        <button onclick="openFrameSelector()" class="absolute -bottom-1 -right-1 bg-[#FE2C55] text-white rounded-full p-2 hover:bg-red-600 transition-all z-30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
           </svg>
-        </div>
-      </label>
+        </button>
+      </div>
       <input type="file" id="profile-image-input" accept="image/*" class="hidden" onchange="handleProfileImageUpload(event)">
 
       <!-- Nombre de usuario y acciones -->
@@ -2293,6 +2566,8 @@ document.getElementById('note-content').addEventListener('input', function() {
     <div class="flex flex-col items-center mt-4" id="author-profile-content">
       <!-- Foto del autor -->
       <div id="author-profile-img-container" class="relative">
+        <!-- Marco animado del autor -->
+        <div id="author-profile-frame" class="absolute inset-0 rounded-full pointer-events-none z-10" style="display: none;"></div>
         <img id="author-profile-image" src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full object-cover border-2 border-[#FE2C55]" alt="Foto del autor">
         <!-- Note bubble -->
         <div id="profile-note" class="hidden absolute -top-16 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg w-48 text-center animate-float">
@@ -3754,6 +4029,64 @@ function openPhotoDetail(photo) {
 
 <!-- JavaScript: Funcionalidades y Gestos -->
 <script>
+  // FUNCIONES DE MARCOS ANIMADOS
+  function openFrameSelector() {
+    document.getElementById('frame-selector-modal').classList.remove('hidden');
+  }
+
+  function closeFrameSelector() {
+    document.getElementById('frame-selector-modal').classList.add('hidden');
+  }
+
+  function selectFrame(frameType) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const profileFrame = document.getElementById('profile-frame');
+    
+    // Limpiar clases anteriores
+    profileFrame.className = 'absolute inset-0 rounded-full pointer-events-none z-10';
+    
+    if (frameType === 'none') {
+      profileFrame.style.display = 'none';
+    } else {
+      profileFrame.style.display = 'block';
+      profileFrame.classList.add(frameType);
+    }
+
+    // Guardar en Firebase para que otros usuarios lo vean
+    firebase.database().ref('users/' + user.uid).update({
+      profileFrame: frameType
+    }).then(() => {
+      closeFrameSelector();
+      
+      // Mostrar notificación de éxito
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-[#FE2C55] text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      notification.textContent = frameType === 'none' ? 'Marco removido' : 'Marco aplicado con éxito';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    });
+  }
+
+  function loadUserFrame(userId, targetElementId) {
+    firebase.database().ref('users/' + userId + '/profileFrame').once('value').then(snapshot => {
+      const frameType = snapshot.val();
+      const profileFrame = document.getElementById(targetElementId);
+      
+      if (profileFrame && frameType && frameType !== 'none') {
+        profileFrame.className = 'absolute inset-0 rounded-full pointer-events-none z-10';
+        profileFrame.classList.add(frameType);
+        profileFrame.style.display = 'block';
+      } else if (profileFrame) {
+        profileFrame.style.display = 'none';
+      }
+    });
+  }
+
   // FUNCIONES DE COMUNIDAD
   function openCommunity() {
     document.getElementById('community-view').classList.remove('hidden');
@@ -4777,6 +5110,9 @@ function saveNote() {
           if (data.profileImage) {
             document.getElementById('profile-image').src = data.profileImage;
           }
+          
+          // Cargar marco del perfil del usuario
+          loadUserFrame(user.uid, 'profile-frame');
         }
       });
     } else {
@@ -5354,6 +5690,9 @@ document.getElementById('category-filter').addEventListener('change', performRea
       document.getElementById('author-followers').textContent = formatFollowers(authorData.followersCount || 0);
       document.getElementById('author-following').textContent = formatFollowers(authorData.followingCount || 0);
       document.getElementById('author-rated').textContent = authorData.ratedCount || 0;
+      
+      // Cargar marco del perfil del autor
+      loadUserFrame(authorId, 'author-profile-frame');
       let socialLinksHTML = "";
       if (authorData.instagram) {
         socialLinksHTML += `<a href="${authorData.instagram}" target="_blank"><img src="https://img.utdstc.com/icon/847/f33/847f33af27bea889ccaa9b1d25135b42ff5bb590297182d0983afb7304d96884:200" alt="Instagram" class="w-6 h-6"></a>`;
