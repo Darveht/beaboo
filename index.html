@@ -619,6 +619,80 @@ setInterval(checkScheduledChapters, 60000);
       animation: sparkle-rotate 3s linear infinite reverse;
     }
 
+    /* Nuevos marcos */
+    .neon-frame {
+      border: 4px solid #00ff88;
+      animation: neon-glow 2s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px #00ff88, inset 0 0 20px #00ff88;
+    }
+
+    @keyframes neon-glow {
+      0% { 
+        border-color: #00ff88; 
+        box-shadow: 0 0 20px #00ff88, inset 0 0 20px #00ff88;
+      }
+      100% { 
+        border-color: #00ffff; 
+        box-shadow: 0 0 30px #00ffff, inset 0 0 30px #00ffff;
+      }
+    }
+
+    .royal-frame {
+      border: 4px solid #ffd700;
+      animation: royal-shine 3s ease-in-out infinite;
+      box-shadow: 0 0 25px #ffd700;
+      position: relative;
+    }
+
+    .royal-frame::before {
+      content: '👑';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      animation: crown-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes royal-shine {
+      0%, 100% { 
+        border-color: #ffd700; 
+        box-shadow: 0 0 25px #ffd700;
+      }
+      50% { 
+        border-color: #ffed4e; 
+        box-shadow: 0 0 35px #ffed4e, 0 0 45px #ffd700;
+      }
+    }
+
+    @keyframes crown-bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0px); }
+      50% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    /* Aplicar nuevos marcos al perfil */
+    #profile-frame.neon { 
+      border: 4px solid #00ff88;
+      animation: neon-glow 2s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px #00ff88, inset 0 0 20px #00ff88;
+    }
+
+    #profile-frame.royal { 
+      border: 4px solid #ffd700;
+      animation: royal-shine 3s ease-in-out infinite;
+      box-shadow: 0 0 25px #ffd700;
+    }
+
+    #profile-frame.royal::before {
+      content: '👑';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      animation: crown-bounce 2s ease-in-out infinite;
+    }
+
     #gift-animation.show {
       opacity: 1;
       animation: slideUpGift 0.8s ease-out;
@@ -1496,68 +1570,101 @@ setInterval(checkScheduledChapters, 60000);
 <!-- Input oculto para archivos -->
 <input type="file" id="file-input" class="hidden" onchange="handleFileAttachment(event)" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"></input>
 
-<!-- MODAL SELECTOR DE MARCOS ANIMADOS -->
-<div id="frame-selector-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-  <div class="bg-white rounded-xl p-6 w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-xl font-bold text-[#FE2C55]">Marcos Animados</h3>
-      <button onclick="closeFrameSelector()" class="text-gray-500 hover:text-gray-700">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
+<!-- SELECTOR DE MARCOS ANIMADOS A PANTALLA COMPLETA -->
+<div id="frame-selector-modal" class="fixed inset-0 bg-gradient-to-b from-white to-[#f9f9f9] text-black overflow-y-auto hidden z-50">
+  <div class="p-6 max-w-4xl mx-auto">
+    <!-- Botón Volver -->
+    <button onclick="closeFrameSelector()" class="text-[#FE2C55] mb-6 flex items-center hover:scale-105 transition-transform">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      <span>Volver</span>
+    </button>
+
+    <!-- Título -->
+    <h2 class="text-3xl font-bold mb-8 text-black text-center">Marcos Animados Exclusivos</h2>
+    <p class="text-center text-gray-600 mb-8">Personaliza tu perfil con efectos únicos que otros usuarios podrán ver</p>
     
-    <div class="grid grid-cols-3 gap-4">
+    <!-- Grid de marcos expandido -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <!-- Sin marco -->
-      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('none')">
-        <div class="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('none')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </div>
-        <span class="text-sm">Sin marco</span>
+        <span class="text-lg font-semibold">Sin marco</span>
+        <p class="text-sm text-gray-500 mt-2">Perfil básico</p>
       </div>
       
       <!-- Marco Arcoíris -->
-      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('rainbow')">
-        <div class="w-16 h-16 mx-auto mb-2 rounded-full rainbow-frame flex items-center justify-center">
-          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('rainbow')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full rainbow-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-purple-400 to-pink-400"></div>
         </div>
-        <span class="text-sm">Arcoíris</span>
+        <span class="text-lg font-semibold">Arcoíris</span>
+        <p class="text-sm text-gray-500 mt-2">Efecto colorido</p>
       </div>
       
       <!-- Marco de Fuego -->
-      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('fire')">
-        <div class="w-16 h-16 mx-auto mb-2 rounded-full fire-frame flex items-center justify-center">
-          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('fire')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full fire-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-red-500 to-orange-500"></div>
         </div>
-        <span class="text-sm">Fuego</span>
+        <span class="text-lg font-semibold">Fuego</span>
+        <p class="text-sm text-gray-500 mt-2">Energía ardiente</p>
       </div>
       
       <!-- Marco Eléctrico -->
-      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('electric')">
-        <div class="w-16 h-16 mx-auto mb-2 rounded-full electric-frame flex items-center justify-center">
-          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('electric')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full electric-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
         </div>
-        <span class="text-sm">Eléctrico</span>
+        <span class="text-lg font-semibold">Eléctrico</span>
+        <p class="text-sm text-gray-500 mt-2">Poder eléctrico</p>
       </div>
       
       <!-- Marco Galaxia -->
-      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('galaxy')">
-        <div class="w-16 h-16 mx-auto mb-2 rounded-full galaxy-frame flex items-center justify-center">
-          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('galaxy')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full galaxy-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600"></div>
         </div>
-        <span class="text-sm">Galaxia</span>
+        <span class="text-lg font-semibold">Galaxia</span>
+        <p class="text-sm text-gray-500 mt-2">Cosmos infinito</p>
       </div>
       
       <!-- Marco Diamante -->
-      <div class="frame-option text-center cursor-pointer p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="selectFrame('diamond')">
-        <div class="w-16 h-16 mx-auto mb-2 rounded-full diamond-frame flex items-center justify-center">
-          <div class="w-12 h-12 rounded-full bg-gray-300"></div>
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('diamond')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full diamond-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-200 to-blue-300"></div>
         </div>
-        <span class="text-sm">Diamante</span>
+        <span class="text-lg font-semibold">Diamante</span>
+        <p class="text-sm text-gray-500 mt-2">Lujo premium</p>
       </div>
+
+      <!-- Nuevos marcos exclusivos -->
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('neon')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full neon-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-green-400 to-teal-400"></div>
+        </div>
+        <span class="text-lg font-semibold">Neón</span>
+        <p class="text-sm text-gray-500 mt-2">Brillo nocturno</p>
+      </div>
+
+      <div class="frame-option text-center cursor-pointer p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105" onclick="selectFrame('royal')">
+        <div class="w-24 h-24 mx-auto mb-4 rounded-full royal-frame flex items-center justify-center relative">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500"></div>
+        </div>
+        <span class="text-lg font-semibold">Real</span>
+        <p class="text-sm text-gray-500 mt-2">Elegancia dorada</p>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="mt-8 p-4 bg-blue-50 rounded-xl text-center">
+      <h3 class="font-bold text-blue-800 mb-2">💡 Información sobre marcos</h3>
+      <p class="text-blue-600 text-sm">Los marcos que selecciones serán visibles para todos los usuarios de BeaBoo. ¡Destaca tu personalidad!</p>
     </div>
   </div>
 </div>
@@ -4042,47 +4149,81 @@ function openPhotoDetail(photo) {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
+    // Mostrar loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]';
+    loadingDiv.innerHTML = `
+      <div class="bg-white p-6 rounded-xl text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-[#FE2C55] mx-auto mb-4"></div>
+        <p>Aplicando marco...</p>
+      </div>
+    `;
+    document.body.appendChild(loadingDiv);
+
     const profileFrame = document.getElementById('profile-frame');
     
     // Limpiar clases anteriores
-    profileFrame.className = 'absolute inset-0 rounded-full pointer-events-none z-10';
-    
-    if (frameType === 'none') {
-      profileFrame.style.display = 'none';
-    } else {
-      profileFrame.style.display = 'block';
-      profileFrame.classList.add(frameType);
+    if (profileFrame) {
+      profileFrame.className = 'absolute inset-0 rounded-full pointer-events-none z-10';
+      
+      if (frameType === 'none') {
+        profileFrame.style.display = 'none';
+      } else {
+        profileFrame.style.display = 'block';
+        profileFrame.classList.add(frameType);
+      }
     }
 
     // Guardar en Firebase para que otros usuarios lo vean
     firebase.database().ref('users/' + user.uid).update({
       profileFrame: frameType
     }).then(() => {
+      // Verificar que el marco se guardó correctamente
+      return firebase.database().ref('users/' + user.uid + '/profileFrame').once('value');
+    }).then((snapshot) => {
+      loadingDiv.remove();
       closeFrameSelector();
       
-      // Mostrar notificación de éxito
+      // Mostrar notificación de éxito mejorada
       const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-[#FE2C55] text-white px-4 py-2 rounded-lg shadow-lg z-50';
-      notification.textContent = frameType === 'none' ? 'Marco removido' : 'Marco aplicado con éxito';
+      notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+      notification.innerHTML = `
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        ${frameType === 'none' ? 'Marco removido correctamente' : 'Marco aplicado - Otros usuarios podrán verlo'}
+      `;
       document.body.appendChild(notification);
       
       setTimeout(() => {
-        notification.remove();
+        notification.style.opacity = '0';
+        notification.style.transform = 'translate(-50%, -20px)';
+        notification.style.transition = 'all 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
       }, 3000);
+    }).catch((error) => {
+      loadingDiv.remove();
+      console.error('Error al aplicar marco:', error);
+      alert('Error al aplicar el marco. Por favor intenta de nuevo.');
     });
   }
 
   function loadUserFrame(userId, targetElementId) {
-    firebase.database().ref('users/' + userId + '/profileFrame').once('value').then(snapshot => {
+    firebase.database().ref('users/' + userId + '/profileFrame').on('value', snapshot => {
       const frameType = snapshot.val();
       const profileFrame = document.getElementById(targetElementId);
       
-      if (profileFrame && frameType && frameType !== 'none') {
+      if (profileFrame) {
+        // Limpiar todas las clases de marcos anteriores
         profileFrame.className = 'absolute inset-0 rounded-full pointer-events-none z-10';
-        profileFrame.classList.add(frameType);
-        profileFrame.style.display = 'block';
-      } else if (profileFrame) {
-        profileFrame.style.display = 'none';
+        
+        if (frameType && frameType !== 'none') {
+          profileFrame.classList.add(frameType);
+          profileFrame.style.display = 'block';
+          console.log(`Marco ${frameType} aplicado para usuario ${userId}`);
+        } else {
+          profileFrame.style.display = 'none';
+        }
       }
     });
   }
@@ -5691,8 +5832,16 @@ document.getElementById('category-filter').addEventListener('change', performRea
       document.getElementById('author-following').textContent = formatFollowers(authorData.followingCount || 0);
       document.getElementById('author-rated').textContent = authorData.ratedCount || 0;
       
-      // Cargar marco del perfil del autor
+      // Cargar marco del perfil del autor en tiempo real
       loadUserFrame(authorId, 'author-profile-frame');
+      
+      // También actualizar la imagen del autor en búsquedas si existe
+      setTimeout(() => {
+        const searchResults = document.querySelectorAll(`[data-author-id="${authorId}"]`);
+        searchResults.forEach(element => {
+          loadUserFrame(authorId, element.id + '-frame');
+        });
+      }, 500);
       let socialLinksHTML = "";
       if (authorData.instagram) {
         socialLinksHTML += `<a href="${authorData.instagram}" target="_blank"><img src="https://img.utdstc.com/icon/847/f33/847f33af27bea889ccaa9b1d25135b42ff5bb590297182d0983afb7304d96884:200" alt="Instagram" class="w-6 h-6"></a>`;
