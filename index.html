@@ -1868,7 +1868,12 @@ setInterval(checkScheduledChapters, 60000);
           <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
       </button>
-      
+      <button onclick="openLiveStreamModal()" aria-label="Transmitir en vivo" class="relative w-6 h-6 text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-full h-full" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M23 7l-7 5 7 5V7z"/>
+          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+        </svg>
+      </button>
       <button onclick="openMessages()" aria-label="Mensajes" class="relative w-6 h-6 text-[#161823] hover:text-[#FE2C55] transition">
         <svg class="w-full h-full" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round" />
@@ -2216,6 +2221,9 @@ firebase.auth().onAuthStateChanged(user => {
       <button onclick="switchCommunityTab('photos'); loadPhotos();" class="flex-1 py-2 text-center text-gray-500" id="photos-tab">
         Fotos
       </button>
+      <button onclick="switchCommunityTab('add')" class="flex-1 py-2 text-center text-gray-500" id="add-tab">
+        Agregar Nota
+      </button>
     </div>
     
     <!-- Sección de Fotos -->
@@ -2230,7 +2238,37 @@ firebase.auth().onAuthStateChanged(user => {
       <!-- Las notas se cargarán aquí dinámicamente -->
     </div>
 
-    
+    <!-- Formulario para Agregar Nota -->
+    <div id="add-note-form" class="hidden">
+      <textarea id="note-content" placeholder="¿Qué quieres compartir? (máx. 200 caracteres)" maxlength="200" class="w-full p-4 border border-gray-200 rounded-xl resize-none h-32 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]"></textarea>
+<div id="char-counter" class="text-sm text-gray-500 mt-2">200 caracteres restantes</div>
+<script>
+document.getElementById('note-content').addEventListener('input', function() {
+  const remaining = 200 - this.value.length;
+  document.getElementById('char-counter').textContent = remaining + ' caracteres restantes';
+  if (remaining <= 20) {
+    document.getElementById('char-counter').classList.add('text-[#FE2C55]');
+  } else {
+    document.getElementById('char-counter').classList.remove('text-[#FE2C55]');
+  }
+});
+</script>
+      <div class="mt-4 flex items-center space-x-4">
+        <label class="flex-1 cursor-pointer bg-gray-100 p-3 rounded-xl hover:bg-gray-200 transition text-center">
+          <input type="file" id="note-image" accept="image/*" class="hidden" onchange="handleNoteImagePreview(event)">
+          <i class="fas fa-camera mr-2"></i>Agregar Foto
+        </label>
+        <button onclick="publishNote()" class="flex-1 bg-[#FE2C55] text-white p-3 rounded-xl font-medium">
+          Publicar Nota
+        </button>
+      </div>
+      <div id="image-preview" class="mt-4 hidden">
+        <img id="preview-img" class="max-h-40 rounded-lg mx-auto">
+        <button onclick="removeImage()" class="mt-2 text-red-500 text-sm">
+          <i class="fas fa-times mr-1"></i>Eliminar foto
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3365,173 +3403,19 @@ function saveNote() {
 
 
 
-<!-- VISTA DE CREACIÓN ESTILO FACEBOOK/SOCIAL MEDIA -->
-<div id="story-creation-view" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gray-50 text-black">
-  <div class="min-h-screen w-full">
-    <!-- Header estilo Facebook -->
-    <div class="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 shadow-sm">
-      <div class="flex items-center justify-between max-w-2xl mx-auto">
-        <button onclick="closeStoryCreation()" class="text-gray-600 hover:text-[#FE2C55] transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-900">Crear publicación</h1>
-        <button id="publish-button" onclick="publishFromCreation()" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50" disabled>
-          Publicar
-        </button>
-      </div>
-    </div>
-
-    <!-- Contenido principal estilo Facebook -->
-    <div class="max-w-2xl mx-auto p-4">
-      <!-- Sección de usuario -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-        <div class="flex items-center mb-4">
-          <img id="creation-user-avatar" src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-          <div class="flex-1">
-            <h3 id="creation-username" class="font-semibold text-gray-900">Usuario</h3>
-            <div class="flex items-center space-x-2 mt-1">
-              <!-- Selector de privacidad -->
-              <select id="privacy-selector" class="bg-gray-100 text-sm px-2 py-1 rounded-md border-0 text-gray-700">
-                <option value="public">🌍 Público</option>
-                <option value="followers">👥 Seguidores</option>
-                <option value="private">🔒 Solo yo</option>
-              </select>
-              
-              <!-- Selector de tipo -->
-              <select id="content-type-selector" class="bg-gray-100 text-sm px-2 py-1 rounded-md border-0 text-gray-700">
-                <option value="">📝 Seleccionar tipo</option>
-                <option value="historia_completa">📚 Historia completa</option>
-                <option value="note">📄 Nota rápida</option>
-                <option value="live">🔴 Transmisión en vivo</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Área de texto principal para nota -->
-        <div class="mb-4">
-          <textarea id="main-content-text" placeholder="¿Qué estás pensando? Comparte tu nota con la comunidad BeaBoo..." class="w-full p-3 border-0 resize-none text-lg placeholder-gray-500 focus:outline-none" rows="4" maxlength="200" oninput="updateCharacterCount()"></textarea>
-          <div class="flex justify-between items-center mt-2">
-            <div class="text-xs text-gray-500">
-              <span id="char-count">200</span> caracteres restantes
-            </div>
-            <div class="text-xs text-[#FE2C55] font-medium">
-              📝 Nota rápida para BeaBoo
-            </div>
-          </div>
-        </div>
-
-        <!-- Vista previa de imagen -->
-        <div id="image-preview-container" class="hidden mb-4">
-          <div class="relative">
-            <img id="preview-image" src="" alt="Vista previa" class="w-full rounded-lg max-h-96 object-cover">
-            <button onclick="removePreviewImage()" class="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Opciones específicas de BeaBoo -->
-        <div class="border border-gray-200 rounded-lg p-3">
-          <div class="text-sm text-gray-600 mb-3">Funciones de BeaBoo</div>
-          <div class="grid grid-cols-2 gap-2">
-            <!-- Foto/Video -->
-            <label for="photo-upload" class="flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-              <div class="w-8 h-8 bg-[#FE2C55] bg-opacity-20 rounded-full flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-[#FE2C55]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-              </div>
-              <span class="text-sm font-medium text-gray-700">Foto/video</span>
-              <input type="file" id="photo-upload" accept="image/*,video/*" class="hidden" onchange="handleImageUpload(event)">
-            </label>
-
-            <!-- Crear Historia Completa -->
-            <button onclick="switchToStoryMode()" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
-              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-              </div>
-              <span class="text-sm font-medium text-gray-700">Historia completa</span>
-            </button>
-
-            <!-- Transmisión en vivo -->
-            <button onclick="startLiveVideo()" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
-              <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                </svg>
-              </div>
-              <span class="text-sm font-medium text-gray-700">Transmitir en vivo</span>
-            </button>
-
-            <!-- BeaBoo AI -->
-            <button onclick="openBibeeAI()" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
-              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-              </div>
-              <span class="text-sm font-medium text-gray-700">BIbeeAI</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sección de contenido específico (se muestra según el tipo seleccionado) -->
-      <div id="specific-content" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-        <!-- Contenido específico para historias -->
-        <div id="historia-content" class="hidden">
-          <h3 class="font-semibold text-lg mb-4 text-[#FE2C55]">Detalles de tu historia</h3>
-          <div class="space-y-4">
-            <input type="text" id="story-title-field" placeholder="Título de tu historia" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
-            <select id="story-category-field" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
-              <option value="">Selecciona una categoría</option>
-              <option value="aventura">🗺️ Aventura</option>
-              <option value="romance">💕 Romance</option>
-              <option value="misterio">🔍 Misterio</option>
-              <option value="fantasia">✨ Fantasía</option>
-              <option value="terror">👻 Terror</option>
-              <option value="ciencia_ficcion">🚀 Ciencia Ficción</option>
-              <option value="drama">🎭 Drama</option>
-              <option value="comedia">😂 Comedia</option>
-            </select>
-            <textarea id="story-synopsis-field" placeholder="Escribe una breve sinopsis de tu historia..." class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FE2C55] resize-none" rows="3"></textarea>
-          </div>
-        </div>
-
-        <!-- Contenido específico para notas -->
-        <div id="note-content" class="hidden">
-          <h3 class="font-semibold text-lg mb-4 text-[#FE2C55]">Detalles de tu nota</h3>
-          <div class="space-y-4">
-            <div class="text-sm text-gray-600">
-              <span id="char-counter">280</span> caracteres restantes
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- VISTA DE CREACIÓN DE NOTA - PANTALLA COMPLETA -->
-<div id="note-creation-view" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
+<!-- VISTA DE CREACIÓN DE HISTORIAS (Paso 1) - PANTALLA COMPLETA -->
+<div id="story-creation-view" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
   <div class="min-h-screen w-full">
     <!-- Header fijo -->
     <div class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
       <div class="flex items-center justify-between max-w-4xl mx-auto">
-        <button onclick="closeNoteCreation()" class="text-[#FE2C55] font-medium flex items-center hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">
+        <button onclick="closeStoryCreation()" class="text-[#FE2C55] font-medium flex items-center hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           <span>Volver</span>
         </button>
-        <h1 class="text-xl font-bold text-[#FE2C55]">Crear Nota</h1>
+        <h1 class="text-xl font-bold text-[#FE2C55]">BeaBoo Studio</h1>
         <div class="w-20"></div> <!-- Spacer para centrar el título -->
       </div>
     </div>
@@ -3539,81 +3423,101 @@ function saveNote() {
     <!-- Contenido principal -->
     <div class="max-w-4xl mx-auto px-4 py-8">
       <div class="text-center mb-12">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4 text-black">Comparte tu nota</h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Comparte pensamientos, ideas o experiencias rápidas con la comunidad de BeaBoo.</p>
+        <h2 id="story-type-title" class="text-4xl md:text-5xl font-bold mb-4 text-black">¿Qué historia deseas contar?</h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Elige el tipo de historia que mejor se adapte a tu creatividad y comienza a escribir tu próxima obra maestra.</p>
       </div>
 
-      <form id="note-form" class="max-w-2xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-lg p-8 border-2 border-gray-200">
-          <!-- Contenido de la nota -->
-          <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">Contenido de la nota *</label>
-            <textarea id="note-content-main" placeholder="¿Qué quieres compartir? (máx. 200 caracteres)" maxlength="200" class="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FE2C55] focus:border-transparent resize-none transition-all" rows="6" required></textarea>
-            <div id="char-counter-main" class="text-sm text-gray-500 mt-2">200 caracteres restantes</div>
-          </div>
-
-          <!-- Imagen opcional -->
-          <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">Imagen (opcional)</label>
-            <label for="note-image-main" class="block w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl border-2 border-dashed border-gray-300 hover:border-[#FE2C55] transition-colors cursor-pointer group">
-              <div class="w-full h-full flex flex-col items-center justify-center p-8">
-                <div class="w-12 h-12 mb-4 bg-[#FE2C55] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Subir imagen</h3>
-                <p class="text-sm text-gray-500 text-center">Arrastra una imagen aquí o haz clic para seleccionar</p>
+      <!-- Grid de opciones de historia -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <!-- Cuento -->
+        <div onclick="selectStoryType('cuento')" class="group cursor-pointer">
+          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
               </div>
-              <input id="note-image-main" type="file" accept="image/*" class="hidden">
-            </label>
-            
-            <!-- Vista previa de imagen -->
-            <div id="image-preview-main" class="mt-4 hidden">
-              <img id="preview-img-main" class="max-h-40 rounded-lg mx-auto">
-              <button type="button" onclick="removeImageMain()" class="mt-2 text-red-500 text-sm hover:text-red-700 transition-colors">
-                <i class="fas fa-times mr-1"></i>Eliminar imagen
-              </button>
+              <h3 class="text-2xl font-bold mb-4 text-black">Cuento</h3>
+              <p class="text-gray-600 mb-6">Una historia corta y completa, perfecta para narrativas concisas e impactantes.</p>
+              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
+                <span class="font-medium mr-2">Comenzar</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Botón de publicar -->
-          <div class="text-center">
-            <button id="btn-publish-note" type="submit" class="inline-flex items-center px-12 py-4 text-lg font-semibold text-white bg-gradient-to-r from-[#FE2C55] to-[#f97f97] rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-              Publicar Nota
-            </button>
+        <!-- Historia Completa -->
+        <div onclick="selectStoryType('historia_completa')" class="group cursor-pointer">
+          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold mb-4 text-black">Historia Completa</h3>
+              <p class="text-gray-600 mb-6">Una narrativa dividida en capítulos, ideal para desarrollar tramas complejas.</p>
+              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
+                <span class="font-medium mr-2">Comenzar</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
-      </form>
 
-      <!-- Consejos -->
-      <div class="mt-12 bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] rounded-2xl p-8 text-white">
+        <!-- Novela -->
+        <div onclick="selectStoryType('novela')" class="group cursor-pointer">
+          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold mb-4 text-black">Novela</h3>
+              <p class="text-gray-600 mb-6">Una obra extensa organizada en sagas, perfecta para universos complejos.</p>
+              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
+                <span class="font-medium mr-2">Comenzar</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de consejos -->
+      <div class="mt-16 bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] rounded-2xl p-8 text-white">
         <div class="text-center">
-          <h3 class="text-2xl font-bold mb-4">💡 Consejos para una buena nota</h3>
+          <h3 class="text-2xl font-bold mb-4">💡 Consejos para empezar</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             <div class="text-center">
               <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">✨</span>
+                <span class="text-xl">📖</span>
               </div>
-              <h4 class="font-semibold mb-2">Sé auténtico</h4>
-              <p class="text-sm opacity-90">Comparte experiencias y pensamientos genuinos</p>
+              <h4 class="font-semibold mb-2">Planifica tu historia</h4>
+              <p class="text-sm opacity-90">Define personajes, escenario y conflicto principal antes de escribir</p>
             </div>
             <div class="text-center">
               <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">🎨</span>
+                <span class="text-xl">✍️</span>
               </div>
-              <h4 class="font-semibold mb-2">Usa imágenes</h4>
-              <p class="text-sm opacity-90">Las imágenes hacen tu nota más atractiva</p>
+              <h4 class="font-semibold mb-2">Escribe regularmente</h4>
+              <p class="text-sm opacity-90">Establece una rutina de escritura para mantener la creatividad fluyendo</p>
             </div>
             <div class="text-center">
               <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">💬</span>
+                <span class="text-xl">👥</span>
               </div>
-              <h4 class="font-semibold mb-2">Interactúa</h4>
-              <p class="text-sm opacity-90">Responde a los comentarios de tu comunidad</p>
+              <h4 class="font-semibold mb-2">Conecta con lectores</h4>
+              <p class="text-sm opacity-90">Comparte tu trabajo y recibe feedback de la comunidad</p>
             </div>
           </div>
         </div>
@@ -3786,7 +3690,6 @@ function saveNote() {
 <script>
   // Funciones para cambiar vistas
   function selectStoryType(type) {
-    storyTypeSelected = type;
     document.getElementById('story-creation-view').classList.add('hidden');
     document.getElementById('story-details-view').classList.remove('hidden');
   }
@@ -5389,399 +5292,35 @@ function openPhotoDetail(photo) {
   function switchCommunityTab(tab) {
     const feedTab = document.getElementById('feed-tab');
     const photosTab = document.getElementById('photos-tab');
+    const addTab = document.getElementById('add-tab');
     const notesFeed = document.getElementById('notes-feed');
     const photosFeed = document.getElementById('photos-feed');
+    const addNoteForm = document.getElementById('add-note-form');
 
     if (tab === 'feed') {
       feedTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       photosTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      addTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       notesFeed.classList.remove('hidden');
       photosFeed.classList.add('hidden');
+      addNoteForm.classList.add('hidden');
       loadNotes();
     } else if (tab === 'photos') {
       photosTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       feedTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      addTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       photosFeed.classList.remove('hidden');
       notesFeed.classList.add('hidden');
+      addNoteForm.classList.add('hidden');
       loadPhotos();
-    }
-  }
-
-  // FUNCIONES PARA LA NUEVA INTERFAZ DE CREACIÓN ESTILO FACEBOOK
-  function openStoryCreation() {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
-    
-    document.getElementById('main-app').classList.add('hidden');
-    document.getElementById('story-creation-view').classList.remove('hidden');
-    
-    // Cargar información del usuario
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-      const userData = snapshot.val();
-      if (userData) {
-        document.getElementById('creation-user-avatar').src = userData.profileImage || 'https://via.placeholder.com/40';
-        document.getElementById('creation-username').textContent = userData.username || 'Usuario';
-      }
-    });
-    
-    // Configurar eventos
-    setupCreationEvents();
-  }
-
-  function closeStoryCreation() {
-    document.getElementById('story-creation-view').classList.add('hidden');
-    document.getElementById('main-app').classList.remove('hidden');
-    resetCreationForm();
-  }
-
-  function setupCreationEvents() {
-    const mainText = document.getElementById('main-content-text');
-    const contentTypeSelector = document.getElementById('content-type-selector');
-    const publishButton = document.getElementById('publish-button');
-    
-    // Evento para el textarea principal
-    mainText.addEventListener('input', function() {
-      updatePublishButton();
-      if (contentTypeSelector.value === 'note') {
-        updateCharCounter();
-      }
-    });
-    
-    // Evento para el selector de tipo de contenido
-    contentTypeSelector.addEventListener('change', function() {
-      showSpecificContent(this.value);
-      updatePublishButton();
-    });
-  }
-
-  function showSpecificContent(type) {
-    const specificContent = document.getElementById('specific-content');
-    const historiaContent = document.getElementById('historia-content');
-    const noteContent = document.getElementById('note-content');
-    
-    // Ocultar todo primero
-    specificContent.classList.add('hidden');
-    historiaContent.classList.add('hidden');
-    noteContent.classList.add('hidden');
-    
-    if (type === 'historia_completa') {
-      specificContent.classList.remove('hidden');
-      historiaContent.classList.remove('hidden');
-    } else if (type === 'note') {
-      specificContent.classList.remove('hidden');
-      noteContent.classList.remove('hidden');
-      updateCharCounter();
-    } else if (type === 'live') {
-      openLiveStreamModal();
-      // Resetear selector
-      document.getElementById('content-type-selector').value = '';
-    }
-  }
-
-  function updateCharacterCount() {
-    const mainText = document.getElementById('main-content-text').value;
-    const charCountElement = document.getElementById('char-count');
-    const remaining = 200 - mainText.length;
-    
-    if (charCountElement) {
-      charCountElement.textContent = remaining;
-      charCountElement.parentElement.className = remaining < 20 ? 'text-xs text-red-500' : 'text-xs text-gray-500';
-    }
-    
-    updatePublishButton();
-  }
-
-  function updatePublishButton() {
-    const mainText = document.getElementById('main-content-text').value.trim();
-    const publishButton = document.getElementById('publish-button');
-    
-    // Para notas de BeaBoo: debe tener contenido y no exceder 200 caracteres
-    const canPublish = mainText.length > 0 && mainText.length <= 200;
-    
-    publishButton.disabled = !canPublish;
-    
-    if (canPublish) {
-      publishButton.textContent = 'Publicar Nota';
-      publishButton.className = 'bg-[#FE2C55] text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors';
     } else {
-      publishButton.textContent = mainText.length > 200 ? 'Muy largo' : 'Escribe algo';
-      publishButton.className = 'bg-gray-300 text-gray-500 px-4 py-2 rounded-lg font-medium cursor-not-allowed';
+      addTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      feedTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      photosTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      notesFeed.classList.add('hidden');
+      photosFeed.classList.add('hidden');
+      addNoteForm.classList.remove('hidden');
     }
-  }
-
-  function switchToStoryMode() {
-    // Cambiar al modo de historia completa
-    document.getElementById('content-type-selector').value = 'historia_completa';
-    showSpecificContent('historia_completa');
-  }
-
-  function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const previewContainer = document.getElementById('image-preview-container');
-      const previewImage = document.getElementById('preview-image');
-      
-      previewImage.src = e.target.result;
-      previewContainer.classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function removePreviewImage() {
-    document.getElementById('image-preview-container').classList.add('hidden');
-    document.getElementById('photo-upload').value = '';
-  }
-
-  function publishFromCreation() {
-    const mainText = document.getElementById('main-content-text').value.trim();
-    const privacy = document.getElementById('privacy-selector').value;
-    
-    // Por defecto es una nota de BeaBoo
-    publishNoteFromCreation(mainText, privacy);
-  }
-
-  function publishNoteFromCreation(content, privacy) {
-    const user = firebase.auth().currentUser;
-    if (!user || !content) return;
-    
-    // Mostrar indicador de carga
-    const publishButton = document.getElementById('publish-button');
-    publishButton.disabled = true;
-    publishButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Publicando...';
-    
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-      const userData = snapshot.val();
-      const imagePreview = document.getElementById('preview-image');
-      
-      const note = {
-        content: content,
-        authorId: user.uid,
-        authorName: userData.username || 'Usuario',
-        authorImage: userData.profileImage || 'https://via.placeholder.com/150',
-        timestamp: Date.now(),
-        likes: 0,
-        privacy: privacy
-      };
-      
-      if (!document.getElementById('image-preview-container').classList.contains('hidden')) {
-        note.imageUrl = imagePreview.src;
-      }
-      
-      firebase.database().ref('communityNotes').push(note).then(() => {
-        earnCoinsForCommunityNote(user.uid);
-        alert('¡Nota publicada con éxito!');
-        closeStoryCreation();
-        resetCreationForm();
-      }).catch(error => {
-        console.error('Error al publicar:', error);
-        alert('Error al publicar la nota');
-      }).finally(() => {
-        publishButton.disabled = false;
-        publishButton.textContent = 'Publicar';
-      });
-    });
-  }
-
-  function publishStoryFromCreation(content, privacy) {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
-    
-    const title = document.getElementById('story-title-field').value.trim();
-    const category = document.getElementById('story-category-field').value;
-    const synopsis = document.getElementById('story-synopsis-field').value.trim();
-    
-    if (!title || !category) {
-      alert('Por favor completa el título y la categoría de tu historia');
-      return;
-    }
-    
-    // Mostrar spinner
-    const spinner = document.getElementById('story-upload-spinner');
-    spinner.style.display = "flex";
-    
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-      const userData = snapshot.val();
-      const imagePreview = document.getElementById('preview-image');
-      
-      const storyData = {
-        title: title,
-        category: category,
-        synopsis: synopsis || content,
-        userId: user.uid,
-        username: userData.username || 'Usuario',
-        email: userData.email || '',
-        createdAt: Date.now(),
-        views: 0,
-        privacy: privacy,
-        ratingValue: 0,
-        ratingCount: 0
-      };
-      
-      if (!document.getElementById('image-preview-container').classList.contains('hidden')) {
-        storyData.coverImage = imagePreview.src;
-      }
-      
-      firebase.database().ref('stories').push(storyData).then(() => {
-        spinner.style.display = "none";
-        alert('¡Historia creada con éxito!');
-        closeStoryCreation();
-        resetCreationForm();
-      }).catch(error => {
-        spinner.style.display = "none";
-        console.error('Error al crear historia:', error);
-        alert('Error al crear la historia');
-      });
-    });
-  }
-
-  function resetCreationForm() {
-    document.getElementById('main-content-text').value = '';
-    document.getElementById('content-type-selector').value = '';
-    document.getElementById('privacy-selector').value = 'public';
-    document.getElementById('specific-content').classList.add('hidden');
-    document.getElementById('image-preview-container').classList.add('hidden');
-    document.getElementById('photo-upload').value = '';
-    
-    // Resetear campos específicos
-    const titleField = document.getElementById('story-title-field');
-    const categoryField = document.getElementById('story-category-field');
-    const synopsisField = document.getElementById('story-synopsis-field');
-    
-    if (titleField) titleField.value = '';
-    if (categoryField) categoryField.value = '';
-    if (synopsisField) synopsisField.value = '';
-    
-    updatePublishButton();
-  }
-
-  function startLiveVideo() {
-    openLiveStreamModal();
-  }
-
-  // FUNCIONES PARA CREACIÓN DE NOTA (mantener compatibilidad)
-  function openNoteCreation() {
-    // Usar la nueva interfaz
-    openStoryCreation();
-    // Preseleccionar tipo de nota
-    setTimeout(() => {
-      document.getElementById('content-type-selector').value = 'note';
-      showSpecificContent('note');
-    }, 100);
-  }
-
-  function closeNoteCreation() {
-    document.getElementById('note-creation-view').classList.add('hidden');
-    document.getElementById('story-creation-view').classList.remove('hidden');
-  }
-
-  function handleNoteImagePreviewMain(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('preview-img-main').src = e.target.result;
-      document.getElementById('image-preview-main').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function removeImageMain() {
-    document.getElementById('note-image-main').value = '';
-    document.getElementById('image-preview-main').classList.add('hidden');
-    document.getElementById('preview-img-main').src = '';
-  }
-
-  // Formulario de nota
-  document.addEventListener('DOMContentLoaded', function() {
-    const noteForm = document.getElementById('note-form');
-    if (noteForm) {
-      noteForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        publishNoteMain();
-      });
-    }
-  });
-
-  function publishNoteMain() {
-    const content = document.getElementById('note-content-main').value.trim();
-    const imageInput = document.getElementById('note-image-main');
-    
-    if (!content && !imageInput.files.length) {
-      alert('Por favor escribe algo o agrega una imagen');
-      return;
-    }
-
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert('Debes iniciar sesión para publicar notas');
-      return;
-    }
-
-    // Mostrar indicador de carga
-    const publishButton = document.getElementById('btn-publish-note');
-    publishButton.disabled = true;
-    publishButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Publicando...';
-
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-      const userData = snapshot.val();
-      const note = {
-        content: content,
-        authorId: user.uid,
-        authorName: userData.username || 'Usuario',
-        authorImage: userData.profileImage || 'https://via.placeholder.com/150',
-        timestamp: Date.now(),
-        likes: 0
-      };
-
-      if (imageInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          note.imageUrl = e.target.result;
-          firebase.database().ref('communityNotes').push(note).then(() => {
-            resetNoteForm();
-            publishButton.disabled = false;
-            publishButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>Publicar Nota';
-            alert('¡Nota publicada con éxito!');
-            closeNoteCreation();
-          }).catch(error => {
-            console.error('Error al publicar:', error);
-            alert('Error al publicar la nota. Por favor intenta de nuevo.');
-            publishButton.disabled = false;
-            publishButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>Publicar Nota';
-          });
-        };
-        reader.readAsDataURL(imageInput.files[0]);
-      } else {
-        firebase.database().ref('communityNotes').push(note).then(() => {
-          resetNoteForm();
-          publishButton.disabled = false;
-          publishButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>Publicar Nota';
-          
-          // GANAR MONEDAS POR PUBLICAR NOTA EN COMUNIDAD
-          earnCoinsForCommunityNote(user.uid);
-          
-          alert('¡Nota publicada con éxito!');
-          closeNoteCreation();
-        }).catch(error => {
-          console.error('Error al publicar:', error);
-          alert('Error al publicar la nota. Por favor intenta de nuevo.');
-          publishButton.disabled = false;
-          publishButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>Publicar Nota';
-        });
-      }
-    });
-  }
-
-  function resetNoteForm() {
-    document.getElementById('note-content-main').value = '';
-    document.getElementById('note-image-main').value = '';
-    document.getElementById('image-preview-main').classList.add('hidden');
-    document.getElementById('char-counter-main').textContent = '200 caracteres restantes';
-    document.getElementById('char-counter-main').classList.remove('text-[#FE2C55]');
   }
 
   function handleNoteImagePreview(event) {
