@@ -998,6 +998,14 @@ setInterval(checkScheduledChapters, 60000);
       #bottom-nav {
         background-color: rgba(255, 255, 255, 0.9);
       }
+
+      /* Hacer las imágenes de autores destacados circulares en desktop */
+      #featured-authors .story-card img {
+        border-radius: 50%;
+        width: 160px;
+        height: 160px;
+        object-fit: cover;
+      }
     }
 
     /* ----------------- NUEVA SECCIÓN: Banner ApkPure ----------------- */
@@ -5788,8 +5796,6 @@ function saveNote() {
         mainApp.classList.remove('hidden');
         loadStories();
         loadUserStories(user.uid);
-        loadSuggestedStories();
-        loadFeaturedAuthors();
         loadSuggestedStories();
         loadFeaturedAuthors();
         
