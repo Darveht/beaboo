@@ -4954,6 +4954,163 @@ function openPhotoDetail(photo) {
     });
   }
 
+  // Función para cargar estadísticas del perfil en tiempo real
+  function loadUserStats(userId) {
+    // Contador de historias publicadas
+    firebase.database().ref('stories').orderByChild('userId').equalTo(userId).on('value', storiesSnapshot => {
+      const storiesCount = storiesSnapshot.numChildren();
+      
+      // Actualizar en móvil
+      const profileStoriesTitle = document.getElementById('profile-stories-title');
+      if (profileStoriesTitle) {
+        profileStoriesTitle.textContent = `${storiesCount} Historias`;
+      }
+      
+      // Actualizar en desktop
+      const profileStoriesHeader = document.getElementById('profile-stories-header');
+      const sidebarStoriesCount = document.getElementById('sidebar-stories-count');
+      const profileStoriesCountDesktop = document.getElementById('profile-stories-count-desktop');
+      
+      if (profileStoriesHeader) {
+        profileStoriesHeader.textContent = `${storiesCount} Historias`;
+      }
+      if (sidebarStoriesCount) {
+        sidebarStoriesCount.textContent = storiesCount;
+      }
+      if (profileStoriesCountDesktop) {
+        profileStoriesCountDesktop.textContent = storiesCount;
+      }
+      
+      // Cargar las historias en el grid
+      loadUserStoriesGrid(userId, storiesSnapshot);
+    });
+
+    // Total de lecturas (vistas de todas las historias)
+    firebase.database().ref('stories').orderByChild('userId').equalTo(userId).on('value', storiesSnapshot => {
+      let totalViews = 0;
+      storiesSnapshot.forEach(storyChild => {
+        const story = storyChild.val();
+        totalViews += story.views || 0;
+      });
+      
+      const sidebarTotalViews = document.getElementById('sidebar-total-views');
+      if (sidebarTotalViews) {
+        sidebarTotalViews.textContent = totalViews;
+      }
+    });
+
+    // Seguidores en tiempo real
+    firebase.database().ref('users/' + userId + '/followersCount').on('value', snapshot => {
+      const followersCount = snapshot.val() || 0;
+      
+      // Actualizar en desktop
+      const sidebarFollowersCount = document.getElementById('sidebar-followers-count');
+      if (sidebarFollowersCount) {
+        sidebarFollowersCount.textContent = followersCount;
+      }
+    });
+  }
+
+  // Función para cargar las historias del usuario en el grid
+  function loadUserStoriesGrid(userId, storiesSnapshot) {
+    const userStoriesDesktop = document.getElementById('user-stories-desktop');
+    const userStoriesMobile = document.getElementById('user-stories');
+    
+    if (userStoriesDesktop) {
+      userStoriesDesktop.innerHTML = '';
+    }
+    if (userStoriesMobile) {
+      userStoriesMobile.innerHTML = '';
+    }
+    
+    if (!storiesSnapshot.exists()) {
+      // Mostrar mensaje cuando no hay historias
+      const noStoriesMessage = `
+        <div class="col-span-full text-center py-12">
+          <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-600 mb-2">No tienes historias aún</h3>
+          <p class="text-gray-500 mb-4">Crea tu primera historia para comenzar</p>
+          <button onclick="openStoryCreation()" class="bg-[#FE2C55] text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors">
+            Crear primera historia
+          </button>
+        </div>
+      `;
+      
+      if (userStoriesDesktop) {
+        userStoriesDesktop.innerHTML = noStoriesMessage;
+      }
+      if (userStoriesMobile) {
+        userStoriesMobile.innerHTML = noStoriesMessage;
+      }
+      return;
+    }
+
+    // Cargar historias existentes
+    storiesSnapshot.forEach(child => {
+      const story = child.val();
+      story.id = child.key;
+      
+      const storyCard = createStoryCard(story, userId);
+      
+      if (userStoriesDesktop) {
+        userStoriesDesktop.appendChild(storyCard.cloneNode(true));
+      }
+      if (userStoriesMobile) {
+        userStoriesMobile.appendChild(storyCard);
+      }
+    });
+  }
+
+  // Función para crear una tarjeta de historia
+  function createStoryCard(story, userId) {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer';
+    
+    const currentUser = firebase.auth().currentUser;
+    const isOwner = currentUser && currentUser.uid === userId;
+    
+    card.innerHTML = `
+      <div class="aspect-[3/4] relative">
+        <img src="${story.coverImage || '/api/placeholder/300/400'}" 
+             alt="${story.title}" 
+             class="w-full h-full object-cover rounded-t-xl">
+        <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+          ${story.views || 0} vistas
+        </div>
+        ${isOwner ? `
+          <div class="absolute top-2 left-2 flex space-x-1">
+            <button onclick="openStoryEdit(${JSON.stringify(story).replace(/"/g, '&quot;')})" 
+                    class="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600 transition-colors"
+                    title="Editar historia">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+          </div>
+        ` : ''}
+      </div>
+      <div class="p-4">
+        <h3 class="font-semibold text-gray-900 mb-1 line-clamp-1">${story.title}</h3>
+        <p class="text-sm text-gray-600 mb-2 line-clamp-2">${story.synopsis || 'Sin descripción'}</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            ${story.category || 'Sin categoría'}
+          </span>
+          <button onclick="openStoryDetail(${JSON.stringify(story).replace(/"/g, '&quot;')})" 
+                  class="text-[#FE2C55] text-sm font-medium hover:text-red-600 transition-colors">
+            Leer →
+          </button>
+        </div>
+      </div>
+    `;
+    
+    return card;
+  }
+
   // FUNCIONES DE COMUNIDAD
   function openCommunity() {
     document.getElementById('community-view').classList.remove('hidden');
@@ -6360,6 +6517,9 @@ function saveNote() {
       // INICIALIZAR SISTEMA DE MONEDAS de manera consistente
       updateCoinDisplay(user.uid);
       
+      // CARGAR ESTADÍSTICAS EN TIEMPO REAL
+      loadUserStats(user.uid);
+      
       firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
         const data = snapshot.val();
         if (data && data.blocked && data.blockedUntil && Date.now() < data.blockedUntil) {
@@ -6393,17 +6553,10 @@ function saveNote() {
           const usernameDesktop = document.getElementById('profile-username-desktop');
           const followersDesktop = document.getElementById('profile-followers-desktop');
           const followingDesktop = document.getElementById('profile-following-desktop');
-          const storiesCountDesktop = document.getElementById('profile-stories-count-desktop');
           
           if (usernameDesktop) usernameDesktop.innerHTML = displayName;
           if (followersDesktop) followersDesktop.textContent = formatNumber(data.followersCount || 0);
           if (followingDesktop) followingDesktop.textContent = formatNumber(data.followingCount || 0);
-          
-          // Contar historias del usuario
-          firebase.database().ref('stories').orderByChild('userId').equalTo(user.uid).once('value').then(storiesSnapshot => {
-            const storiesCount = storiesSnapshot.numChildren();
-            if (storiesCountDesktop) storiesCountDesktop.textContent = storiesCount;
-          });
           
           if (data.bio) {
             const bioElement = document.getElementById('profile-bio');
