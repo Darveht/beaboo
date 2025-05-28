@@ -2553,6 +2553,14 @@ document.getElementById('note-content').addEventListener('input', function() {
         </div>
       </div>
 
+      <!-- Botón BeaBoo Studio -->
+      <button onclick="openBeabooStudio()" class="w-full bg-[#FE2C55] text-white p-3 rounded-lg flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+        </svg>
+        BeaBoo Studio
+      </button>
+
       <!-- Historias del usuario -->
       <hr class="border-t border-gray-300 w-full my-4">
       <div class="mt-6 w-full">
@@ -2669,12 +2677,7 @@ document.getElementById('note-content').addEventListener('input', function() {
       </div>
       <button onclick="saveProfileEdits()" class="mt-6 w-full bg-[#FE2C55] text-white p-3 rounded-lg">Guardar Cambios</button>
       <button onclick="signOutUser()" class="mt-4 w-full bg-[#f9f9f9] text-black p-3 rounded-lg border border-[#FE2C55]">Cerrar Sesión</button>
-      <button onclick="openBeabooStudio()" class="mt-4 w-full bg-[#FE2C55] text-white p-3 rounded-lg flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-        </svg>
-        BeaBoo Studio
-      </button>
+      
       <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
         <p class="text-yellow-800 text-sm">
           <span class="text-lg mr-1">✨</span>
@@ -2958,12 +2961,7 @@ document.getElementById('note-content').addEventListener('input', function() {
 
           <!-- Botones adicionales -->
           <div class="w-full mt-6 space-y-3">
-            <button onclick="openBeabooStudio()" class="w-full bg-[#FE2C55] text-white p-3 rounded-lg hover:bg-[#ef2950] transition-colors flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-              </svg>
-              BeaBoo Studio
-            </button>
+            
             
             <button onclick="openSupportModal()" class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
