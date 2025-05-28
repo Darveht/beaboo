@@ -3365,121 +3365,152 @@ function saveNote() {
 
 
 
-<!-- VISTA DE CREACIÓN DE HISTORIAS (Paso 1) - PANTALLA COMPLETA -->
-<div id="story-creation-view" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
+<!-- VISTA DE CREACIÓN ESTILO FACEBOOK/SOCIAL MEDIA -->
+<div id="story-creation-view" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gray-50 text-black">
   <div class="min-h-screen w-full">
-    <!-- Header fijo -->
-    <div class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
-      <div class="flex items-center justify-between max-w-4xl mx-auto">
-        <button onclick="closeStoryCreation()" class="text-[#FE2C55] font-medium flex items-center hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    <!-- Header estilo Facebook -->
+    <div class="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 shadow-sm">
+      <div class="flex items-center justify-between max-w-2xl mx-auto">
+        <button onclick="closeStoryCreation()" class="text-gray-600 hover:text-[#FE2C55] transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
-          <span>Volver</span>
         </button>
-        <h1 class="text-xl font-bold text-[#FE2C55]">BeaBoo Studio</h1>
-        <div class="w-20"></div> <!-- Spacer para centrar el título -->
+        <h1 class="text-lg font-semibold text-gray-900">Crear publicación</h1>
+        <button id="publish-button" onclick="publishFromCreation()" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50" disabled>
+          Publicar
+        </button>
       </div>
     </div>
 
-    <!-- Contenido principal -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
-      <div class="text-center mb-12">
-        <h2 id="story-type-title" class="text-4xl md:text-5xl font-bold mb-4 text-black">¿Qué historia deseas contar?</h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Elige el tipo de historia que mejor se adapte a tu creatividad y comienza a escribir tu próxima obra maestra.</p>
+    <!-- Contenido principal estilo Facebook -->
+    <div class="max-w-2xl mx-auto p-4">
+      <!-- Sección de usuario -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
+        <div class="flex items-center mb-4">
+          <img id="creation-user-avatar" src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
+          <div class="flex-1">
+            <h3 id="creation-username" class="font-semibold text-gray-900">Usuario</h3>
+            <div class="flex items-center space-x-2 mt-1">
+              <!-- Selector de privacidad -->
+              <select id="privacy-selector" class="bg-gray-100 text-sm px-2 py-1 rounded-md border-0 text-gray-700">
+                <option value="public">🌍 Público</option>
+                <option value="followers">👥 Seguidores</option>
+                <option value="private">🔒 Solo yo</option>
+              </select>
+              
+              <!-- Selector de tipo -->
+              <select id="content-type-selector" class="bg-gray-100 text-sm px-2 py-1 rounded-md border-0 text-gray-700">
+                <option value="">📝 Seleccionar tipo</option>
+                <option value="historia_completa">📚 Historia completa</option>
+                <option value="note">📄 Nota rápida</option>
+                <option value="live">🔴 Transmisión en vivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Área de texto principal para nota -->
+        <div class="mb-4">
+          <textarea id="main-content-text" placeholder="¿Qué estás pensando? Comparte tu nota con la comunidad BeaBoo..." class="w-full p-3 border-0 resize-none text-lg placeholder-gray-500 focus:outline-none" rows="4" maxlength="200" oninput="updateCharacterCount()"></textarea>
+          <div class="flex justify-between items-center mt-2">
+            <div class="text-xs text-gray-500">
+              <span id="char-count">200</span> caracteres restantes
+            </div>
+            <div class="text-xs text-[#FE2C55] font-medium">
+              📝 Nota rápida para BeaBoo
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista previa de imagen -->
+        <div id="image-preview-container" class="hidden mb-4">
+          <div class="relative">
+            <img id="preview-image" src="" alt="Vista previa" class="w-full rounded-lg max-h-96 object-cover">
+            <button onclick="removePreviewImage()" class="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Opciones específicas de BeaBoo -->
+        <div class="border border-gray-200 rounded-lg p-3">
+          <div class="text-sm text-gray-600 mb-3">Funciones de BeaBoo</div>
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Foto/Video -->
+            <label for="photo-upload" class="flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <div class="w-8 h-8 bg-[#FE2C55] bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                <svg class="w-4 h-4 text-[#FE2C55]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-gray-700">Foto/video</span>
+              <input type="file" id="photo-upload" accept="image/*,video/*" class="hidden" onchange="handleImageUpload(event)">
+            </label>
+
+            <!-- Crear Historia Completa -->
+            <button onclick="switchToStoryMode()" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-gray-700">Historia completa</span>
+            </button>
+
+            <!-- Transmisión en vivo -->
+            <button onclick="startLiveVideo()" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-gray-700">Transmitir en vivo</span>
+            </button>
+
+            <!-- BeaBoo AI -->
+            <button onclick="openBibeeAI()" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-gray-700">BIbeeAI</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Grid de opciones simplificado para móvil -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        <!-- Historia Completa -->
-        <div onclick="selectStoryType('historia_completa')" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">Crear Historia</h3>
-              <p class="text-gray-600 mb-6">Crea tu historia con capítulos y compártela con la comunidad.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Comenzar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
+      <!-- Sección de contenido específico (se muestra según el tipo seleccionado) -->
+      <div id="specific-content" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
+        <!-- Contenido específico para historias -->
+        <div id="historia-content" class="hidden">
+          <h3 class="font-semibold text-lg mb-4 text-[#FE2C55]">Detalles de tu historia</h3>
+          <div class="space-y-4">
+            <input type="text" id="story-title-field" placeholder="Título de tu historia" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
+            <select id="story-category-field" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
+              <option value="">Selecciona una categoría</option>
+              <option value="aventura">🗺️ Aventura</option>
+              <option value="romance">💕 Romance</option>
+              <option value="misterio">🔍 Misterio</option>
+              <option value="fantasia">✨ Fantasía</option>
+              <option value="terror">👻 Terror</option>
+              <option value="ciencia_ficcion">🚀 Ciencia Ficción</option>
+              <option value="drama">🎭 Drama</option>
+              <option value="comedia">😂 Comedia</option>
+            </select>
+            <textarea id="story-synopsis-field" placeholder="Escribe una breve sinopsis de tu historia..." class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FE2C55] resize-none" rows="3"></textarea>
           </div>
         </div>
 
-        <!-- Crear Nota -->
-        <div onclick="openNoteCreation()" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">Crear Nota</h3>
-              <p class="text-gray-600 mb-6">Comparte pensamientos y experiencias rápidas con la comunidad.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Comenzar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transmisión en Vivo -->
-        <div onclick="openLiveStreamModal()" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">Transmitir en Vivo</h3>
-              <p class="text-gray-600 mb-6">Conecta con tu audiencia en tiempo real y comparte contenido en vivo.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Comenzar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sección de consejos -->
-      <div class="mt-16 bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] rounded-2xl p-8 text-white">
-        <div class="text-center">
-          <h3 class="text-2xl font-bold mb-4">💡 Consejos para empezar</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">📖</span>
-              </div>
-              <h4 class="font-semibold mb-2">Planifica tu historia</h4>
-              <p class="text-sm opacity-90">Define personajes, escenario y conflicto principal antes de escribir</p>
-            </div>
-            <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">✍️</span>
-              </div>
-              <h4 class="font-semibold mb-2">Escribe regularmente</h4>
-              <p class="text-sm opacity-90">Establece una rutina de escritura para mantener la creatividad fluyendo</p>
-            </div>
-            <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">👥</span>
-              </div>
-              <h4 class="font-semibold mb-2">Conecta con lectores</h4>
-              <p class="text-sm opacity-90">Comparte tu trabajo y recibe feedback de la comunidad</p>
+        <!-- Contenido específico para notas -->
+        <div id="note-content" class="hidden">
+          <h3 class="font-semibold text-lg mb-4 text-[#FE2C55]">Detalles de tu nota</h3>
+          <div class="space-y-4">
+            <div class="text-sm text-gray-600">
+              <span id="char-counter">280</span> caracteres restantes
             </div>
           </div>
         </div>
@@ -5376,27 +5407,269 @@ function openPhotoDetail(photo) {
     }
   }
 
-  // FUNCIONES PARA CREACIÓN DE NOTA
-  function openNoteCreation() {
-    document.getElementById('story-creation-view').classList.add('hidden');
-    document.getElementById('note-creation-view').classList.remove('hidden');
+  // FUNCIONES PARA LA NUEVA INTERFAZ DE CREACIÓN ESTILO FACEBOOK
+  function openStoryCreation() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
     
-    // Configurar contador de caracteres
-    const noteContentMain = document.getElementById('note-content-main');
-    const charCounterMain = document.getElementById('char-counter-main');
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('story-creation-view').classList.remove('hidden');
     
-    noteContentMain.addEventListener('input', function() {
-      const remaining = 200 - this.value.length;
-      charCounterMain.textContent = remaining + ' caracteres restantes';
-      if (remaining <= 20) {
-        charCounterMain.classList.add('text-[#FE2C55]');
-      } else {
-        charCounterMain.classList.remove('text-[#FE2C55]');
+    // Cargar información del usuario
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      if (userData) {
+        document.getElementById('creation-user-avatar').src = userData.profileImage || 'https://via.placeholder.com/40';
+        document.getElementById('creation-username').textContent = userData.username || 'Usuario';
       }
     });
     
-    // Configurar preview de imagen
-    document.getElementById('note-image-main').addEventListener('change', handleNoteImagePreviewMain);
+    // Configurar eventos
+    setupCreationEvents();
+  }
+
+  function closeStoryCreation() {
+    document.getElementById('story-creation-view').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    resetCreationForm();
+  }
+
+  function setupCreationEvents() {
+    const mainText = document.getElementById('main-content-text');
+    const contentTypeSelector = document.getElementById('content-type-selector');
+    const publishButton = document.getElementById('publish-button');
+    
+    // Evento para el textarea principal
+    mainText.addEventListener('input', function() {
+      updatePublishButton();
+      if (contentTypeSelector.value === 'note') {
+        updateCharCounter();
+      }
+    });
+    
+    // Evento para el selector de tipo de contenido
+    contentTypeSelector.addEventListener('change', function() {
+      showSpecificContent(this.value);
+      updatePublishButton();
+    });
+  }
+
+  function showSpecificContent(type) {
+    const specificContent = document.getElementById('specific-content');
+    const historiaContent = document.getElementById('historia-content');
+    const noteContent = document.getElementById('note-content');
+    
+    // Ocultar todo primero
+    specificContent.classList.add('hidden');
+    historiaContent.classList.add('hidden');
+    noteContent.classList.add('hidden');
+    
+    if (type === 'historia_completa') {
+      specificContent.classList.remove('hidden');
+      historiaContent.classList.remove('hidden');
+    } else if (type === 'note') {
+      specificContent.classList.remove('hidden');
+      noteContent.classList.remove('hidden');
+      updateCharCounter();
+    } else if (type === 'live') {
+      openLiveStreamModal();
+      // Resetear selector
+      document.getElementById('content-type-selector').value = '';
+    }
+  }
+
+  function updateCharacterCount() {
+    const mainText = document.getElementById('main-content-text').value;
+    const charCountElement = document.getElementById('char-count');
+    const remaining = 200 - mainText.length;
+    
+    if (charCountElement) {
+      charCountElement.textContent = remaining;
+      charCountElement.parentElement.className = remaining < 20 ? 'text-xs text-red-500' : 'text-xs text-gray-500';
+    }
+    
+    updatePublishButton();
+  }
+
+  function updatePublishButton() {
+    const mainText = document.getElementById('main-content-text').value.trim();
+    const publishButton = document.getElementById('publish-button');
+    
+    // Para notas de BeaBoo: debe tener contenido y no exceder 200 caracteres
+    const canPublish = mainText.length > 0 && mainText.length <= 200;
+    
+    publishButton.disabled = !canPublish;
+    
+    if (canPublish) {
+      publishButton.textContent = 'Publicar Nota';
+      publishButton.className = 'bg-[#FE2C55] text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors';
+    } else {
+      publishButton.textContent = mainText.length > 200 ? 'Muy largo' : 'Escribe algo';
+      publishButton.className = 'bg-gray-300 text-gray-500 px-4 py-2 rounded-lg font-medium cursor-not-allowed';
+    }
+  }
+
+  function switchToStoryMode() {
+    // Cambiar al modo de historia completa
+    document.getElementById('content-type-selector').value = 'historia_completa';
+    showSpecificContent('historia_completa');
+  }
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const previewContainer = document.getElementById('image-preview-container');
+      const previewImage = document.getElementById('preview-image');
+      
+      previewImage.src = e.target.result;
+      previewContainer.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removePreviewImage() {
+    document.getElementById('image-preview-container').classList.add('hidden');
+    document.getElementById('photo-upload').value = '';
+  }
+
+  function publishFromCreation() {
+    const mainText = document.getElementById('main-content-text').value.trim();
+    const privacy = document.getElementById('privacy-selector').value;
+    
+    // Por defecto es una nota de BeaBoo
+    publishNoteFromCreation(mainText, privacy);
+  }
+
+  function publishNoteFromCreation(content, privacy) {
+    const user = firebase.auth().currentUser;
+    if (!user || !content) return;
+    
+    // Mostrar indicador de carga
+    const publishButton = document.getElementById('publish-button');
+    publishButton.disabled = true;
+    publishButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Publicando...';
+    
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      const imagePreview = document.getElementById('preview-image');
+      
+      const note = {
+        content: content,
+        authorId: user.uid,
+        authorName: userData.username || 'Usuario',
+        authorImage: userData.profileImage || 'https://via.placeholder.com/150',
+        timestamp: Date.now(),
+        likes: 0,
+        privacy: privacy
+      };
+      
+      if (!document.getElementById('image-preview-container').classList.contains('hidden')) {
+        note.imageUrl = imagePreview.src;
+      }
+      
+      firebase.database().ref('communityNotes').push(note).then(() => {
+        earnCoinsForCommunityNote(user.uid);
+        alert('¡Nota publicada con éxito!');
+        closeStoryCreation();
+        resetCreationForm();
+      }).catch(error => {
+        console.error('Error al publicar:', error);
+        alert('Error al publicar la nota');
+      }).finally(() => {
+        publishButton.disabled = false;
+        publishButton.textContent = 'Publicar';
+      });
+    });
+  }
+
+  function publishStoryFromCreation(content, privacy) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    
+    const title = document.getElementById('story-title-field').value.trim();
+    const category = document.getElementById('story-category-field').value;
+    const synopsis = document.getElementById('story-synopsis-field').value.trim();
+    
+    if (!title || !category) {
+      alert('Por favor completa el título y la categoría de tu historia');
+      return;
+    }
+    
+    // Mostrar spinner
+    const spinner = document.getElementById('story-upload-spinner');
+    spinner.style.display = "flex";
+    
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      const imagePreview = document.getElementById('preview-image');
+      
+      const storyData = {
+        title: title,
+        category: category,
+        synopsis: synopsis || content,
+        userId: user.uid,
+        username: userData.username || 'Usuario',
+        email: userData.email || '',
+        createdAt: Date.now(),
+        views: 0,
+        privacy: privacy,
+        ratingValue: 0,
+        ratingCount: 0
+      };
+      
+      if (!document.getElementById('image-preview-container').classList.contains('hidden')) {
+        storyData.coverImage = imagePreview.src;
+      }
+      
+      firebase.database().ref('stories').push(storyData).then(() => {
+        spinner.style.display = "none";
+        alert('¡Historia creada con éxito!');
+        closeStoryCreation();
+        resetCreationForm();
+      }).catch(error => {
+        spinner.style.display = "none";
+        console.error('Error al crear historia:', error);
+        alert('Error al crear la historia');
+      });
+    });
+  }
+
+  function resetCreationForm() {
+    document.getElementById('main-content-text').value = '';
+    document.getElementById('content-type-selector').value = '';
+    document.getElementById('privacy-selector').value = 'public';
+    document.getElementById('specific-content').classList.add('hidden');
+    document.getElementById('image-preview-container').classList.add('hidden');
+    document.getElementById('photo-upload').value = '';
+    
+    // Resetear campos específicos
+    const titleField = document.getElementById('story-title-field');
+    const categoryField = document.getElementById('story-category-field');
+    const synopsisField = document.getElementById('story-synopsis-field');
+    
+    if (titleField) titleField.value = '';
+    if (categoryField) categoryField.value = '';
+    if (synopsisField) synopsisField.value = '';
+    
+    updatePublishButton();
+  }
+
+  function startLiveVideo() {
+    openLiveStreamModal();
+  }
+
+  // FUNCIONES PARA CREACIÓN DE NOTA (mantener compatibilidad)
+  function openNoteCreation() {
+    // Usar la nueva interfaz
+    openStoryCreation();
+    // Preseleccionar tipo de nota
+    setTimeout(() => {
+      document.getElementById('content-type-selector').value = 'note';
+      showSpecificContent('note');
+    }, 100);
   }
 
   function closeNoteCreation() {
