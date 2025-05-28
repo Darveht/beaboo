@@ -2007,6 +2007,139 @@ firebase.auth().onAuthStateChanged(user => {
 }
 
 #stories-carousel::-webkit-scrollbar {
+
+<!-- PANEL DE CREACIÓN MÓVIL ESTILO FACEBOOK -->
+<div id="create-panel-mobile" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl transform transition-transform duration-300 translate-y-full" id="create-panel-content">
+    <!-- Header del panel -->
+    <div class="flex justify-between items-center p-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-[#161823]">Crear</h2>
+      <button onclick="closeCreatePanel()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Foto y nombre del usuario -->
+    <div class="flex items-center p-4 border-b border-gray-100">
+      <img id="create-panel-user-image" src="https://via.placeholder.com/50" alt="Usuario" class="w-12 h-12 rounded-full object-cover mr-3">
+      <div>
+        <h3 id="create-panel-username" class="font-semibold text-[#161823]">Usuario</h3>
+        <p class="text-sm text-gray-500">¿Qué quieres compartir?</p>
+      </div>
+    </div>
+
+    <!-- Opciones de creación -->
+    <div class="p-4 space-y-3">
+      <!-- Publicar Historia -->
+      <button onclick="openStoryCreation(); closeCreatePanel();" class="w-full flex items-center p-4 bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white rounded-xl hover:shadow-lg transition-all">
+        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <div class="text-left">
+          <h3 class="font-semibold">Publicar Historia</h3>
+          <p class="text-sm opacity-90">Crea una nueva historia o novela</p>
+        </div>
+        <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <!-- Transmitir en Vivo -->
+      <button onclick="openLiveStreamModal(); closeCreatePanel();" class="w-full flex items-center p-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all">
+        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div class="text-left">
+          <h3 class="font-semibold">Transmitir en Vivo</h3>
+          <p class="text-sm opacity-90">Conéctate con tus seguidores</p>
+        </div>
+        <div class="ml-auto flex items-center">
+          <div class="w-2 h-2 bg-white rounded-full animate-pulse mr-2"></div>
+          <span class="text-xs font-bold">LIVE</span>
+        </div>
+      </button>
+
+      <!-- Publicar Nota -->
+      <button onclick="openQuickNote(); closeCreatePanel();" class="w-full flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all">
+        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </div>
+        <div class="text-left">
+          <h3 class="font-semibold">Publicar Nota</h3>
+          <p class="text-sm opacity-90">Comparte una nota rápida</p>
+        </div>
+        <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE NOTA RÁPIDA -->
+<div id="quick-note-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl transform transition-transform duration-300 translate-y-full" id="quick-note-content">
+    <!-- Header -->
+    <div class="flex justify-between items-center p-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-[#161823]">Publicar Nota</h2>
+      <button onclick="closeQuickNote()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Usuario info -->
+    <div class="flex items-center p-4">
+      <img id="quick-note-user-image" src="https://via.placeholder.com/50" alt="Usuario" class="w-10 h-10 rounded-full object-cover mr-3">
+      <span id="quick-note-username" class="font-semibold text-[#161823]">Usuario</span>
+    </div>
+
+    <!-- Área de texto -->
+    <div class="px-4 pb-4">
+      <textarea id="quick-note-text" placeholder="¿Qué quieres compartir? (máx. 200 caracteres)" 
+                maxlength="200" 
+                class="w-full p-4 border border-gray-200 rounded-xl resize-none h-32 focus:outline-none focus:ring-2 focus:ring-[#FE2C55] text-lg"
+                oninput="updateQuickNoteCounter()"></textarea>
+      <div class="flex justify-between items-center mt-2">
+        <div id="quick-note-counter" class="text-sm text-gray-500">200 caracteres restantes</div>
+        <label class="cursor-pointer bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 transition text-sm">
+          <input type="file" id="quick-note-image" accept="image/*" class="hidden" onchange="handleQuickNoteImage(event)">
+          📷 Foto
+        </label>
+      </div>
+    </div>
+
+    <!-- Preview de imagen -->
+    <div id="quick-note-image-preview" class="hidden px-4">
+      <div class="relative">
+        <img id="quick-note-preview-img" class="w-full h-40 object-cover rounded-lg">
+        <button onclick="removeQuickNoteImage()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón publicar -->
+    <div class="p-4">
+      <button onclick="publishQuickNote()" 
+              class="w-full bg-[#FE2C55] text-white py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled id="quick-note-publish-btn">
+        Publicar
+      </button>
+    </div>
+  </div>
+</div>
+
+
   display: none;
 }
 </style>
@@ -2049,28 +2182,34 @@ firebase.auth().onAuthStateChanged(user => {
 
   <!-- NAVEGACIÓN INFERIOR ESTILO TIKTOK -->
   <div id="bottom-nav" class="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white transition-transform duration-300">
-    <div class="grid grid-cols-3 gap-2 p-3">
+    <div class="grid grid-cols-5 gap-2 p-3">
       <button onclick="openHome()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
         <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 2L2 8v10a1 1 0 001 1h5v-5h4v5h5a1 1 0 001-1V8l-8-6z" />
         </svg>
         <span class="text-xs">Inicio</span>
       </button>
-      <div class="flex space-x-6">
-        <button onclick="openCommunity()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-          <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+      <button onclick="openCommunity()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+          <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+        </svg>
+        <span class="text-xs">Comunidad</span>
+      </button>
+      <button onclick="openCreatePanel()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition relative">
+        <div class="w-8 h-8 bg-[#FE2C55] rounded-full flex items-center justify-center mb-1">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          <span class="text-xs">Comunidad</span>
-        </button>
-        <button onclick="openBibeeAI()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-          <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-          <span class="text-xs">BIbeeAI</span>
-        </button>
-      </div>
+        </div>
+        <span class="text-xs">Crear</span>
+      </button>
+      <button onclick="openBibeeAI()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <span class="text-xs">BIbeeAI</span>
+      </button>
       <button onclick="openProfile()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
         <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 10a4 4 0 100-8 4 4 0 000 8zM2 18a8 8 0 1116 0H2z" clip-rule="evenodd" />
@@ -2078,7 +2217,6 @@ firebase.auth().onAuthStateChanged(user => {
         <span class="text-xs">Perfil</span>
       </button>
     </div>
-    <!-- Removed create story button from bottom nav -->
   </div>
 
   <style>
@@ -2933,12 +3071,7 @@ function handleProfileImageUploadDesktop(event) {
         </svg>
         Soporte
       </button>
-      <button id="live-transmit-btn" onclick="openLiveStreamModal()" class="mt-4 w-full bg-[#FE2C55] text-white p-3 rounded-lg flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-        </svg>
-        Transmitir en vivo
-      </button>
+      
     </div>
   </div>
 
@@ -4364,6 +4497,200 @@ function toggleVoiceInput() {
             <p class="text-gray-300 text-sm">Envía regalos y sorprende al creador</p>
           </div>
           <div class="bg-white/10 p-3 rounded-lg">
+
+<!-- Funciones JavaScript para panel de creación móvil -->
+<script>
+// Funciones para el panel de creación móvil
+function openCreatePanel() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  
+  // Cargar datos del usuario
+  firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    const userData = snapshot.val() || {};
+    
+    // Actualizar imagen y nombre en el panel
+    document.getElementById('create-panel-user-image').src = userData.profileImage || 'https://via.placeholder.com/50';
+    document.getElementById('create-panel-username').textContent = userData.username || 'Usuario';
+  });
+  
+  const panel = document.getElementById('create-panel-mobile');
+  const content = document.getElementById('create-panel-content');
+  
+  panel.classList.remove('hidden');
+  setTimeout(() => {
+    content.classList.remove('translate-y-full');
+  }, 50);
+}
+
+function closeCreatePanel() {
+  const panel = document.getElementById('create-panel-mobile');
+  const content = document.getElementById('create-panel-content');
+  
+  content.classList.add('translate-y-full');
+  setTimeout(() => {
+    panel.classList.add('hidden');
+  }, 300);
+}
+
+// Funciones para nota rápida
+function openQuickNote() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  
+  // Cargar datos del usuario
+  firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    const userData = snapshot.val() || {};
+    
+    document.getElementById('quick-note-user-image').src = userData.profileImage || 'https://via.placeholder.com/50';
+    document.getElementById('quick-note-username').textContent = userData.username || 'Usuario';
+  });
+  
+  const modal = document.getElementById('quick-note-modal');
+  const content = document.getElementById('quick-note-content');
+  
+  modal.classList.remove('hidden');
+  setTimeout(() => {
+    content.classList.remove('translate-y-full');
+  }, 50);
+}
+
+function closeQuickNote() {
+  const modal = document.getElementById('quick-note-modal');
+  const content = document.getElementById('quick-note-content');
+  
+  content.classList.add('translate-y-full');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    // Limpiar formulario
+    document.getElementById('quick-note-text').value = '';
+    document.getElementById('quick-note-image').value = '';
+    document.getElementById('quick-note-image-preview').classList.add('hidden');
+    updateQuickNoteCounter();
+  }, 300);
+}
+
+function updateQuickNoteCounter() {
+  const text = document.getElementById('quick-note-text').value;
+  const remaining = 200 - text.length;
+  const counter = document.getElementById('quick-note-counter');
+  const publishBtn = document.getElementById('quick-note-publish-btn');
+  
+  counter.textContent = remaining + ' caracteres restantes';
+  
+  if (remaining <= 20) {
+    counter.classList.add('text-[#FE2C55]');
+  } else {
+    counter.classList.remove('text-[#FE2C55]');
+  }
+  
+  // Habilitar/deshabilitar botón de publicar
+  publishBtn.disabled = text.trim().length === 0;
+}
+
+function handleQuickNoteImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('quick-note-preview-img').src = e.target.result;
+    document.getElementById('quick-note-image-preview').classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeQuickNoteImage() {
+  document.getElementById('quick-note-image').value = '';
+  document.getElementById('quick-note-image-preview').classList.add('hidden');
+}
+
+function publishQuickNote() {
+  const content = document.getElementById('quick-note-text').value.trim();
+  const imageInput = document.getElementById('quick-note-image');
+  
+  if (!content) {
+    alert('Por favor escribe algo');
+    return;
+  }
+
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert('Debes iniciar sesión');
+    return;
+  }
+
+  // Mostrar loading
+  const publishBtn = document.getElementById('quick-note-publish-btn');
+  publishBtn.disabled = true;
+  publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Publicando...';
+
+  firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    const userData = snapshot.val();
+    const note = {
+      content: content,
+      authorId: user.uid,
+      authorName: userData.username || 'Usuario',
+      authorImage: userData.profileImage || 'https://via.placeholder.com/150',
+      timestamp: Date.now(),
+      likes: 0
+    };
+
+    if (imageInput.files.length > 0) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        note.imageUrl = e.target.result;
+        saveQuickNote(note, publishBtn);
+      };
+      reader.readAsDataURL(imageInput.files[0]);
+    } else {
+      saveQuickNote(note, publishBtn);
+    }
+  });
+}
+
+function saveQuickNote(note, publishBtn) {
+  firebase.database().ref('communityNotes').push(note).then(() => {
+    // Ganar monedas por publicar
+    const user = firebase.auth().currentUser;
+    earnCoinsForCommunityNote(user.uid);
+    
+    // Resetear botón
+    publishBtn.disabled = false;
+    publishBtn.innerHTML = 'Publicar';
+    
+    // Cerrar modal
+    closeQuickNote();
+    
+    // Mostrar mensaje de éxito
+    const successToast = document.createElement('div');
+    successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+    successToast.innerHTML = '✅ Nota publicada con éxito';
+    document.body.appendChild(successToast);
+    
+    setTimeout(() => {
+      successToast.style.opacity = '0';
+      setTimeout(() => successToast.remove(), 300);
+    }, 3000);
+    
+  }).catch(error => {
+    console.error('Error al publicar:', error);
+    publishBtn.disabled = false;
+    publishBtn.innerHTML = 'Publicar';
+    alert('Error al publicar la nota');
+  });
+}
+
+// Agregar eventos para el contador
+document.addEventListener('DOMContentLoaded', function() {
+  const quickNoteText = document.getElementById('quick-note-text');
+  if (quickNoteText) {
+    quickNoteText.addEventListener('input', updateQuickNoteCounter);
+  }
+});
+</script>
+
+
             <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
             <h4 class="text-white font-medium mb-1">Monetización</h4>
             <p class="text-gray-300 text-sm">Gana por tus transmisiones</p>
