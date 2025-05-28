@@ -2482,17 +2482,37 @@ document.getElementById('note-content').addEventListener('input', function() {
 <!-- PERFIL PROPIO CON SUBIDA DE FOTO EN TIEMPO REAL -->
 <div id="profile-view" class="fixed inset-0 overflow-y-auto z-40 hidden bg-white text-black scrollbar-hide">
   <div class="p-4 max-w-md mx-auto">
-    <!-- Botón Volver -->
-    <button onclick="openHome()" class="text-[#FE2C55] mb-4 font-medium flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
-      <span id="btn-volver-profile">Volver</span>
-    </button>
+    <!-- Header con botón volver y botones de acción -->
+    <div class="flex justify-between items-center mb-4">
+      <button onclick="openHome()" class="text-[#FE2C55] font-medium flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span id="btn-volver-profile">Volver</span>
+      </button>
+      
+      <!-- Botones de acción en la esquina superior derecha -->
+      <div class="flex items-center space-x-2">
+        <!-- Botón de crear historia -->
+        <button onclick="openStoryCreation()" class="text-[#FE2C55] p-2 hover:bg-gray-100 rounded-full transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </button>
+        
+        <!-- Botón de ajustes -->
+        <button onclick="openProfileEdit()" class="text-[#FE2C55] p-2 hover:bg-gray-100 rounded-full transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      </div>
+    </div>
 
     <div class="flex flex-col items-center">
-      <!-- Contenedor de imagen con marcos animados -->
-      <div class="relative">
+      <!-- Imagen de perfil centrada -->
+      <div class="relative mb-4">
         <!-- Marco animado seleccionado -->
         <div id="profile-frame" class="absolute inset-0 rounded-full pointer-events-none z-10" style="display: none;"></div>
         
@@ -2516,30 +2536,27 @@ document.getElementById('note-content').addEventListener('input', function() {
           </svg>
         </button>
       </div>
+
+      <!-- Nombre de usuario debajo de la foto -->
+      <h2 id="profile-username" class="text-xl font-semibold mb-4">@nombre_usuario</h2>
       <input type="file" id="profile-image-input" accept="image/*" class="hidden" onchange="handleProfileImageUpload(event)">
 
-      <!-- Nombre de usuario y acciones -->
-      <div class="flex items-center mt-4">
-        <h2 id="profile-username" class="text-xl font-semibold">@nombre_usuario</h2>
-        <button onclick="openProfileEdit()" class="absolute top-4 right-4 text-[#FE2C55] hover:text-[#FE2C55] transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
+      <!-- Estadísticas de seguidores y siguiendo -->
+      <div class="flex space-x-8 mb-6">
+        <div class="text-center">
+          <span id="profile-followers" class="font-bold text-[#FE2C55] text-xl">0</span>
+          <p class="text-sm text-gray-600">Seguidores</p>
+        </div>
+        <div class="text-center">
+          <span id="profile-following" class="font-bold text-[#FE2C55] text-xl">0</span>
+          <p class="text-sm text-gray-600">Siguiendo</p>
+        </div>
       </div>
 
-      <!-- Biografía -->
-      <hr class="border-t border-gray-300 w-full my-4">
-      <div class="w-full mt-2">
-        <textarea id="profile-bio" placeholder="Escribe tu biografía..." class="w-full border border-gray-300 p-3 rounded-xl bg-[#f9f9f9] text-black resize-none" rows="3"></textarea>
-        <button onclick="saveBio()" class="mt-2 bg-[#FE2C55] text-white px-4 py-2 rounded-xl font-medium w-full hover:bg-red-600 transition-all">Guardar</button>
-      </div>
-
-      <!-- Series del usuario -->
+      <!-- Historias del usuario -->
       <hr class="border-t border-gray-300 w-full my-4">
       <div class="mt-6 w-full">
-        <h3 id="profile-stories-title" class="text-lg font-bold mb-2 text-[#FE2C55]">Mis Series</h3>
+        <h3 id="profile-stories-title" class="text-lg font-bold mb-2 text-[#FE2C55]">Mis Historias</h3>
         <div id="user-stories" class="grid grid-cols-2 gap-4"></div>
       </div>
     </div>
@@ -2635,19 +2652,19 @@ document.getElementById('note-content').addEventListener('input', function() {
       <div class="mt-6 w-full flex stats-panel p-4 bg-[#f9f9f9] rounded-xl">
         <div class="flex-1 text-center">
           <p class="font-bold text-[#FE2C55]">Seguidores</p>
-          <p id="edit-followers" class="text-black">0</p>
+          <p id="edit-followers" class="text-[#FE2C55] font-bold text-lg">0</p>
         </div>
         <div class="flex-1 text-center">
           <p class="font-bold text-[#FE2C55]">Siguiendo</p>
-          <p id="edit-following" class="text-black">0</p>
+          <p id="edit-following" class="text-[#FE2C55] font-bold text-lg">0</p>
         </div>
         <div class="flex-1 text-center">
           <p class="font-bold text-[#FE2C55]">Series</p>
-          <p id="edit-stories-count" class="text-black">0</p>
+          <p id="edit-stories-count" class="text-[#FE2C55] font-bold text-lg">0</p>
         </div>
         <div class="flex-1 text-center">
           <p class="font-bold text-[#FE2C55]">VIP</p>
-          <p id="edit-coins" class="text-black">0</p>
+          <p id="edit-coins" class="text-[#FE2C55] font-bold text-lg">0</p>
         </div>
       </div>
       <button onclick="saveProfileEdits()" class="mt-6 w-full bg-[#FE2C55] text-white p-3 rounded-lg">Guardar Cambios</button>
@@ -2657,13 +2674,6 @@ document.getElementById('note-content').addEventListener('input', function() {
           <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
         </svg>
         BeaBoo Studio
-      </button>
-
-      <button onclick="openStoryCreation()" class="mt-4 w-full bg-[#FE2C55] text-white p-3 rounded-lg flex items-center justify-center">
-        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
-        </svg>
-        Crear Historia
       </button>
 
       <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
@@ -3468,18 +3478,18 @@ function toggleVoiceInput() {
         <div class="flex w-full max-w-sm justify-around mb-6 bg-[#1e2c4a] dark:bg-[#1e2c4a] rounded-lg p-4">
           <div class="text-center">
             <button onclick="openFollowersModal()" class="focus:outline-none hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-200">
-              <span id="author-followers" class="font-bold text-xl text-gray-100 dark:text-gray-100">0</span>
+              <span id="author-followers" class="font-bold text-xl text-teal-400 dark:text-teal-400">0</span>
               <p class="text-sm text-gray-400 dark:text-gray-400">Seguidores</p>
             </button>
           </div>
           <div class="text-center">
             <button onclick="openFollowingModal()" class="focus:outline-none hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-200">
-              <span id="author-following" class="font-bold text-xl text-gray-100 dark:text-gray-100">0</span>
+              <span id="author-following" class="font-bold text-xl text-teal-400 dark:text-teal-400">0</span>
               <p class="text-sm text-gray-400 dark:text-gray-400">Siguiendo</p>
             </button>
           </div>
           <div class="text-center">
-            <span id="author-rated" class="font-bold text-xl text-gray-100 dark:text-gray-100">0</span>
+            <span id="author-rated" class="font-bold text-xl text-teal-400 dark:text-teal-400">0</span>
             <p class="text-sm text-gray-400 dark:text-gray-400">Calificaciones</p>
           </div>
         </div>
@@ -5411,6 +5421,19 @@ function saveNote() {
     }, 3000);
   }
 
+  function formatNumber(num) {
+    if (num >= 1000000000) {
+      return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    }
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return num.toString();
+  }
+
   function updateCoinDisplay(userId) {
     firebase.database().ref('users/' + userId + '/coins').on('value', snapshot => {
       const coins = snapshot.val() || 0;
@@ -5435,6 +5458,32 @@ function saveNote() {
       
       // Actualizar contador en tiempo real en la barra superior
       updateTopBarCoins(coins);
+    });
+
+    // Actualizar contadores de seguidores y siguiendo con formato
+    firebase.database().ref('users/' + userId).on('value', snapshot => {
+      const userData = snapshot.val() || {};
+      
+      const followersElement = document.getElementById('profile-followers');
+      if (followersElement) {
+        followersElement.textContent = formatNumber(userData.followersCount || 0);
+      }
+      
+      const followingElement = document.getElementById('profile-following');
+      if (followingElement) {
+        followingElement.textContent = formatNumber(userData.followingCount || 0);
+      }
+      
+      // También actualizar en modal de edición con formato
+      const editFollowersElement = document.getElementById('edit-followers');
+      if (editFollowersElement) {
+        editFollowersElement.textContent = formatNumber(userData.followersCount || 0);
+      }
+      
+      const editFollowingElement = document.getElementById('edit-following');
+      if (editFollowingElement) {
+        editFollowingElement.textContent = formatNumber(userData.followingCount || 0);
+      }
     });
   }
 
@@ -5809,6 +5858,11 @@ function saveNote() {
           }
           displayName += getVerificationIcon(data.email);
           document.getElementById('profile-username').innerHTML = displayName;
+          
+          // Cargar datos de seguidores y siguiendo
+          document.getElementById('profile-followers').textContent = data.followersCount || 0;
+          document.getElementById('profile-following').textContent = data.followingCount || 0;
+          
           if (data.bio) {
             document.getElementById('profile-bio').value = data.bio;
           }
@@ -6322,7 +6376,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       if (newUsername !== userData.username) {
         updates.lastUsernameChange = Date.now();
       }
-    if (updates.username === "darheel_") {
+      if (updates.username === "darheel_") {
         updates.followersCount = 19000;
         updates.founder = true;
         updates.isVerified = true;
@@ -6422,8 +6476,8 @@ document.getElementById('category-filter').addEventListener('change', performRea
       authorNameHTML += getVerificationIcon(authorData.email || "");
       document.getElementById('author-profile-name').innerHTML = authorNameHTML;
       document.getElementById('author-profile-image').src = authorData.profileImage || 'https://via.placeholder.com/150';
-      document.getElementById('author-followers').textContent = formatFollowers(authorData.followersCount || 0);
-      document.getElementById('author-following').textContent = formatFollowers(authorData.followingCount || 0);
+      document.getElementById('author-followers').textContent = formatNumber(authorData.followersCount || 0);
+      document.getElementById('author-following').textContent = formatNumber(authorData.followingCount || 0);
       document.getElementById('author-rated').textContent = authorData.ratedCount || 0;
       
       // Cargar marco del perfil del autor en tiempo real
@@ -6527,7 +6581,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
     // Escuchar cambios en tiempo real del contador de seguidores
     authorFollowersRef.on('value', (snapshot) => {
       const followersCount = snapshot.val() || 0;
-      currentFollowersElement.textContent = formatFollowers(followersCount);
+      currentFollowersElement.textContent = formatNumber(followersCount);
     });
 
     followRef.once('value').then(snapshot => {
@@ -6566,15 +6620,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
     });
   }
 
-  // Función auxiliar para formatear números grandes
-  function formatFollowers(count) {
-    if (count >= 1000000) {
-      return (count / 1000000).toFixed(1) + 'M';
-    } else if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'K';
-    }
-    return count.toString();
-  }
+  
 
   function blockAuthor() {
     const currentUser = firebase.auth().currentUser;
