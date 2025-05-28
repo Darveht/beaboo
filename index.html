@@ -2049,28 +2049,28 @@ firebase.auth().onAuthStateChanged(user => {
 
   <!-- NAVEGACIÓN INFERIOR ESTILO TIKTOK -->
   <div id="bottom-nav" class="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white transition-transform duration-300">
-    <div class="grid grid-cols-4 gap-2 p-3">
+    <div class="grid grid-cols-3 gap-2 p-3">
       <button onclick="openHome()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
         <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 2L2 8v10a1 1 0 001 1h5v-5h4v5h5a1 1 0 001-1V8l-8-6z" />
         </svg>
         <span class="text-xs">Inicio</span>
       </button>
-      <button onclick="openCommunity()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-          <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-        </svg>
-        <span class="text-xs">Comunidad</span>
-      </button>
-      <button onclick="openCreateHub()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition relative">
-        <div class="bg-[#FE2C55] text-white p-2 rounded-full mb-1">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      <div class="flex space-x-6">
+        <button onclick="openCommunity()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
+          <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
           </svg>
-        </div>
-        <span class="text-xs">Crear +</span>
-      </button>
+          <span class="text-xs">Comunidad</span>
+        </button>
+        <button onclick="openBibeeAI()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
+          <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span class="text-xs">BIbeeAI</span>
+        </button>
+      </div>
       <button onclick="openProfile()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
         <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 10a4 4 0 100-8 4 4 0 000 8zM2 18a8 8 0 1116 0H2z" clip-rule="evenodd" />
@@ -2078,6 +2078,7 @@ firebase.auth().onAuthStateChanged(user => {
         <span class="text-xs">Perfil</span>
       </button>
     </div>
+    <!-- Removed create story button from bottom nav -->
   </div>
 
   <style>
@@ -2097,241 +2098,6 @@ firebase.auth().onAuthStateChanged(user => {
       } else {
         bottomNav.classList.remove("hide");
       }
-
-
-<!-- VISTA DE HUB DE CREACIÓN A PANTALLA COMPLETA -->
-<div id="create-hub-view" class="fixed inset-0 bg-gradient-to-b from-white to-[#f9f9f9] text-black overflow-y-auto hidden z-50">
-  <div class="min-h-screen w-full">
-    <!-- Header fijo -->
-    <div class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
-      <div class="flex items-center justify-between max-w-4xl mx-auto">
-        <button onclick="closeCreateHub()" class="text-[#FE2C55] font-medium flex items-center hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          <span>Volver</span>
-        </button>
-        <h1 class="text-xl font-bold text-[#FE2C55]">Crear +</h1>
-        <div class="w-20"></div> <!-- Spacer para centrar el título -->
-      </div>
-    </div>
-
-    <!-- Contenido principal -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
-      <div class="text-center mb-12">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4 text-black">¿Qué quieres crear hoy?</h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Elige entre nuestras herramientas de creación para dar vida a tus ideas.</p>
-      </div>
-
-      <!-- Grid de opciones de creación -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        
-        <!-- Crear Historia -->
-        <div onclick="openStoryCreation(); closeCreateHub();" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">Crear Historia</h3>
-              <p class="text-gray-600 mb-6">Escribe tu próxima obra maestra. Cuentos, novelas o historias completas.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Comenzar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Crear Nota de Comunidad -->
-        <div onclick="openCreateNoteModal()" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">Crear Nota</h3>
-              <p class="text-gray-600 mb-6">Comparte tus pensamientos con la comunidad. Texto, imágenes y más.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Publicar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transmitir en Vivo -->
-        <div onclick="openLiveStreamModal(); closeCreateHub();" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">Transmitir en Vivo</h3>
-              <p class="text-gray-600 mb-6">Conecta con tu audiencia en tiempo real. Stream interactivo y dinámico.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Ir en Vivo</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Crear Video (Futuro) -->
-        <div class="group cursor-pointer opacity-50">
-          <div class="bg-white rounded-2xl p-8 shadow-lg transition-all duration-300 border-2 border-gray-200">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 4h10M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-gray-500">Crear Video</h3>
-              <p class="text-gray-400 mb-6">Próximamente: Editor de video integrado para crear contenido visual.</p>
-              <div class="flex items-center justify-center text-gray-400">
-                <span class="font-medium mr-2">Próximamente</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Crear Podcast (Futuro) -->
-        <div class="group cursor-pointer opacity-50">
-          <div class="bg-white rounded-2xl p-8 shadow-lg transition-all duration-300 border-2 border-gray-200">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-gray-500">Crear Podcast</h3>
-              <p class="text-gray-400 mb-6">Próximamente: Herramientas para crear y publicar podcasts.</p>
-              <div class="flex items-center justify-center text-gray-400">
-                <span class="font-medium mr-2">Próximamente</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- BeaBoo AI Assistant -->
-        <div onclick="openBibeeAI(); closeCreateHub();" class="group cursor-pointer">
-          <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-[#FE2C55]">
-            <div class="text-center">
-              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold mb-4 text-black">BIbeeAI</h3>
-              <p class="text-gray-600 mb-6">Asistente IA para inspiración creativa y resolución de dudas.</p>
-              <div class="flex items-center justify-center text-[#FE2C55] group-hover:text-[#ef2950] transition-colors">
-                <span class="font-medium mr-2">Conversar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Sección de consejos creativos -->
-      <div class="mt-16 bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] rounded-2xl p-8 text-white">
-        <div class="text-center">
-          <h3 class="text-2xl font-bold mb-4">💡 Consejos para Creadores</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">🎯</span>
-              </div>
-              <h4 class="font-semibold mb-2">Sé Consistente</h4>
-              <p class="text-sm opacity-90">Publica contenido regularmente para mantener a tu audiencia comprometida</p>
-            </div>
-            <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">✨</span>
-              </div>
-              <h4 class="font-semibold mb-2">Sé Original</h4>
-              <p class="text-sm opacity-90">Tu voz única es lo que te diferencia. No tengas miedo de ser auténtico</p>
-            </div>
-            <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                <span class="text-xl">👥</span>
-              </div>
-              <h4 class="font-semibold mb-2">Conecta con la Comunidad</h4>
-              <p class="text-sm opacity-90">Interactúa con otros creadores y lectores para hacer crecer tu red</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL DE CREACIÓN DE NOTA DESDE HUB -->
-<div id="create-note-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-[#FE2C55]">Crear Nota</h2>
-      <button onclick="closeCreateNoteModal()" class="text-gray-500 hover:text-gray-700">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-    
-    <div class="space-y-4">
-      <div>
-        <textarea id="hub-note-content" placeholder="¿Qué quieres compartir? (máx. 200 caracteres)" maxlength="200" class="w-full p-4 border border-gray-200 rounded-xl resize-none h-32 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]"></textarea>
-        <div id="hub-char-counter" class="text-sm text-gray-500 mt-2">200 caracteres restantes</div>
-      </div>
-      
-      <div class="flex items-center space-x-4">
-        <label class="flex-1 cursor-pointer bg-gray-100 p-3 rounded-xl hover:bg-gray-200 transition text-center">
-          <input type="file" id="hub-note-image" accept="image/*" class="hidden" onchange="handleHubNoteImagePreview(event)">
-          <i class="fas fa-camera mr-2"></i>Agregar Foto
-        </label>
-      </div>
-      
-      <div id="hub-image-preview" class="hidden">
-        <img id="hub-preview-img" class="max-h-40 rounded-lg mx-auto">
-        <button onclick="removeHubImage()" class="mt-2 text-red-500 text-sm">
-          <i class="fas fa-times mr-1"></i>Eliminar foto
-        </button>
-      </div>
-      
-      <div class="flex space-x-3">
-        <button onclick="closeCreateNoteModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 transition">
-          Cancelar
-        </button>
-        <button onclick="publishNoteFromHub()" class="flex-1 bg-[#FE2C55] text-white py-3 rounded-xl hover:bg-red-600 transition">
-          Publicar Nota
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
       lastScrollTop = scrollTop;
     });
   </script>
@@ -2455,7 +2221,10 @@ firebase.auth().onAuthStateChanged(user => {
       <button onclick="switchCommunityTab('photos'); loadPhotos();" class="flex-1 py-2 text-center text-gray-500" id="photos-tab">
         Fotos
       </button>
-    </div></notes>
+      <button onclick="switchCommunityTab('add')" class="flex-1 py-2 text-center text-gray-500" id="add-tab">
+        Agregar Nota
+      </button>
+    </div>
     
     <!-- Sección de Fotos -->
     <div id="photos-feed" class="hidden">
@@ -2469,7 +2238,37 @@ firebase.auth().onAuthStateChanged(user => {
       <!-- Las notas se cargarán aquí dinámicamente -->
     </div>
 
-    
+    <!-- Formulario para Agregar Nota -->
+    <div id="add-note-form" class="hidden">
+      <textarea id="note-content" placeholder="¿Qué quieres compartir? (máx. 200 caracteres)" maxlength="200" class="w-full p-4 border border-gray-200 rounded-xl resize-none h-32 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]"></textarea>
+<div id="char-counter" class="text-sm text-gray-500 mt-2">200 caracteres restantes</div>
+<script>
+document.getElementById('note-content').addEventListener('input', function() {
+  const remaining = 200 - this.value.length;
+  document.getElementById('char-counter').textContent = remaining + ' caracteres restantes';
+  if (remaining <= 20) {
+    document.getElementById('char-counter').classList.add('text-[#FE2C55]');
+  } else {
+    document.getElementById('char-counter').classList.remove('text-[#FE2C55]');
+  }
+});
+</script>
+      <div class="mt-4 flex items-center space-x-4">
+        <label class="flex-1 cursor-pointer bg-gray-100 p-3 rounded-xl hover:bg-gray-200 transition text-center">
+          <input type="file" id="note-image" accept="image/*" class="hidden" onchange="handleNoteImagePreview(event)">
+          <i class="fas fa-camera mr-2"></i>Agregar Foto
+        </label>
+        <button onclick="publishNote()" class="flex-1 bg-[#FE2C55] text-white p-3 rounded-xl font-medium">
+          Publicar Nota
+        </button>
+      </div>
+      <div id="image-preview" class="mt-4 hidden">
+        <img id="preview-img" class="max-h-40 rounded-lg mx-auto">
+        <button onclick="removeImage()" class="mt-2 text-red-500 text-sm">
+          <i class="fas fa-times mr-1"></i>Eliminar foto
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4497,149 +4296,6 @@ function toggleVoiceInput() {
       if (container) {
         container.style.backgroundColor = 'black';
         container.style.display = 'flex';
-
-
-  // FUNCIONES PARA HUB DE CREACIÓN
-  function openCreateHub() {
-    document.getElementById('main-app').classList.add('hidden');
-    document.getElementById('create-hub-view').classList.remove('hidden');
-  }
-
-  function closeCreateHub() {
-    document.getElementById('create-hub-view').classList.add('hidden');
-    document.getElementById('main-app').classList.remove('hidden');
-  }
-
-  function openCreateNoteModal() {
-    document.getElementById('create-note-modal').classList.remove('hidden');
-  }
-
-  function closeCreateNoteModal() {
-    document.getElementById('create-note-modal').classList.add('hidden');
-    // Limpiar campos
-    document.getElementById('hub-note-content').value = '';
-    document.getElementById('hub-note-image').value = '';
-    document.getElementById('hub-image-preview').classList.add('hidden');
-    document.getElementById('hub-char-counter').textContent = '200 caracteres restantes';
-    document.getElementById('hub-char-counter').classList.remove('text-[#FE2C55]');
-  }
-
-  function handleHubNoteImagePreview(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('hub-preview-img').src = e.target.result;
-      document.getElementById('hub-image-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function removeHubImage() {
-    document.getElementById('hub-note-image').value = '';
-    document.getElementById('hub-image-preview').classList.add('hidden');
-    document.getElementById('hub-preview-img').src = '';
-  }
-
-  function publishNoteFromHub() {
-    const content = document.getElementById('hub-note-content').value.trim();
-    const imageInput = document.getElementById('hub-note-image');
-    
-    if (!content && !imageInput.files.length) {
-      alert('Por favor escribe algo o agrega una imagen');
-      return;
-    }
-
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert('Debes iniciar sesión para publicar notas');
-      return;
-    }
-
-    // Mostrar indicador de carga
-    const publishButton = document.querySelector('button[onclick="publishNoteFromHub()"]');
-    publishButton.disabled = true;
-    publishButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
-
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-      const userData = snapshot.val();
-      const note = {
-        content: content,
-        authorId: user.uid,
-        authorName: userData.username || 'Usuario',
-        authorImage: userData.profileImage || 'https://via.placeholder.com/150',
-        timestamp: Date.now(),
-        likes: 0
-      };
-
-      if (imageInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          note.imageUrl = e.target.result;
-          firebase.database().ref('communityNotes').push(note).then(() => {
-            closeCreateNoteModal();
-            publishButton.disabled = false;
-            publishButton.innerHTML = 'Publicar Nota';
-            
-            // GANAR MONEDAS POR PUBLICAR NOTA EN COMUNIDAD
-            earnCoinsForCommunityNote(user.uid);
-            
-            alert('¡Nota publicada con éxito!');
-            
-            // Opcionalmente abrir la comunidad para ver la nota
-            openCommunity();
-            closeCreateHub();
-          }).catch(error => {
-            console.error('Error al publicar:', error);
-            alert('Error al publicar la nota. Por favor intenta de nuevo.');
-            publishButton.disabled = false;
-            publishButton.innerHTML = 'Publicar Nota';
-          });
-        };
-        reader.readAsDataURL(imageInput.files[0]);
-      } else {
-        firebase.database().ref('communityNotes').push(note).then(() => {
-          closeCreateNoteModal();
-          publishButton.disabled = false;
-          publishButton.innerHTML = 'Publicar Nota';
-          
-          // GANAR MONEDAS POR PUBLICAR NOTA EN COMUNIDAD
-          earnCoinsForCommunityNote(user.uid);
-          
-          alert('¡Nota publicada con éxito!');
-          
-          // Opcionalmente abrir la comunidad para ver la nota
-          openCommunity();
-          closeCreateHub();
-        }).catch(error => {
-          console.error('Error al publicar:', error);
-          alert('Error al publicar la nota. Por favor intenta de nuevo.');
-          publishButton.disabled = false;
-          publishButton.innerHTML = 'Publicar Nota';
-        });
-      }
-    });
-  }
-
-  // Contador de caracteres para nota del hub
-  document.addEventListener('DOMContentLoaded', function() {
-    const hubNoteContent = document.getElementById('hub-note-content');
-    if (hubNoteContent) {
-      hubNoteContent.addEventListener('input', function() {
-        const remaining = 200 - this.value.length;
-        const counter = document.getElementById('hub-char-counter');
-        counter.textContent = remaining + ' caracteres restantes';
-        if (remaining <= 20) {
-          counter.classList.add('text-[#FE2C55]');
-        } else {
-          counter.classList.remove('text-[#FE2C55]');
-        }
-      });
-    }
-  });
-
-
         container.style.justifyContent = 'center';
         container.style.alignItems = 'center';
       }
@@ -5636,21 +5292,34 @@ function openPhotoDetail(photo) {
   function switchCommunityTab(tab) {
     const feedTab = document.getElementById('feed-tab');
     const photosTab = document.getElementById('photos-tab');
+    const addTab = document.getElementById('add-tab');
     const notesFeed = document.getElementById('notes-feed');
     const photosFeed = document.getElementById('photos-feed');
+    const addNoteForm = document.getElementById('add-note-form');
 
     if (tab === 'feed') {
       feedTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       photosTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      addTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       notesFeed.classList.remove('hidden');
       photosFeed.classList.add('hidden');
+      addNoteForm.classList.add('hidden');
       loadNotes();
     } else if (tab === 'photos') {
       photosTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       feedTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      addTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
       photosFeed.classList.remove('hidden');
       notesFeed.classList.add('hidden');
+      addNoteForm.classList.add('hidden');
       loadPhotos();
+    } else {
+      addTab.classList.add('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      feedTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      photosTab.classList.remove('text-[#FE2C55]', 'border-b-2', 'border-[#FE2C55]');
+      notesFeed.classList.add('hidden');
+      photosFeed.classList.add('hidden');
+      addNoteForm.classList.remove('hidden');
     }
   }
 
