@@ -4205,10 +4205,13 @@ function openPhotoDetail(photo) {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
-    // Actualizar display de monedas
-    firebase.database().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
+    // Actualizar display de monedas - usar listener en tiempo real
+    firebase.database().ref('users/' + user.uid + '/coins').on('value', snapshot => {
       const coins = snapshot.val() || 0;
-      document.getElementById('frame-selector-coins').textContent = coins;
+      const frameCoinsElement = document.getElementById('frame-selector-coins');
+      if (frameCoinsElement) {
+        frameCoinsElement.textContent = coins;
+      }
     });
 
     document.getElementById('frame-selector-modal').classList.remove('hidden');
@@ -4216,6 +4219,14 @@ function openPhotoDetail(photo) {
 
   function closeFrameSelector() {
     document.getElementById('frame-selector-modal').classList.add('hidden');
+    
+    // Limpiar listener específico del selector de marcos
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('users/' + user.uid + '/coins').off();
+      // Reactivar el listener principal
+      updateCoinDisplay(user.uid);
+    }
   }
 
   function selectFrame(frameType, cost = 0) {
@@ -5422,6 +5433,12 @@ function saveNote() {
         headerCoinsElement.textContent = coins;
       }
       
+      // Actualizar en selector de marcos
+      const frameSelectorCoins = document.getElementById('frame-selector-coins');
+      if (frameSelectorCoins) {
+        frameSelectorCoins.textContent = coins;
+      }
+      
       // Actualizar contador en tiempo real en la barra superior
       updateTopBarCoins(coins);
     });
@@ -5430,23 +5447,28 @@ function saveNote() {
   function updateTopBarCoins(coins) {
     let coinDisplay = document.getElementById('coin-display');
     if (!coinDisplay) {
-      // Crear el display de monedas en la barra superior
+      // Crear el display de monedas en la barra superior para todos los dispositivos
       coinDisplay = document.createElement('div');
       coinDisplay.id = 'coin-display';
-      coinDisplay.className = 'flex items-center space-x-1 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold';
+      coinDisplay.className = 'flex items-center space-x-1 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs md:text-sm font-bold';
       coinDisplay.innerHTML = `
         <span>🪙</span>
         <span id="coin-count">${coins}</span>
       `;
       
-      // Insertar en la barra superior
+      // Insertar en la barra superior (funciona tanto en móvil como escritorio)
       const topBar = document.querySelector('.flex.items-center.justify-between.px-4.py-3');
       if (topBar) {
         const rightSection = topBar.children[1];
-        rightSection.insertBefore(coinDisplay, rightSection.firstChild);
+        if (rightSection) {
+          rightSection.insertBefore(coinDisplay, rightSection.firstChild);
+        }
       }
     } else {
-      document.getElementById('coin-count').textContent = coins;
+      const coinCountElement = document.getElementById('coin-count');
+      if (coinCountElement) {
+        coinCountElement.textContent = coins;
+      }
     }
   }
 
@@ -5765,9 +5787,10 @@ function saveNote() {
       } else {
         document.getElementById('live-transmit-btn').style.display = "none";
       }
-      firebase.database().ref('users/' + user.uid + '/coins').on('value', snapshot => {
-        document.getElementById('edit-coins').textContent = snapshot.val() || 0;
-      });
+      
+      // INICIALIZAR SISTEMA DE MONEDAS de manera consistente
+      updateCoinDisplay(user.uid);
+      
       firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
         const data = snapshot.val();
         if (data && data.blocked && data.blockedUntil && Date.now() < data.blockedUntil) {
