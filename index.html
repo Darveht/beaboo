@@ -2481,7 +2481,8 @@ document.getElementById('note-content').addEventListener('input', function() {
 </script>
 <!-- PERFIL PROPIO CON SUBIDA DE FOTO EN TIEMPO REAL -->
 <div id="profile-view" class="fixed inset-0 overflow-y-auto z-40 hidden bg-white text-black scrollbar-hide">
-  <div class="p-4 max-w-md mx-auto">
+  <!-- Vista móvil -->
+  <div class="block lg:hidden p-4 max-w-md mx-auto">
     <!-- Header con botón volver y botones de acción -->
     <div class="flex justify-between items-center mb-4">
       <button onclick="openHome()" class="text-[#FE2C55] font-medium flex items-center">
@@ -2569,7 +2570,249 @@ document.getElementById('note-content').addEventListener('input', function() {
       </div>
     </div>
   </div>
+
+  <!-- Vista desktop inspirada en Inkspired -->
+  <div class="hidden lg:block relative min-h-screen">
+    <!-- Header de perfil con fondo gradiente -->
+    <div class="relative h-64 bg-gradient-to-r from-[#FE2C55] via-[#ff4757] to-[#FE2C55] overflow-hidden">
+      <!-- Patrón de fondo -->
+      <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+      
+      <!-- Botón volver y opciones -->
+      <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-10">
+        <button onclick="openHome()" class="text-white font-medium flex items-center hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-lg transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Volver
+        </button>
+        
+        <div class="flex items-center space-x-3">
+          <button onclick="openProfileEdit()" class="bg-white text-[#FE2C55] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Editar perfil
+          </button>
+          <button class="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Información de perfil centrada -->
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <div class="flex items-end space-x-6">
+          <!-- Foto de perfil con marco -->
+          <div class="relative">
+            <div id="profile-frame-desktop" class="absolute inset-0 rounded-full pointer-events-none z-10" style="display: none;"></div>
+            <label for="profile-image-input-desktop" class="relative cursor-pointer block">
+              <img id="profile-image-desktop" src="https://via.placeholder.com/120" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg hover:scale-105 transition-transform relative z-0" alt="Foto de perfil">
+              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 rounded-full transition-opacity z-20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+            </label>
+            <button onclick="openFrameSelector()" class="absolute -bottom-2 -right-2 bg-[#FE2C55] text-white rounded-full p-2 hover:bg-red-600 transition-all z-30 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </button>
+            <input type="file" id="profile-image-input-desktop" accept="image/*" class="hidden" onchange="handleProfileImageUploadDesktop(event)">
+          </div>
+
+          <!-- Información del usuario -->
+          <div class="flex-1">
+            <h1 id="profile-username-desktop" class="text-3xl font-bold text-white mb-2">@nombre_usuario</h1>
+            <p id="profile-location-desktop" class="text-white text-opacity-90 mb-4">Ubicación no especificada</p>
+            
+            <!-- Estadísticas -->
+            <div class="flex space-x-8">
+              <div class="text-center">
+                <div id="profile-followers-desktop" class="text-2xl font-bold text-white">0</div>
+                <div class="text-white text-opacity-80 text-sm">seguidores</div>
+              </div>
+              <div class="text-center">
+                <div id="profile-following-desktop" class="text-2xl font-bold text-white">0</div>
+                <div class="text-white text-opacity-80 text-sm">siguiendo</div>
+              </div>
+              <div class="text-center">
+                <div id="profile-stories-count-desktop" class="text-2xl font-bold text-white">0</div>
+                <div class="text-white text-opacity-80 text-sm">historias publicadas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="bg-gray-50 min-h-screen">
+      <!-- Navegación de tabs -->
+      <div class="bg-white border-b">
+        <div class="max-w-7xl mx-auto px-6">
+          <nav class="flex space-x-8">
+            <button class="tab-button active py-4 px-2 border-b-2 border-[#FE2C55] text-[#FE2C55] font-medium" data-tab="stories">
+              Historias
+            </button>
+            <button class="tab-button py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" data-tab="notes">
+              Notas
+            </button>
+            
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenido de tabs -->
+      <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex gap-8">
+          <!-- Contenido principal -->
+          <div class="flex-1">
+            <!-- Tab de Historias -->
+            <div id="stories-tab-content" class="tab-content">
+              <!-- Botón BeaBoo Studio destacado -->
+              <div class="bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] rounded-2xl p-6 mb-8 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-2xl font-bold mb-2">BeaBoo Studio</h3>
+                    <p class="text-white text-opacity-90">Crea y gestiona tus historias con herramientas profesionales</p>
+                  </div>
+                  <button onclick="openBeabooStudio()" class="bg-white text-[#FE2C55] px-6 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    Abrir Studio
+                  </button>
+                </div>
+              </div>
+
+              <!-- Header de historias con botón crear -->
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <h2 class="text-2xl font-bold text-gray-900">22 Historias</h2>
+                  <button class="text-[#FE2C55] hover:text-red-600 flex items-center mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Gestionar mis historias
+                  </button>
+                </div>
+                <button onclick="openStoryCreation()" class="bg-[#FE2C55] text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  Nueva historia
+                </button>
+              </div>
+
+              <!-- Grid de historias -->
+              <div id="user-stories-desktop" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- Otros tabs (ocultos por defecto) -->
+            <div id="notes-tab-content" class="tab-content hidden">
+              <h2 class="text-2xl font-bold mb-6">Notas</h2>
+              <p class="text-gray-600">Tus notas y pensamientos publicados en la comunidad</p>
+            </div>
+
+            
+          </div>
+
+          <!-- Sidebar derecho -->
+          <div class="w-80">
+            <!-- Información adicional -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border">
+              <h3 class="font-bold text-gray-900 mb-4">Actividad reciente</h3>
+              <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span class="text-sm text-gray-600">Historia publicada hace 2 días</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span class="text-sm text-gray-600">Nuevo seguidor</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span class="text-sm text-gray-600">Comentario recibido</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+// Funciones para manejar tabs en desktop
+document.addEventListener('DOMContentLoaded', function() {
+  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabName = button.getAttribute('data-tab');
+      
+      // Remover active de todos los botones
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active', 'border-[#FE2C55]', 'text-[#FE2C55]');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      // Agregar active al botón clickeado
+      button.classList.add('active', 'border-[#FE2C55]', 'text-[#FE2C55]');
+      button.classList.remove('border-transparent', 'text-gray-500');
+      
+      // Ocultar todos los contenidos
+      tabContents.forEach(content => {
+        content.classList.add('hidden');
+      });
+      
+      // Mostrar el contenido correspondiente
+      const targetContent = document.getElementById(tabName + '-tab-content');
+      if (targetContent) {
+        targetContent.classList.remove('hidden');
+        
+        // Si es el tab de notas, cargar las notas del usuario
+        if (tabName === 'notes') {
+          loadUserNotes();
+        }
+      }
+    });
+  });
+});
+
+function handleProfileImageUploadDesktop(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  
+  reader.onload = function(e) {
+    document.getElementById('profile-image-desktop').src = e.target.result;
+    // También actualizar la imagen móvil
+    document.getElementById('profile-image').src = e.target.result;
+    
+    // Guardar en Firebase
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('users/' + user.uid).update({
+        profileImage: e.target.result
+      });
+    }
+  }
+  
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+}
+</script>
 
 <!-- CSS específico para overlay de subida -->
 <style>
@@ -6135,26 +6378,46 @@ function saveNote() {
         updateCoinDisplay(user.uid);
         
         if (data) {
-          let displayName = data.username;
+          let displayName = data.username || "Usuario";
           if (data.founder) {
             displayName += ' <span class="founder-tag">Fundador</span>';
           }
           displayName += getVerificationIcon(data.email);
-          document.getElementById('profile-username').innerHTML = displayName;
           
-          // Cargar datos de seguidores y siguiendo
-          document.getElementById('profile-followers').textContent = data.followersCount || 0;
-          document.getElementById('profile-following').textContent = data.followingCount || 0;
+          // Actualizar perfil móvil
+          document.getElementById('profile-username').innerHTML = displayName;
+          document.getElementById('profile-followers').textContent = formatNumber(data.followersCount || 0);
+          document.getElementById('profile-following').textContent = formatNumber(data.followingCount || 0);
+          
+          // Actualizar perfil desktop
+          const usernameDesktop = document.getElementById('profile-username-desktop');
+          const followersDesktop = document.getElementById('profile-followers-desktop');
+          const followingDesktop = document.getElementById('profile-following-desktop');
+          const storiesCountDesktop = document.getElementById('profile-stories-count-desktop');
+          
+          if (usernameDesktop) usernameDesktop.innerHTML = displayName;
+          if (followersDesktop) followersDesktop.textContent = formatNumber(data.followersCount || 0);
+          if (followingDesktop) followingDesktop.textContent = formatNumber(data.followingCount || 0);
+          
+          // Contar historias del usuario
+          firebase.database().ref('stories').orderByChild('userId').equalTo(user.uid).once('value').then(storiesSnapshot => {
+            const storiesCount = storiesSnapshot.numChildren();
+            if (storiesCountDesktop) storiesCountDesktop.textContent = storiesCount;
+          });
           
           if (data.bio) {
-            document.getElementById('profile-bio').value = data.bio;
+            const bioElement = document.getElementById('profile-bio');
+            if (bioElement) bioElement.value = data.bio;
           }
           if (data.profileImage) {
             document.getElementById('profile-image').src = data.profileImage;
+            const profileImageDesktop = document.getElementById('profile-image-desktop');
+            if (profileImageDesktop) profileImageDesktop.src = data.profileImage;
           }
           
           // Cargar marco del perfil del usuario
           loadUserFrame(user.uid, 'profile-frame');
+          loadUserFrame(user.uid, 'profile-frame-desktop');
         }
       });
     } else {
@@ -6676,6 +6939,45 @@ document.getElementById('category-filter').addEventListener('change', performRea
     if (file) {
       reader.readAsDataURL(file);
     }
+  }
+
+  function loadUserNotes() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const notesContainer = document.getElementById('notes-tab-content');
+    
+    firebase.database().ref('communityNotes').orderByChild('authorId').equalTo(user.uid).once('value').then(snapshot => {
+      let notesHTML = '<h2 class="text-2xl font-bold mb-6">Mis Notas</h2>';
+      
+      if (snapshot.exists()) {
+        const notes = [];
+        snapshot.forEach(child => {
+          notes.push({...child.val(), id: child.key});
+        });
+        
+        notes.sort((a, b) => b.timestamp - a.timestamp);
+        
+        notesHTML += '<div class="grid grid-cols-1 gap-4">';
+        notes.forEach(note => {
+          notesHTML += `
+            <div class="bg-white p-4 rounded-xl border hover:shadow-md transition-shadow">
+              <p class="mb-3">${note.content}</p>
+              ${note.imageUrl ? `<img src="${note.imageUrl}" alt="Imagen de la nota" class="w-full rounded-lg mb-3 max-h-48 object-cover">` : ''}
+              <div class="flex items-center justify-between text-sm text-gray-500">
+                <span>${new Date(note.timestamp).toLocaleDateString()}</span>
+                <span>❤️ ${note.likes || 0}</span>
+              </div>
+            </div>
+          `;
+        });
+        notesHTML += '</div>';
+      } else {
+        notesHTML += '<p class="text-gray-600">No has publicado ninguna nota aún. Ve a la comunidad para crear tu primera nota.</p>';
+      }
+      
+      notesContainer.innerHTML = notesHTML;
+    });
   }
 
   function closeProfileEdit() {
