@@ -4448,6 +4448,9 @@ function toggleVoiceInput() {
   function openLiveStreamModal() {
     document.getElementById('live-stream-modal').classList.remove('hidden');
     
+    // Configurar listeners para invitaciones
+    setupInvitationResponseListener();
+    
     // Inicializar la cámara
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -6178,11 +6181,20 @@ function likeNote(noteId) {
   }
 
   function closeLiveStreamModal() {
+    const currentUser = firebase.auth().currentUser;
+    
     // Detener la transmisión si está activa
     const video = document.getElementById('live-localVideo');
     if (video.srcObject) {
       video.srcObject.getTracks().forEach(track => track.stop());
       video.srcObject = null;
+    }
+    
+    // Limpiar datos de Firebase
+    if (currentUser) {
+      firebase.database().ref('liveStreams/' + currentUser.uid).remove();
+      firebase.database().ref('invitations/' + currentUser.uid).remove();
+      firebase.database().ref('invitationResponses/' + currentUser.uid).remove();
     }
     
     // Resetear la interfaz
@@ -6218,11 +6230,30 @@ function likeNote(noteId) {
     }
     
     document.getElementById('creator-sync-modal').classList.remove('hidden');
+    registerCurrentUserAsLive();
     loadOnlineCreators();
+    setupInvitationListener();
   }
 
   function closeCreatorSync() {
     document.getElementById('creator-sync-modal').classList.add('hidden');
+  }
+
+  function registerCurrentUserAsLive() {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+
+    // Registrar usuario como transmitiendo en vivo
+    firebase.database().ref('liveStreams/' + currentUser.uid).set({
+      isLive: true,
+      startTime: Date.now(),
+      viewers: 0,
+      username: currentUser.displayName || 'Usuario',
+      profileImage: currentUser.photoURL || 'https://via.placeholder.com/150'
+    });
+
+    // Limpiar cuando se desconecte
+    firebase.database().ref('liveStreams/' + currentUser.uid).onDisconnect().remove();
   }
 
   function loadOnlineCreators() {
@@ -6235,97 +6266,286 @@ function likeNote(noteId) {
     // Limpiar lista actual
     onlineCreatorsList.innerHTML = '';
     
-    // Registrar al usuario actual como transmitiendo
-    const currentUserStreamRef = firebase.database().ref('liveStreams/' + currentUser.uid);
-    currentUserStreamRef.set({
-      isLive: true,
-      startTime: Date.now(),
-      viewers: 0
-    });
-    
-    // Simular algunos creadores en línea para pruebas
-    const simulatedCreators = [
-      { id: 'user1', username: 'CreadorEjemplo1', viewers: 15, profileImage: 'https://via.placeholder.com/150' },
-      { id: 'user2', username: 'CreadorEjemplo2', viewers: 8, profileImage: 'https://via.placeholder.com/150' },
-      { id: 'user3', username: 'CreadorEjemplo3', viewers: 23, profileImage: 'https://via.placeholder.com/150' }
-    ];
-
-    if (simulatedCreators.length === 0) {
-      noCreatorsMessage.classList.remove('hidden');
-      onlineCreatorsList.classList.add('hidden');
-    } else {
-      noCreatorsMessage.classList.add('hidden');
-      onlineCreatorsList.classList.remove('hidden');
+    // Cargar transmisores reales desde Firebase
+    firebase.database().ref('liveStreams').on('value', snapshot => {
+      const creators = [];
       
-      simulatedCreators.forEach(creator => {
-        const creatorElement = document.createElement('div');
-        creatorElement.className = 'creator-invitation rounded-xl p-4 mb-3';
+      snapshot.forEach(child => {
+        const streamData = child.val();
+        const streamerId = child.key;
         
-        creatorElement.innerHTML = `
-          <div class="flex items-center space-x-3 mb-3">
-            <img src="${creator.profileImage}" 
-                 alt="${creator.username}" 
-                 class="w-12 h-12 rounded-full object-cover">
-            <div class="flex-1">
-              <h3 class="text-white font-bold">${creator.username}</h3>
-              <p class="text-white/60 text-sm">${creator.viewers} espectadores</p>
-              <div class="flex items-center space-x-1 mt-1">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-green-400 text-xs">En vivo</span>
+        // No mostrar al usuario actual
+        if (streamerId !== currentUser.uid && streamData.isLive) {
+          creators.push({
+            id: streamerId,
+            username: streamData.username,
+            viewers: streamData.viewers || 0,
+            profileImage: streamData.profileImage
+          });
+        }
+      });
+
+      if (creators.length === 0) {
+        noCreatorsMessage.classList.remove('hidden');
+        onlineCreatorsList.classList.add('hidden');
+      } else {
+        noCreatorsMessage.classList.add('hidden');
+        onlineCreatorsList.classList.remove('hidden');
+        
+        creators.forEach(creator => {
+          const creatorElement = document.createElement('div');
+          creatorElement.className = 'creator-invitation rounded-xl p-4 mb-3';
+          
+          creatorElement.innerHTML = `
+            <div class="flex items-center space-x-3 mb-3">
+              <img src="${creator.profileImage}" 
+                   alt="${creator.username}" 
+                   class="w-12 h-12 rounded-full object-cover">
+              <div class="flex-1">
+                <h3 class="text-white font-bold">${creator.username}</h3>
+                <p class="text-white/60 text-sm">${creator.viewers} espectadores</p>
+                <div class="flex items-center space-x-1 mt-1">
+                  <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span class="text-green-400 text-xs">En vivo</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="inviteToCollaboration('${creator.id}')" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
-              🤝 Colaborar
-            </button>
-            <button onclick="challengeToBattle('${creator.id}')" 
-                    class="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
-              ⚔️ Batalla
-            </button>
-          </div>
-        `;
-        
-        onlineCreatorsList.appendChild(creatorElement);
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="sendCollaborationInvite('${creator.id}', '${creator.username}')" 
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                🤝 Colaborar
+              </button>
+              <button onclick="sendBattleInvite('${creator.id}', '${creator.username}')" 
+                      class="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                ⚔️ Batalla
+              </button>
+            </div>
+          `;
+          
+          onlineCreatorsList.appendChild(creatorElement);
+        });
+      }
+    });
+  }
+
+  function setupInvitationListener() {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+
+    // Escuchar invitaciones entrantes
+    firebase.database().ref('invitations/' + currentUser.uid).on('child_added', snapshot => {
+      const invitation = snapshot.val();
+      const invitationId = snapshot.key;
+      
+      showInvitationModal(invitation, invitationId);
+    });
+  }
+
+  function sendCollaborationInvite(targetUserId, targetUsername) {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+
+    const invitationData = {
+      type: 'collaboration',
+      fromUserId: currentUser.uid,
+      fromUsername: currentUser.displayName || 'Usuario',
+      fromProfileImage: currentUser.photoURL || 'https://via.placeholder.com/150',
+      timestamp: Date.now(),
+      status: 'pending'
+    };
+
+    // Enviar invitación
+    firebase.database().ref('invitations/' + targetUserId).push(invitationData)
+      .then(() => {
+        alert(`✅ Invitación de colaboración enviada a ${targetUsername}`);
+        closeCreatorSync();
+      })
+      .catch(error => {
+        console.error('Error al enviar invitación:', error);
+        alert('Error al enviar la invitación');
       });
-    }
+  }
+
+  function sendBattleInvite(targetUserId, targetUsername) {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+
+    const invitationData = {
+      type: 'battle',
+      fromUserId: currentUser.uid,
+      fromUsername: currentUser.displayName || 'Usuario',
+      fromProfileImage: currentUser.photoURL || 'https://via.placeholder.com/150',
+      timestamp: Date.now(),
+      status: 'pending'
+    };
+
+    // Enviar invitación
+    firebase.database().ref('invitations/' + targetUserId).push(invitationData)
+      .then(() => {
+        alert(`⚔️ Desafío de batalla enviado a ${targetUsername}`);
+        closeCreatorSync();
+      })
+      .catch(error => {
+        console.error('Error al enviar desafío:', error);
+        alert('Error al enviar el desafío');
+      });
+  }
+
+  function showInvitationModal(invitation, invitationId) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]';
+    modal.id = 'invitation-modal-' + invitationId;
+
+    const invitationType = invitation.type === 'collaboration' ? 'colaboración' : 'batalla';
+    const emoji = invitation.type === 'collaboration' ? '🤝' : '⚔️';
+    const color = invitation.type === 'collaboration' ? 'blue' : 'red';
+
+    modal.innerHTML = `
+      <div class="bg-white rounded-xl p-6 max-w-sm mx-4 text-center">
+        <div class="text-6xl mb-4">${emoji}</div>
+        <h3 class="text-xl font-bold mb-2">Invitación de ${invitationType}</h3>
+        <div class="flex items-center justify-center mb-4">
+          <img src="${invitation.fromProfileImage}" alt="${invitation.fromUsername}" class="w-12 h-12 rounded-full mr-3">
+          <div class="text-left">
+            <p class="font-bold">${invitation.fromUsername}</p>
+            <p class="text-sm text-gray-600">quiere hacer ${invitationType} contigo</p>
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <button onclick="respondToInvitation('${invitationId}', 'rejected')" 
+                  class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-all">
+            Rechazar
+          </button>
+          <button onclick="respondToInvitation('${invitationId}', 'accepted')" 
+                  class="flex-1 bg-${color}-500 text-white py-3 rounded-lg hover:bg-${color}-600 transition-all">
+            Aceptar
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Auto-remover después de 30 segundos
+    setTimeout(() => {
+      if (document.getElementById('invitation-modal-' + invitationId)) {
+        respondToInvitation(invitationId, 'expired');
+      }
+    }, 30000);
+  }
+
+  function respondToInvitation(invitationId, response) {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+
+    // Obtener datos de la invitación
+    firebase.database().ref('invitations/' + currentUser.uid + '/' + invitationId).once('value')
+      .then(snapshot => {
+        const invitation = snapshot.val();
+        if (!invitation) return;
+
+        // Actualizar estado de la invitación
+        firebase.database().ref('invitations/' + currentUser.uid + '/' + invitationId).update({
+          status: response,
+          respondedAt: Date.now()
+        });
+
+        // Notificar al remitente
+        firebase.database().ref('invitationResponses/' + invitation.fromUserId).push({
+          invitationId: invitationId,
+          response: response,
+          responderUserId: currentUser.uid,
+          responderUsername: currentUser.displayName || 'Usuario',
+          type: invitation.type,
+          timestamp: Date.now()
+        });
+
+        // Remover modal
+        const modal = document.getElementById('invitation-modal-' + invitationId);
+        if (modal) {
+          modal.remove();
+        }
+
+        if (response === 'accepted') {
+          if (invitation.type === 'collaboration') {
+            startCollaborationSession(invitation.fromUserId);
+          } else if (invitation.type === 'battle') {
+            startBattleSession(invitation.fromUserId);
+          }
+        }
+
+        // Limpiar invitación después de responder
+        setTimeout(() => {
+          firebase.database().ref('invitations/' + currentUser.uid + '/' + invitationId).remove();
+        }, 5000);
+      });
+  }
+
+  function startCollaborationSession(partnerId) {
+    alert('🎉 ¡Colaboración iniciada! Conectando con el otro streamer...');
+    
+    // Crear sala de colaboración
+    const collaborationId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    firebase.database().ref('collaborations/' + collaborationId).set({
+      participants: [firebase.auth().currentUser.uid, partnerId],
+      startTime: Date.now(),
+      status: 'active'
+    });
+
+    // Mostrar vista de colaboración
+    setTimeout(() => {
+      startCollaboration(partnerId);
+    }, 1000);
+  }
+
+  function startBattleSession(opponentId) {
+    alert('⚔️ ¡Batalla iniciada! Preparándose para el combate...');
+    
+    // Crear sala de batalla
+    const battleId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    firebase.database().ref('battles/' + battleId).set({
+      participants: [firebase.auth().currentUser.uid, opponentId],
+      startTime: Date.now(),
+      duration: 180, // 3 minutos
+      status: 'active',
+      scores: {}
+    });
+
+    // Mostrar vista de batalla
+    setTimeout(() => {
+      startBattle(opponentId);
+    }, 1000);
   }
 
   // Funciones de Colaboración
-  function inviteToCollaboration(creatorId) {
+  function setupInvitationResponseListener() {
     const currentUser = firebase.auth().currentUser;
-    if (!currentUser) {
-      alert('Debes iniciar sesión para enviar invitaciones');
-      return;
-    }
+    if (!currentUser) return;
 
-    // Mostrar confirmación
-    const confirmInvite = confirm('¿Quieres invitar a este creador a colaborar?');
-    if (!confirmInvite) return;
-
-    // Mostrar loading
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]';
-    loadingDiv.innerHTML = `
-      <div class="bg-white p-6 rounded-xl text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500 mx-auto mb-4"></div>
-        <p class="text-lg font-medium">Enviando invitación...</p>
-      </div>
-    `;
-    document.body.appendChild(loadingDiv);
-
-    // Simular envío de invitación
-    setTimeout(() => {
-      loadingDiv.remove();
-      alert('✅ Invitación enviada correctamente. Iniciando colaboración...');
-      closeCreatorSync();
+    // Escuchar respuestas a nuestras invitaciones
+    firebase.database().ref('invitationResponses/' + currentUser.uid).on('child_added', snapshot => {
+      const response = snapshot.val();
       
-      // Iniciar colaboración inmediatamente para demostración
+      if (response.response === 'accepted') {
+        const actionType = response.type === 'collaboration' ? 'colaboración' : 'batalla';
+        alert(`🎉 ${response.responderUsername} aceptó tu invitación de ${actionType}!`);
+        
+        if (response.type === 'collaboration') {
+          startCollaborationSession(response.responderUserId);
+        } else if (response.type === 'battle') {
+          startBattleSession(response.responderUserId);
+        }
+      } else if (response.response === 'rejected') {
+        alert(`😔 ${response.responderUsername} rechazó tu invitación`);
+      }
+
+      // Limpiar respuesta después de procesarla
       setTimeout(() => {
-        startCollaboration(creatorId);
-      }, 1000);
-    }, 2000);
+        snapshot.ref.remove();
+      }, 3000);
+    });
   }
 
   function startCollaboration(creatorId) {
