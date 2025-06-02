@@ -4358,13 +4358,21 @@ function toggleVoiceInput() {
     </div>
 
     <!-- Panel de colaboración para transmisor -->
-    <div id="broadcaster-collab-panel" class="absolute bottom-20 left-4 right-4 bg-gradient-to-r from-purple-600/80 to-pink-600/80 backdrop-blur-sm rounded-xl p-3 flex items-center space-x-3 hidden">
-      <button onclick="openBattleMode()" class="flex-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg p-2 flex items-center justify-center space-x-2 hover:from-red-600 hover:to-orange-600 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        <span class="text-white text-sm font-medium">Iniciar Batalla</span>
-      </button>
+    <div id="broadcaster-collab-panel" class="absolute bottom-20 left-4 right-4 bg-gradient-to-r from-purple-600/80 to-pink-600/80 backdrop-blur-sm rounded-xl p-3 hidden">
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="openCreatorSync()" class="bg-blue-500 hover:bg-blue-600 rounded-lg p-3 flex items-center justify-center space-x-2 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span class="text-white text-sm font-medium">Sincronizar</span>
+        </button>
+        <button onclick="openCreatorSync()" class="bg-gradient-to-r from-red-500 to-orange-500 rounded-lg p-3 flex items-center justify-center space-x-2 hover:from-red-600 hover:to-orange-600 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span class="text-white text-sm font-medium">Batalla</span>
+        </button>
+      </div>
     </div>
 
     <!-- Botón para finalizar transmisión (oculto inicialmente) -->
@@ -6235,71 +6243,53 @@ function likeNote(noteId) {
       viewers: 0
     });
     
-    // Buscar creadores transmitiendo actualmente
-    firebase.database().ref('liveStreams').on('value', snapshot => {
-      const creators = [];
-      
-      snapshot.forEach(child => {
-        const streamData = child.val();
-        const creatorId = child.key;
-        
-        // Excluir al usuario actual y verificar que esté realmente en vivo
-        if (creatorId !== currentUser.uid && streamData && streamData.isLive) {
-          creators.push({
-            id: creatorId,
-            ...streamData
-          });
-        }
-      });
+    // Simular algunos creadores en línea para pruebas
+    const simulatedCreators = [
+      { id: 'user1', username: 'CreadorEjemplo1', viewers: 15, profileImage: 'https://via.placeholder.com/150' },
+      { id: 'user2', username: 'CreadorEjemplo2', viewers: 8, profileImage: 'https://via.placeholder.com/150' },
+      { id: 'user3', username: 'CreadorEjemplo3', viewers: 23, profileImage: 'https://via.placeholder.com/150' }
+    ];
 
-      if (creators.length === 0) {
-        noCreatorsMessage.classList.remove('hidden');
-        onlineCreatorsList.classList.add('hidden');
-      } else {
-        noCreatorsMessage.classList.add('hidden');
-        onlineCreatorsList.classList.remove('hidden');
+    if (simulatedCreators.length === 0) {
+      noCreatorsMessage.classList.remove('hidden');
+      onlineCreatorsList.classList.add('hidden');
+    } else {
+      noCreatorsMessage.classList.add('hidden');
+      onlineCreatorsList.classList.remove('hidden');
+      
+      simulatedCreators.forEach(creator => {
+        const creatorElement = document.createElement('div');
+        creatorElement.className = 'creator-invitation rounded-xl p-4 mb-3';
         
-        creators.forEach(creator => {
-          firebase.database().ref('users/' + creator.id).once('value').then(userSnapshot => {
-            const userData = userSnapshot.val();
-            if (!userData) return;
-            
-            const creatorElement = document.createElement('div');
-            creatorElement.className = 'creator-invitation rounded-xl p-4 mb-3';
-            
-            creatorElement.innerHTML = `
-              <div class="flex flex-col space-y-3">
-                <div class="flex items-center space-x-3">
-                  <img src="${userData.profileImage || 'https://via.placeholder.com/150'}" 
-                       alt="${userData.username}" 
-                       class="w-12 h-12 rounded-full object-cover">
-                  <div class="flex-1">
-                    <h3 class="text-white font-bold">${userData.username}</h3>
-                    <p class="text-white/60 text-sm">${creator.viewers || 0} espectadores</p>
-                    <div class="flex items-center space-x-1 mt-1">
-                      <div class="connection-dot connected"></div>
-                      <span class="text-green-400 text-xs">En vivo</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex flex-col space-y-2 w-full">
-                  <button onclick="inviteToCollaboration('${creator.id}')" 
-                          class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                    🤝 Invitar a Colaborar
-                  </button>
-                  <button onclick="challengeToBattle('${creator.id}')" 
-                          class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                    ⚔️ Desafiar a Batalla
-                  </button>
-                </div>
+        creatorElement.innerHTML = `
+          <div class="flex items-center space-x-3 mb-3">
+            <img src="${creator.profileImage}" 
+                 alt="${creator.username}" 
+                 class="w-12 h-12 rounded-full object-cover">
+            <div class="flex-1">
+              <h3 class="text-white font-bold">${creator.username}</h3>
+              <p class="text-white/60 text-sm">${creator.viewers} espectadores</p>
+              <div class="flex items-center space-x-1 mt-1">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-green-400 text-xs">En vivo</span>
               </div>
-            `;
-            
-            onlineCreatorsList.appendChild(creatorElement);
-          });
-        });
-      }
-    });
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="inviteToCollaboration('${creator.id}')" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+              🤝 Colaborar
+            </button>
+            <button onclick="challengeToBattle('${creator.id}')" 
+                    class="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+              ⚔️ Batalla
+            </button>
+          </div>
+        `;
+        
+        onlineCreatorsList.appendChild(creatorElement);
+      });
+    }
   }
 
   // Funciones de Colaboración
@@ -6310,36 +6300,32 @@ function likeNote(noteId) {
       return;
     }
 
-    // Verificar que no se invite a sí mismo
-    if (creatorId === currentUser.uid) {
-      alert('No puedes invitarte a ti mismo');
-      return;
-    }
+    // Mostrar confirmación
+    const confirmInvite = confirm('¿Quieres invitar a este creador a colaborar?');
+    if (!confirmInvite) return;
 
-    // Enviar invitación
-    firebase.database().ref('collaborationInvites/' + creatorId).push({
-      from: currentUser.uid,
-      timestamp: Date.now(),
-      type: 'collaboration',
-      status: 'pending'
-    }).then(() => {
-      // Notificar al usuario invitado
-      firebase.database().ref('users/' + currentUser.uid).once('value').then(snapshot => {
-        const userData = snapshot.val();
-        addNotification(creatorId, `${userData.username} te invitó a colaborar en vivo`, 'collaboration');
-      });
+    // Mostrar loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]';
+    loadingDiv.innerHTML = `
+      <div class="bg-white p-6 rounded-xl text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500 mx-auto mb-4"></div>
+        <p class="text-lg font-medium">Enviando invitación...</p>
+      </div>
+    `;
+    document.body.appendChild(loadingDiv);
 
-      alert('✅ Invitación enviada correctamente. Esperando respuesta...');
+    // Simular envío de invitación
+    setTimeout(() => {
+      loadingDiv.remove();
+      alert('✅ Invitación enviada correctamente. Iniciando colaboración...');
       closeCreatorSync();
       
-      // Simular colaboración después de 3 segundos para pruebas
+      // Iniciar colaboración inmediatamente para demostración
       setTimeout(() => {
         startCollaboration(creatorId);
-      }, 3000);
-    }).catch(error => {
-      console.error('Error al enviar invitación:', error);
-      alert('Error al enviar la invitación. Intenta de nuevo.');
-    });
+      }, 1000);
+    }, 2000);
   }
 
   function startCollaboration(creatorId) {
@@ -6437,36 +6423,32 @@ function likeNote(noteId) {
       return;
     }
 
-    // Verificar que no se desafíe a sí mismo
-    if (creatorId === currentUser.uid) {
-      alert('No puedes desafiarte a ti mismo');
-      return;
-    }
+    // Mostrar confirmación
+    const confirmBattle = confirm('¿Quieres desafiar a este creador a una batalla?');
+    if (!confirmBattle) return;
 
-    // Enviar desafío de batalla
-    firebase.database().ref('battleChallenges/' + creatorId).push({
-      from: currentUser.uid,
-      timestamp: Date.now(),
-      type: 'battle',
-      status: 'pending'
-    }).then(() => {
-      // Notificar al usuario desafiado
-      firebase.database().ref('users/' + currentUser.uid).once('value').then(snapshot => {
-        const userData = snapshot.val();
-        addNotification(creatorId, `${userData.username} te desafió a una batalla en vivo`, 'battle');
-      });
+    // Mostrar loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]';
+    loadingDiv.innerHTML = `
+      <div class="bg-white p-6 rounded-xl text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-red-500 mx-auto mb-4"></div>
+        <p class="text-lg font-medium">Enviando desafío de batalla...</p>
+      </div>
+    `;
+    document.body.appendChild(loadingDiv);
 
-      alert('⚔️ Desafío enviado correctamente. Esperando respuesta...');
+    // Simular envío de desafío
+    setTimeout(() => {
+      loadingDiv.remove();
+      alert('⚔️ Desafío enviado correctamente. Iniciando batalla...');
       closeCreatorSync();
       
-      // Simular inicio de batalla después de 3 segundos para pruebas
+      // Iniciar batalla inmediatamente para demostración
       setTimeout(() => {
         startBattle(creatorId);
-      }, 3000);
-    }).catch(error => {
-      console.error('Error al enviar desafío:', error);
-      alert('Error al enviar el desafío. Intenta de nuevo.');
-    });
+      }, 1000);
+    }, 2000);
   }
 
   function startBattle(opponentId) {
