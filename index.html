@@ -4564,6 +4564,17 @@ function toggleVoiceInput() {
         </button>
         <span class="text-white text-xs mt-1 font-medium">Compartir</span>
       </div>
+
+      <!-- Botón de solicitar unirse a transmisión -->
+      <div class="side-button flex flex-col items-center">
+        <button id="join-request-btn" class="w-14 h-14 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center hover:bg-green-500/20 hover:border-green-500/50 transition-all duration-200 group" onclick="requestJoinTransmission()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white group-hover:text-green-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </button>
+        <span class="text-white text-xs mt-1 font-medium">Unirse</span>
+      </div>
       
       <!-- Botón de reportar -->
       <div class="side-button flex flex-col items-center">
@@ -4753,6 +4764,93 @@ function toggleVoiceInput() {
 
 <!-- CONTENEDOR PARA LA ANIMACIÓN DEL REGALO -->
 <div id="gift-animation"></div>
+
+<!-- MODAL DE SOLICITUD DE TRANSMISIÓN CONJUNTA PARA EL TRANSMISOR -->
+<div id="join-request-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-70 hidden flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 text-center">
+    <div class="mb-4">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">Solicitud de Transmisión Conjunta</h3>
+      <div class="flex items-center justify-center mb-4">
+        <img id="requester-avatar" src="" alt="Solicitante" class="w-12 h-12 rounded-full mr-3">
+        <div class="text-left">
+          <p class="font-semibold text-gray-800" id="requester-name">Usuario</p>
+          <p class="text-sm text-gray-600">quiere unirse a tu transmisión</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex space-x-3">
+      <button onclick="rejectJoinRequest()" class="flex-1 bg-red-500 text-white py-3 rounded-xl hover:bg-red-600 transition-colors font-medium">
+        Rechazar
+      </button>
+      <button onclick="acceptJoinRequest()" class="flex-1 bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition-colors font-medium">
+        Aceptar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- VENTANA DE TRANSMISIÓN CONJUNTA -->
+<div id="joint-transmission-window" class="fixed bottom-4 right-4 w-80 h-60 bg-black rounded-xl overflow-hidden shadow-2xl z-60 hidden">
+  <div class="relative w-full h-full">
+    <!-- Header de la ventana conjunta -->
+    <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-3 z-10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <img id="joint-user-avatar" src="" alt="Usuario conjunto" class="w-8 h-8 rounded-full">
+          <span id="joint-user-name" class="text-white font-medium text-sm">Usuario</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <!-- Botón silenciar -->
+          <button id="mute-joint-user" onclick="toggleMuteJointUser()" class="bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors" title="Silenciar/Activar audio">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M5 7l14 14M5 7V4a1 1 0 011-1h1m0 0a1 1 0 011 1v3M7 7l3-3 3 3m0 0v11M10 18h4" />
+            </svg>
+          </button>
+          <!-- Botón desconectar -->
+          <button onclick="disconnectJointUser()" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors" title="Desconectar usuario">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Video del usuario conjunto -->
+    <video id="joint-user-video" autoplay playsinline class="w-full h-full object-cover"></video>
+    
+    <!-- Indicador de audio silenciado -->
+    <div id="muted-indicator" class="absolute bottom-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+      </svg>
+      Silenciado
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN DE SOLICITUD ENVIADA -->
+<div id="request-sent-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+    </div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Solicitud Enviada</h3>
+    <p class="text-gray-600 mb-4">Tu solicitud para unirte a la transmisión ha sido enviada al creador.</p>
+    <button onclick="closeRequestSentModal()" class="bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition-colors">
+      Entendido
+    </button>
+  </div>
+</div>
 
 <!-- INPUTS ocultos para video pregrabado y audio -->
 <input type="file" id="live-video-input" accept="video/*" class="hidden" onchange="handleLiveVideoUpload(event)">
@@ -6037,6 +6135,238 @@ function likeNote(noteId) {
     document.getElementById('report-success').classList.add('hidden');
   }
 
+  // ========================= FUNCIONES DE TRANSMISIÓN CONJUNTA =========================
+  
+  let currentJoinRequest = null;
+  let isJointTransmission = false;
+  let jointUserMuted = false;
+  
+  // Función para solicitar unirse a la transmisión
+  function requestJoinTransmission() {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para solicitar unirte a una transmisión');
+      return;
+    }
+    
+    // Obtener ID del transmisor actual (esto debe estar disponible en el contexto)
+    const broadcasterId = getCurrentBroadcasterId();
+    if (!broadcasterId) {
+      alert('No se pudo identificar al transmisor');
+      return;
+    }
+    
+    // Obtener datos del usuario solicitante
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      
+      // Crear solicitud en Firebase
+      const requestData = {
+        requesterId: user.uid,
+        requesterName: userData.username || 'Usuario',
+        requesterAvatar: userData.profileImage || 'https://via.placeholder.com/150',
+        broadcasterId: broadcasterId,
+        timestamp: Date.now(),
+        status: 'pending'
+      };
+      
+      firebase.database().ref('joinRequests/' + broadcasterId).push(requestData).then(() => {
+        // Mostrar modal de confirmación al solicitante
+        document.getElementById('request-sent-modal').classList.remove('hidden');
+        
+        // Deshabilitar botón temporalmente
+        const joinBtn = document.getElementById('join-request-btn');
+        joinBtn.style.opacity = '0.5';
+        joinBtn.style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+          joinBtn.style.opacity = '1';
+          joinBtn.style.pointerEvents = 'auto';
+        }, 10000); // 10 segundos de cooldown
+      });
+    });
+  }
+  
+  // Función para obtener el ID del transmisor actual
+  function getCurrentBroadcasterId() {
+    // En un caso real, esto vendría del contexto de la transmisión
+    // Por ahora, simulamos que tenemos el ID del transmisor
+    return liveBroadcasterId || 'broadcaster_id_example';
+  }
+  
+  // Función para escuchar solicitudes de unión (para el transmisor)
+  function listenForJoinRequests() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    
+    firebase.database().ref('joinRequests/' + user.uid).on('child_added', snapshot => {
+      const request = snapshot.val();
+      if (request.status === 'pending') {
+        currentJoinRequest = { ...request, id: snapshot.key };
+        showJoinRequestModal(request);
+      }
+    });
+  }
+  
+  // Función para mostrar modal de solicitud al transmisor
+  function showJoinRequestModal(request) {
+    document.getElementById('requester-name').textContent = request.requesterName;
+    document.getElementById('requester-avatar').src = request.requesterAvatar;
+    document.getElementById('join-request-modal').classList.remove('hidden');
+    
+    // Reproducir sonido de notificación
+    playNotificationSound();
+  }
+  
+  // Función para aceptar solicitud de unión
+  function acceptJoinRequest() {
+    if (!currentJoinRequest) return;
+    
+    const user = firebase.auth().currentUser;
+    
+    // Actualizar estado de la solicitud
+    firebase.database().ref('joinRequests/' + user.uid + '/' + currentJoinRequest.id).update({
+      status: 'accepted',
+      acceptedAt: Date.now()
+    });
+    
+    // Iniciar transmisión conjunta
+    startJointTransmission(currentJoinRequest);
+    
+    // Cerrar modal
+    document.getElementById('join-request-modal').classList.add('hidden');
+    currentJoinRequest = null;
+  }
+  
+  // Función para rechazar solicitud de unión
+  function rejectJoinRequest() {
+    if (!currentJoinRequest) return;
+    
+    const user = firebase.auth().currentUser;
+    
+    // Actualizar estado de la solicitud
+    firebase.database().ref('joinRequests/' + user.uid + '/' + currentJoinRequest.id).update({
+      status: 'rejected',
+      rejectedAt: Date.now()
+    });
+    
+    // Cerrar modal
+    document.getElementById('join-request-modal').classList.add('hidden');
+    currentJoinRequest = null;
+  }
+  
+  // Función para iniciar transmisión conjunta
+  function startJointTransmission(request) {
+    isJointTransmission = true;
+    
+    // Mostrar ventana de transmisión conjunta
+    const jointWindow = document.getElementById('joint-transmission-window');
+    document.getElementById('joint-user-name').textContent = request.requesterName;
+    document.getElementById('joint-user-avatar').src = request.requesterAvatar;
+    jointWindow.classList.remove('hidden');
+    
+    // Simular conexión de video (en implementación real, aquí iría WebRTC)
+    simulateJointVideo();
+    
+    // Notificar al usuario que fue aceptado
+    addNotification(request.requesterId, 
+      `Tu solicitud para unirte a la transmisión de ${firebase.auth().currentUser.displayName || 'el transmisor'} ha sido aceptada`, 
+      'transmission');
+  }
+  
+  // Función para simular video conjunto (placeholder para WebRTC)
+  function simulateJointVideo() {
+    const jointVideo = document.getElementById('joint-user-video');
+    
+    // En implementación real, aquí se inicializaría WebRTC
+    // Por ahora, mostramos un placeholder
+    jointVideo.style.background = 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)';
+    
+    // Agregar texto placeholder
+    const placeholder = document.createElement('div');
+    placeholder.className = 'absolute inset-0 flex items-center justify-center text-white text-center';
+    placeholder.innerHTML = `
+      <div>
+        <div class="text-4xl mb-2">📹</div>
+        <div class="font-medium">Transmisión Conjunta</div>
+        <div class="text-sm opacity-80">Conectado</div>
+      </div>
+    `;
+    jointVideo.parentElement.appendChild(placeholder);
+  }
+  
+  // Función para silenciar/activar audio del usuario conjunto
+  function toggleMuteJointUser() {
+    jointUserMuted = !jointUserMuted;
+    
+    const muteBtn = document.getElementById('mute-joint-user');
+    const mutedIndicator = document.getElementById('muted-indicator');
+    
+    if (jointUserMuted) {
+      muteBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+        </svg>
+      `;
+      muteBtn.className = "bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors";
+      mutedIndicator.classList.remove('hidden');
+    } else {
+      muteBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M11 5L6 9H2v6h4l5 4V5z" />
+        </svg>
+      `;
+      muteBtn.className = "bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors";
+      mutedIndicator.classList.add('hidden');
+    }
+  }
+  
+  // Función para desconectar usuario conjunto
+  function disconnectJointUser() {
+    if (confirm('¿Estás seguro de que quieres desconectar a este usuario de la transmisión?')) {
+      endJointTransmission();
+    }
+  }
+  
+  // Función para finalizar transmisión conjunta
+  function endJointTransmission() {
+    isJointTransmission = false;
+    jointUserMuted = false;
+    
+    // Ocultar ventana conjunta
+    document.getElementById('joint-transmission-window').classList.add('hidden');
+    
+    // Limpiar referencias
+    currentJoinRequest = null;
+    
+    // En implementación real, aquí se cerraría la conexión WebRTC
+    console.log('Transmisión conjunta finalizada');
+  }
+  
+  // Función para cerrar modal de solicitud enviada
+  function closeRequestSentModal() {
+    document.getElementById('request-sent-modal').classList.add('hidden');
+  }
+  
+  // Función para reproducir sonido de notificación
+  function playNotificationSound() {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869.wav');
+    audio.play().catch(e => console.log('No se pudo reproducir el sonido:', e));
+  }
+  
+  // Inicializar listeners cuando el usuario inicia transmisión
+  function initializeJointTransmissionListeners() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      listenForJoinRequests();
+      
+      // Limpiar solicitudes antiguas (más de 1 hora)
+      const oneHourAgo = Date.now() - (60 * 60 * 1000);
+      firebase.database().ref('joinRequests/' + user.uid).orderByChild('timestamp').endAt(oneHourAgo).remove();
+    }
+  }
+
   function handleLiveVideoUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -6088,6 +6418,9 @@ function likeNote(noteId) {
       // Iniciar sincronización de vistas en tiempo real
       syncViewerCount();
       
+      // Inicializar sistema de transmisión conjunta
+      initializeJointTransmissionListeners();
+      
       console.log('Transmisión iniciada correctamente');
     }, 2000);
   }
@@ -6101,6 +6434,17 @@ function likeNote(noteId) {
     
     // Mostrar confirmación
     if (confirm('¿Estás seguro de que quieres finalizar la transmisión?')) {
+      // Finalizar transmisión conjunta si está activa
+      if (isJointTransmission) {
+        endJointTransmission();
+      }
+      
+      // Limpiar listeners de solicitudes
+      const user = firebase.auth().currentUser;
+      if (user) {
+        firebase.database().ref('joinRequests/' + user.uid).off();
+      }
+      
       // Ocultar botón de finalizar y mostrar el de inicio
       endContainer.classList.add('hidden');
       startBtn.parentElement.classList.remove('hidden');
