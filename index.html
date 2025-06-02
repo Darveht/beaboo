@@ -4298,35 +4298,68 @@ function toggleVoiceInput() {
     • En el Gift Drawer, algunos regalos se muestran en formato video (moderno) en lugar de solo GIF.
 -->
 
-<!-- VISTA DE TRANSMISIÓN EN VIVO (Transmisor) -->
-<div id="live-stream-modal" class="fixed inset-0 bg-gradient-to-b from-[#171F30] to-[#273852] z-50 hidden">
+<!-- VISTA DE TRANSMISIÓN EN VIVO (Transmisor) - Estilo Twitter/X -->
+<div id="live-stream-modal" class="fixed inset-0 bg-black z-50 hidden">
   <div class="relative w-full h-full">
-    <!-- Contador de vistas -->
-    <div id="live-viewCount" class="absolute top-4 right-4 text-xl bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full text-[#00D6C9]">
-      0 vistas
+    <!-- Header superior estilo Twitter -->
+    <div class="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 to-transparent p-4">
+      <div class="flex items-center justify-between">
+        <!-- Botón cerrar -->
+        <button onclick="closeLiveStreamModal()" class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        
+        <!-- Contador de vistas estilo Twitter -->
+        <div id="live-viewCount" class="bg-black/70 backdrop-blur-sm px-4 py-2 rounded-full text-white font-medium flex items-center space-x-2">
+          <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <span class="text-sm">0 visualizaciones</span>
+        </div>
+        
+        <!-- Botón de ajustes -->
+        <button id="live-settingsBtn" class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors" onclick="openSettingsFullscreen()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      </div>
     </div>
-    <!-- Contador de taps/corazones -->
-    <div id="live-tapCount" class="absolute top-4 left-1/2 transform -translate-x-1/2 text-xl bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full text-[#00D6C9]">
+
+    <!-- Contador de interacciones -->
+    <div id="live-tapCount" class="absolute top-20 right-4 z-20 bg-black/70 backdrop-blur-sm px-3 py-2 rounded-full text-white text-sm font-medium">
       0 ❤️
     </div>
+    
     <!-- Video local -->
     <video id="live-localVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+    
     <!-- Overlay con cuenta regresiva -->
-    <div id="live-overlay" class="absolute inset-0 flex flex-col items-center justify-center">
-      <div id="live-countdown" class="text-6xl font-bold text-[#00D6C9]"></div>
+    <div id="live-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/30">
+      <div id="live-countdown" class="text-6xl font-bold text-white mb-4"></div>
       <div id="live-indicator" class="hidden"></div>
     </div>
-    <!-- Botón de ajustes (abre la pantalla completa de ajustes) -->
-    <button id="live-settingsBtn" class="absolute top-4 left-4 bg-black/30 backdrop-blur-sm text-white text-lg rounded-full h-12 w-12 flex items-center justify-center" onclick="openSettingsFullscreen()">
-      <img src="https://img.icons8.com/ios11/512/40C057/settings.png" alt="Ajustes" class="w-6 h-6">
-    </button>
-    <!-- Botón para iniciar transmisión -->
-    <button id="live-startBtn" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#00D6C9] to-[#00A0B0] text-white text-2xl rounded-full p-6 shadow-lg"></button>
+    
+    <!-- Botón de iniciar transmisión estilo Instagram -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+      <button id="live-startBtn" class="w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-xl mx-auto" onclick="startLiveStream()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      </button>
+    </div>
 
-    <!-- Botón para cerrar el modal de transmisión -->
-    <button id="live-closeBtn" onclick="closeLiveStreamModal()" class="absolute top-20 left-4 bg-black/50 text-white text-lg rounded-full h-10 w-10 flex items-center justify-center">
-      X
-    </button>
+    <!-- Botón para finalizar transmisión (oculto inicialmente) -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent hidden" id="live-end-container">
+      <button id="live-endBtn" class="w-full bg-red-500 hover:bg-red-600 text-white text-lg font-bold rounded-full py-4 transition-all duration-200 flex items-center justify-center space-x-3 shadow-xl" onclick="endLiveStream()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10l6 6m0-6l-6 6" />
+        </svg>
+        <span>Finalizar transmisión</span>
+      </button>
+    </div>
     <!-- Spinner -->
     <div id="live-spinner" class="absolute inset-0 flex items-center justify-center">
       <i class="fas fa-spinner fa-spin text-6xl" style="color:#00D6C9;"></i>
@@ -4386,15 +4419,24 @@ function toggleVoiceInput() {
       }
     }
   }
-  // Interceptar el clic en el botón de transmisión
-  document.getElementById('live-startBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    // Se remueve la verificación de restricciones:
-    document.getElementById('transmission-block-modal').classList.add('hidden');
+  // Función para abrir modal de transmisión
+  function openLiveStreamModal() {
     document.getElementById('live-stream-modal').classList.remove('hidden');
-    setLiveStreamYouTubeView();
-    // Inicia la transmisión (llamada a la función correspondiente)
-  });
+    
+    // Inicializar la cámara
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+          const video = document.getElementById('live-localVideo');
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch(error => {
+          console.error('Error al acceder a la cámara:', error);
+          alert('No se pudo acceder a la cámara. Verifica los permisos.');
+        });
+    }
+  }
 </script>
 
 <!-- MODAL DE VISUALIZACIÓN EN VIVO (Espectador) -->
@@ -5817,6 +5859,20 @@ function likeNote(noteId) {
   }
 
   function closeLiveStreamModal() {
+    // Detener la transmisión si está activa
+    const video = document.getElementById('live-localVideo');
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
+    }
+    
+    // Resetear la interfaz
+    document.getElementById('live-startBtn').classList.remove('hidden');
+    document.getElementById('live-endBtn').classList.add('hidden');
+    document.getElementById('live-indicator').classList.add('hidden');
+    document.getElementById('live-overlay').classList.remove('hidden');
+    
+    // Cerrar modal
     document.getElementById('live-stream-modal').classList.add('hidden');
   }
 
@@ -5867,17 +5923,121 @@ function likeNote(noteId) {
       video.play();
     }
   }
-  document.getElementById('live-startBtn').addEventListener('click', function() {
-    document.getElementById('live-spinner').classList.remove('hidden');
-    this.classList.add('hidden');
-    setTimeout(function() {
-      document.getElementById('live-spinner').classList.add('hidden');
-      document.getElementById('live-endBtn').classList.remove('hidden');
-      document.getElementById('live-overlay').classList.add('hidden');
+  // Función para iniciar transmisión
+  function startLiveStream() {
+    const startBtn = document.getElementById('live-startBtn');
+    const startContainer = startBtn.parentElement;
+    const endContainer = document.getElementById('live-end-container');
+    const spinner = document.getElementById('live-spinner');
+    const overlay = document.getElementById('live-overlay');
+    const indicator = document.getElementById('live-indicator');
+    
+    // Mostrar spinner
+    spinner.classList.remove('hidden');
+    
+    // Cambiar botón a estado de "iniciando" (mantener estilo circular)
+    startBtn.innerHTML = `
+      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+    `;
+    startBtn.disabled = true;
+    startBtn.className = "w-20 h-20 bg-gray-600 text-white rounded-full cursor-not-allowed flex items-center justify-center mx-auto";
+    
+    // Simular inicio de transmisión
+    setTimeout(() => {
+      spinner.classList.add('hidden');
+      overlay.classList.add('hidden');
+      
+      // Ocultar contenedor de inicio y mostrar el de finalización
+      startContainer.classList.add('hidden');
+      endContainer.classList.remove('hidden');
+      
+      // Mostrar indicador de transmisión en vivo
+      if (indicator) {
+        indicator.classList.remove('hidden');
+        indicator.innerHTML = '<div class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center shadow-lg"><div class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>EN VIVO</div>';
+      }
+      
+      // Actualizar contador de vistas
+      document.getElementById('live-viewCount').innerHTML = `
+        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+        <span class="text-sm font-medium">LIVE • 0 visualizaciones</span>
+      `;
+      
+      // Iniciar cuenta de vistas simulada
+      simulateViewerCount();
+      
+      console.log('Transmisión iniciada correctamente');
     }, 2000);
-  });
-  document.getElementById('live-endBtn').addEventListener('click', function() {
-    closeLiveStreamModal();
+  }
+  
+  // Función para finalizar transmisión
+  function endLiveStream() {
+    const startBtn = document.getElementById('live-startBtn');
+    const endContainer = document.getElementById('live-end-container');
+    const indicator = document.getElementById('live-indicator');
+    const overlay = document.getElementById('live-overlay');
+    
+    // Mostrar confirmación
+    if (confirm('¿Estás seguro de que quieres finalizar la transmisión?')) {
+      // Ocultar botón de finalizar y mostrar el de inicio
+      endContainer.classList.add('hidden');
+      startBtn.parentElement.classList.remove('hidden');
+      
+      // Restaurar botón de inicio al estado original (estilo Instagram circular)
+      startBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      `;
+      startBtn.className = "w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-xl mx-auto";
+      startBtn.disabled = false;
+      
+      if (indicator) {
+        indicator.classList.add('hidden');
+      }
+      
+      if (overlay) {
+        overlay.classList.remove('hidden');
+      }
+      
+      // Resetear contador de vistas
+      document.getElementById('live-viewCount').innerHTML = `
+        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+        <span class="text-sm">0 visualizaciones</span>
+      `;
+      
+      console.log('Transmisión finalizada');
+    }
+  }
+  
+  // Función para simular contador de vistas
+  function simulateViewerCount() {
+    let viewers = 0;
+    const viewCountElement = document.getElementById('live-viewCount');
+    
+    const interval = setInterval(() => {
+      if (document.getElementById('live-endBtn').classList.contains('hidden')) {
+        clearInterval(interval);
+        return;
+      }
+      
+      viewers += Math.floor(Math.random() * 3) + 1;
+      viewCountElement.textContent = viewers + ' vistas';
+    }, 5000);
+  }
+  
+  // Event listeners mejorados
+  document.addEventListener('DOMContentLoaded', function() {
+    const startBtn = document.getElementById('live-startBtn');
+    const endBtn = document.getElementById('live-endBtn');
+    
+    if (startBtn) {
+      startBtn.addEventListener('click', startLiveStream);
+    }
+    
+    if (endBtn) {
+      endBtn.addEventListener('click', endLiveStream);
+    }
   });
 
   function startCountdown() {
@@ -11027,4 +11187,3 @@ function closeBeabooStudio() {
 </script>
 
 </body>
-<
