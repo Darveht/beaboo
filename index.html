@@ -4317,6 +4317,13 @@ function toggleVoiceInput() {
           <span class="text-sm">0 visualizaciones</span>
         </div>
         
+        <!-- Botón de sincronización (solo para transmisor) -->
+        <button id="sync-creators-btn" onclick="openCreatorSync()" class="w-10 h-10 bg-purple-600/80 rounded-full flex items-center justify-center text-white hover:bg-purple-700 transition-colors" title="Sincronizar con otros creadores">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </button>
+        
         <!-- Botón de ajustes -->
         <button id="live-settingsBtn" class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors" onclick="openSettingsFullscreen()">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -4347,6 +4354,16 @@ function toggleVoiceInput() {
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
+      </button>
+    </div>
+
+    <!-- Panel de colaboración para transmisor -->
+    <div id="broadcaster-collab-panel" class="absolute bottom-20 left-4 right-4 bg-gradient-to-r from-purple-600/80 to-pink-600/80 backdrop-blur-sm rounded-xl p-3 flex items-center space-x-3 hidden">
+      <button onclick="openBattleMode()" class="flex-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg p-2 flex items-center justify-center space-x-2 hover:from-red-600 hover:to-orange-600 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span class="text-white text-sm font-medium">Iniciar Batalla</span>
       </button>
     </div>
 
@@ -4477,22 +4494,7 @@ function toggleVoiceInput() {
       </div>
     </div>
 
-    <!-- Sistema de Invitaciones y Colaboración en Vivo -->
-    <div id="collab-panel" class="absolute bottom-24 left-4 right-4 bg-gradient-to-r from-purple-600/80 to-pink-600/80 backdrop-blur-sm rounded-xl p-3 flex items-center space-x-3">
-      <button id="sync-creators-btn" onclick="openCreatorSync()" class="flex-1 bg-white/20 backdrop-blur-sm rounded-lg p-2 flex items-center justify-center space-x-2 hover:bg-white/30 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <span class="text-white text-sm font-medium">Sincronizar</span>
-      </button>
-      
-      <button id="battle-mode-btn" onclick="openBattleMode()" class="flex-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg p-2 flex items-center justify-center space-x-2 hover:from-red-600 hover:to-orange-600 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        <span class="text-white text-sm font-medium">Batalla</span>
-      </button>
-    </div>
+    
 
     <!-- Modal de Sincronización de Creadores -->
     <div id="creator-sync-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-60 hidden">
@@ -6689,6 +6691,9 @@ function likeNote(noteId) {
         indicator.innerHTML = '<div class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center shadow-lg"><div class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>EN VIVO</div>';
       }
       
+      // Mostrar panel de colaboración para el transmisor
+      document.getElementById('broadcaster-collab-panel').classList.remove('hidden');
+      
       // Actualizar contador de vistas
       document.getElementById('live-viewCount').innerHTML = `
         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
@@ -6731,6 +6736,9 @@ function likeNote(noteId) {
       if (overlay) {
         overlay.classList.remove('hidden');
       }
+      
+      // Ocultar panel de colaboración
+      document.getElementById('broadcaster-collab-panel').classList.add('hidden');
       
       // Resetear contador de vistas
       document.getElementById('live-viewCount').innerHTML = `
@@ -11934,4 +11942,3 @@ function closeBeabooStudio() {
 </script>
 
 </body>
-<
