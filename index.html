@@ -1296,7 +1296,7 @@ setInterval(checkScheduledChapters, 60000);
       <form id="report-form" class="space-y-4">
         <!-- Opciones de reporte con radio buttons personalizados -->
         <div class="space-y-3">
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('perfil_falso')">
             <input type="radio" name="report-reason" value="perfil_falso" class="hidden">
             <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
               <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
@@ -1307,7 +1307,7 @@ setInterval(checkScheduledChapters, 60000);
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('spam')">
             <input type="radio" name="report-reason" value="spam" class="hidden">
             <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
               <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
@@ -1318,7 +1318,7 @@ setInterval(checkScheduledChapters, 60000);
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('contenido_inapropiado')">
             <input type="radio" name="report-reason" value="contenido_inapropiado" class="hidden">
             <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
               <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
@@ -1329,7 +1329,7 @@ setInterval(checkScheduledChapters, 60000);
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('infraccion_normas')">
             <input type="radio" name="report-reason" value="infraccion_normas" class="hidden">
             <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
               <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
@@ -1340,7 +1340,7 @@ setInterval(checkScheduledChapters, 60000);
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('otro')">
             <input type="radio" name="report-reason" value="otro" class="hidden">
             <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
               <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
@@ -1354,14 +1354,14 @@ setInterval(checkScheduledChapters, 60000);
 
         <!-- Textarea mejorado -->
         <div class="relative">
-          <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-[#1DA1F2] focus:bg-white focus:outline-none resize-none transition-all duration-200" rows="3"></textarea>
+          <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-[#1DA1F2] focus:bg-white focus:outline-none resize-none transition-all duration-200" rows="3" maxlength="500" oninput="updateCharCounter()"></textarea>
           <div class="absolute bottom-3 right-3 text-xs text-gray-400" id="char-counter">
             <span id="char-count">0</span>/500
           </div>
         </div>
 
         <!-- Botón de envío mejorado -->
-        <button id="btn-enviar-report" type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-xl font-bold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+        <button id="btn-enviar-report" type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-xl font-bold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
           <span class="send-text">Enviar Reporte</span>
           <span class="loading-text hidden">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -6426,6 +6426,186 @@ function saveNote() {
   firebase.initializeApp(firebaseConfig);
   // Todos los usuarios están autorizados para transmitir en vivo
   const authorizedEmails = [];
+  /*********************** SISTEMA DE REPORTES **************************/
+  let selectedReportReason = null;
+  let reportedUserId = null;
+
+  function openReportModal() {
+    const modal = document.getElementById('report-modal');
+    modal.classList.remove('pointer-events-none');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      modal.querySelector('.report-modal-content').classList.remove('scale-95');
+      modal.querySelector('.report-modal-content').classList.add('scale-100');
+    }, 10);
+  }
+
+  function closeReportModal() {
+    const modal = document.getElementById('report-modal');
+    modal.classList.add('opacity-0');
+    modal.querySelector('.report-modal-content').classList.remove('scale-100');
+    modal.querySelector('.report-modal-content').classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('pointer-events-none');
+      resetReportForm();
+    }, 300);
+  }
+
+  function selectReportOption(reason) {
+    // Limpiar selecciones anteriores
+    document.querySelectorAll('.report-option').forEach(option => {
+      const radioDot = option.querySelector('.radio-dot');
+      const border = option.querySelector('.radio-custom');
+      radioDot.classList.remove('opacity-100', 'scale-100');
+      radioDot.classList.add('opacity-0', 'scale-0');
+      border.classList.remove('border-[#1DA1F2]');
+      border.classList.add('border-gray-300');
+      option.classList.remove('border-[#1DA1F2]', 'bg-blue-50');
+    });
+
+    // Seleccionar la opción actual
+    const selectedOption = document.querySelector(`input[value="${reason}"]`).closest('.report-option');
+    const radioDot = selectedOption.querySelector('.radio-dot');
+    const border = selectedOption.querySelector('.radio-custom');
+    
+    radioDot.classList.remove('opacity-0', 'scale-0');
+    radioDot.classList.add('opacity-100', 'scale-100');
+    border.classList.remove('border-gray-300');
+    border.classList.add('border-[#1DA1F2]');
+    selectedOption.classList.add('border-[#1DA1F2]', 'bg-blue-50');
+
+    selectedReportReason = reason;
+    
+    // Habilitar el botón de envío
+    const submitBtn = document.getElementById('btn-enviar-report');
+    submitBtn.disabled = false;
+  }
+
+  function updateCharCounter() {
+    const textarea = document.getElementById('report-description');
+    const charCount = document.getElementById('char-count');
+    const currentLength = textarea.value.length;
+    
+    charCount.textContent = currentLength;
+    
+    if (currentLength > 450) {
+      charCount.parentElement.classList.add('text-red-500');
+    } else {
+      charCount.parentElement.classList.remove('text-red-500');
+    }
+  }
+
+  function resetReportForm() {
+    selectedReportReason = null;
+    document.getElementById('report-description').value = '';
+    document.getElementById('char-count').textContent = '0';
+    document.getElementById('btn-enviar-report').disabled = true;
+    
+    // Limpiar todas las selecciones
+    document.querySelectorAll('.report-option').forEach(option => {
+      const radioDot = option.querySelector('.radio-dot');
+      const border = option.querySelector('.radio-custom');
+      radioDot.classList.remove('opacity-100', 'scale-100');
+      radioDot.classList.add('opacity-0', 'scale-0');
+      border.classList.remove('border-[#1DA1F2]');
+      border.classList.add('border-gray-300');
+      option.classList.remove('border-[#1DA1F2]', 'bg-blue-50');
+    });
+  }
+
+  function sendReport() {
+    if (!selectedReportReason) {
+      alert('Por favor selecciona un motivo para el reporte.');
+      return;
+    }
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para enviar un reporte.');
+      return;
+    }
+
+    const description = document.getElementById('report-description').value.trim();
+    const submitBtn = document.getElementById('btn-enviar-report');
+    const sendText = submitBtn.querySelector('.send-text');
+    const loadingText = submitBtn.querySelector('.loading-text');
+
+    // Mostrar estado de carga
+    submitBtn.disabled = true;
+    sendText.classList.add('hidden');
+    loadingText.classList.remove('hidden');
+
+    // Crear el reporte
+    const reportData = {
+      reportedUserId: reportedUserId || currentViewedAuthorId,
+      reporterUserId: user.uid,
+      reason: selectedReportReason,
+      description: description,
+      timestamp: Date.now(),
+      status: 'pending'
+    };
+
+    firebase.database().ref('reports').push(reportData).then(() => {
+      // Mostrar modal de respuesta
+      setTimeout(() => {
+        closeReportModal();
+        showReportResponseModal();
+      }, 1000);
+    }).catch(error => {
+      console.error('Error al enviar el reporte:', error);
+      alert('Error al enviar el reporte. Por favor intenta de nuevo.');
+      
+      // Restaurar botón
+      submitBtn.disabled = false;
+      sendText.classList.remove('hidden');
+      loadingText.classList.add('hidden');
+    });
+  }
+
+  function showReportResponseModal() {
+    document.getElementById('report-response-modal').classList.remove('hidden');
+    
+    setTimeout(() => {
+      document.getElementById('report-response-modal').classList.add('hidden');
+      showAdminResponseModal();
+    }, 3000);
+  }
+
+  function showAdminResponseModal() {
+    const modal = document.getElementById('admin-response-modal');
+    modal.innerHTML = `
+      <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-green-600 mb-2">¡Reporte Enviado!</h3>
+        <p class="text-gray-600 mb-6">Tu reporte ha sido enviado correctamente. Nuestro equipo lo revisará en las próximas 24 horas.</p>
+        <p class="text-sm text-gray-500 mb-4">Recibirás una notificación cuando tengamos una respuesta.</p>
+        <button onclick="closeAdminResponseModal()" class="bg-[#1DA1F2] text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition-colors font-medium">
+          Entendido
+        </button>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+  }
+
+  function closeAdminResponseModal() {
+    document.getElementById('admin-response-modal').classList.add('hidden');
+  }
+
+  // Event listeners para el formulario de reportes
+  document.addEventListener('DOMContentLoaded', function() {
+    const reportForm = document.getElementById('report-form');
+    if (reportForm) {
+      reportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        sendReport();
+      });
+    }
+  });
+
   /*********************** FUNCIONES ADICIONALES **************************/
   function contienePalabrasOfensivas(texto) {
     // Lista de 20 palabras ofensivas en español (ejemplo; ajústala según tus necesidades)
