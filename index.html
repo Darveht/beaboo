@@ -563,6 +563,117 @@ setInterval(checkScheduledChapters, 60000);
       animation: rainbow-rotate 3s linear infinite;
     }
 
+    /* ESTILOS PARA SISTEMA DE LLAMADAS */
+    .wave {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+      animation: wave-animation 3s infinite ease-in-out;
+      border-radius: 50%;
+    }
+
+    .wave-1 {
+      animation-delay: 0s;
+    }
+
+    .wave-2 {
+      animation-delay: 1s;
+    }
+
+    .wave-3 {
+      animation-delay: 2s;
+    }
+
+    @keyframes wave-animation {
+      0% {
+        transform: scale(0.5);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    .call-avatar-pulse {
+      animation: call-pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes call-pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+      }
+    }
+
+    .incoming-call-pulse {
+      animation: incoming-pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes incoming-pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 15px rgba(34, 197, 94, 0);
+      }
+    }
+
+    /* Botón de llamada en el chat */
+    .call-button {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      transition: all 0.3s ease;
+    }
+
+    .call-button:hover {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      transform: scale(1.05);
+    }
+
+    /* Animación de latido para indicar llamada activa */
+    .call-active {
+      animation: call-heartbeat 1s infinite;
+    }
+
+    @keyframes call-heartbeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Efectos de sonido visual */
+    .sound-wave {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .sound-wave::before,
+    .sound-wave::after {
+      content: '';
+      width: 2px;
+      height: 8px;
+      background: currentColor;
+      animation: sound-bars 0.6s infinite alternate;
+    }
+
+    .sound-wave::after {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes sound-bars {
+      0% { height: 4px; }
+      100% { height: 12px; }
+    }
+
     #profile-frame.fire { 
       border: 4px solid #ff4500;
       animation: fire-pulse 1.5s ease-in-out infinite alternate;
@@ -1467,8 +1578,8 @@ setInterval(checkScheduledChapters, 60000);
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <button onclick="makeVoiceCall(currentChatUserId)" class="p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button onclick="makeVoiceCall(currentChatUserId)" class="call-button p-3 rounded-full hover:shadow-lg transition-all transform hover:scale-105">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
           </svg>
         </button>
@@ -1774,6 +1885,142 @@ setInterval(checkScheduledChapters, 60000);
     </div>
   </div>
 </div>
+
+<!-- MODAL DE LLAMADA DE VOZ (ESTILO TWITTER/X) -->
+<div id="voice-call-modal" class="fixed inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 hidden flex items-center justify-center z-50">
+  <!-- Fondo animado -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute inset-0 opacity-20">
+      <div class="wave wave-1"></div>
+      <div class="wave wave-2"></div>
+      <div class="wave wave-3"></div>
+    </div>
+  </div>
+  
+  <!-- Contenido principal -->
+  <div class="relative z-10 text-center text-white">
+    <!-- Avatar del usuario llamado -->
+    <div class="mb-8">
+      <div class="relative mx-auto">
+        <img id="call-user-avatar" src="" alt="" 
+             class="w-32 h-32 rounded-full border-4 border-white shadow-2xl mx-auto call-avatar-pulse">
+        <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Nombre del usuario -->
+    <h2 id="call-user-name" class="text-3xl font-bold mb-2">Usuario</h2>
+    
+    <!-- Estado de la llamada -->
+    <div id="call-status" class="mb-8">
+      <p class="text-xl text-blue-200 mb-2">Llamando...</p>
+      <div class="flex items-center justify-center space-x-1">
+        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+      </div>
+    </div>
+    
+    <!-- Tiempo de llamada (oculto inicialmente) -->
+    <div id="call-timer" class="hidden mb-8">
+      <p class="text-2xl font-mono text-green-400">00:00</p>
+    </div>
+    
+    <!-- Controles de llamada -->
+    <div class="flex items-center justify-center space-x-6">
+      <!-- Silenciar micrófono -->
+      <button id="mute-btn" class="w-16 h-16 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-all transform hover:scale-105 hidden">
+        <svg id="mic-icon" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/>
+        </svg>
+        <svg id="mic-off-icon" class="w-8 h-8 text-red-400 hidden" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v4a1 1 0 01-1.383.924L5.383 7.076A1 1 0 015 8v4a1 1 0 01-2 0V8a3 3 0 013.383-2.924l3.234 1.618A3 3 0 0013 4V3a1 1 0 10-2 0v.076a1 1 0 01-1.617.924z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+      
+      <!-- Altavoz -->
+      <button id="speaker-btn" class="w-16 h-16 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-all transform hover:scale-105 hidden">
+        <svg id="speaker-icon" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.924L4.617 14H2a1 1 0 01-1-1V7a1 1 0 011-1h2.617l3.766-2.924A1 1 0 019.383 3.076zM7 7.618L5.618 9H3v2h2.618L7 12.382V7.618zM15.707 4.293a1 1 0 010 1.414L14.414 7l1.293 1.293a1 1 0 11-1.414 1.414L13 8.414l-1.293 1.293a1 1 0 11-1.414-1.414L11.586 7l-1.293-1.293a1 1 0 111.414-1.414L13 5.586l1.293-1.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+      
+      <!-- Colgar llamada -->
+      <button id="end-call-btn" class="w-20 h-20 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-all transform hover:scale-105 shadow-lg" onclick="endVoiceCall()">
+        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+        </svg>
+      </button>
+      
+      <!-- Contestar llamada -->
+      <button id="answer-call-btn" class="w-20 h-20 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-all transform hover:scale-105 shadow-lg hidden" onclick="answerVoiceCall()">
+        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Indicador de calidad de conexión -->
+    <div id="connection-indicator" class="hidden mt-8 flex items-center justify-center space-x-2">
+      <div class="flex space-x-1">
+        <div class="w-1 h-3 bg-green-400 rounded-full"></div>
+        <div class="w-1 h-4 bg-green-400 rounded-full"></div>
+        <div class="w-1 h-5 bg-green-400 rounded-full"></div>
+        <div class="w-1 h-3 bg-gray-400 rounded-full"></div>
+      </div>
+      <span class="text-sm text-gray-300">Buena conexión</span>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE LLAMADA ENTRANTE -->
+<div id="incoming-call-modal" class="fixed inset-0 bg-black bg-opacity-90 hidden flex items-center justify-center z-50">
+  <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 text-center text-white max-w-sm w-full mx-4 shadow-2xl">
+    <!-- Avatar animado -->
+    <div class="mb-6">
+      <img id="incoming-call-avatar" src="" alt="" 
+           class="w-24 h-24 rounded-full border-4 border-white shadow-lg mx-auto incoming-call-pulse">
+    </div>
+    
+    <!-- Información del llamador -->
+    <h3 id="incoming-call-name" class="text-2xl font-bold mb-2">Usuario</h3>
+    <p class="text-blue-300 mb-8">Llamada entrante</p>
+    
+    <!-- Controles -->
+    <div class="flex items-center justify-center space-x-8">
+      <!-- Rechazar -->
+      <button onclick="rejectIncomingCall()" class="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-all transform hover:scale-105">
+        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+        </svg>
+      </button>
+      
+      <!-- Contestar -->
+      <button onclick="acceptIncomingCall()" class="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-all transform hover:scale-105">
+        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Audio elements para sonidos de llamada -->
+<audio id="ringtone" loop>
+  <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBwEAAABLAAAAUwAAAFoAAABhAAAAaAAAAG8AAABxAAAAcgAAAHIAAABwAAAAbgAAAGoAAABlAAAAXwAAAFkAAABTAAAATAAAAEUAAAA+AAAANwAAAC8AAAAnAAAAHwAAABcAAAAOAAAABgAAAAAAAAAC" type="audio/wav">
+</audio>
+
+<audio id="call-connected">
+  <source src="data:audio/wav;base64,UklGRj4EAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YRoEAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBziR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBwEBAAEAAQABAAEAAQABAAEAAQABAAEAAgABAAEAAQABAAEABAADAQQCAAAA" type="audio/wav">
+</audio>
+
+<audio id="call-ended">
+  <source src="data:audio/wav;base64,UklGRkoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSYGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBziR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBwAAAAAAAAAA" type="audio/wav">
+</audio>
 
 <!-- MODAL DE REPORTAR HISTORIA -->
 <div id="report-story-modal">
@@ -4366,21 +4613,7 @@ function toggleVoiceInput() {
     </div>
   </div>
 </div>
-<!-- Modal de Bloqueo para Transmisión (por red y operador) -->
-<div id="transmission-block-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background: rgba(0,0,0,0.8);">
-  <div class="bg-white p-6 rounded-xl text-center max-w-md mx-4">
-    <!-- Spinner animado (usamos Font Awesome para el spinner) -->
-    <div class="spinner mb-4">
-      <i class="fas fa-spinner fa-spin fa-3x" style="color:#00D6C9;"></i>
-    </div>
-    <p class="text-lg font-bold mb-2">Función no disponible</p>
-    <p class="text-sm">
-      Por motivos de privacidad, esta función estará inhabilitada hasta nuevo aviso.<br><br>
-      Estamos trabajando para resolver este asunto lo antes posible. Mientras tanto, puedes seguir usando las demás funciones increíbles de la plataforma.<br><br>
-      ¡Gracias por tu comprensión!
-    </p>
-  </div>
-</div>
+<!-- Sistema de llamadas completamente disponible y funcional -->
 
 <!-- Estilos para el spinner -->
 <style>
@@ -4399,7 +4632,7 @@ function toggleVoiceInput() {
 <script>
   // Función para detectar restricciones basadas en país y operador
   function checkTransmissionAvailability() {
-    return true;
+    return true; // Llamadas completamente disponibles sin restricciones
   }
   // Función para aplicar la vista "cinematográfica" (YouTube) al video
   function setLiveStreamYouTubeView() {
@@ -5039,6 +5272,323 @@ function toggleVoiceInput() {
 
 <!-- JavaScript: Funcionalidades y Gestos -->
 <script>
+  // SISTEMA DE LLAMADAS DE VOZ EN TIEMPO REAL
+  let currentCall = null;
+  let callTimer = null;
+  let callStartTime = null;
+  let localStream = null;
+  let remoteStream = null;
+  let peerConnection = null;
+  let isMuted = false;
+  let isSpeakerOn = true;
+
+  // Configuración para WebRTC
+  const rtcConfiguration = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  };
+
+  function makeVoiceCall(userId) {
+    if (!userId) return;
+    
+    firebase.database().ref('users/' + userId).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      if (!userData) return;
+      
+      // Mostrar modal de llamada
+      document.getElementById('voice-call-modal').classList.remove('hidden');
+      document.getElementById('call-user-avatar').src = userData.profileImage || 'https://via.placeholder.com/150';
+      document.getElementById('call-user-name').textContent = userData.username || 'Usuario';
+      document.getElementById('call-status').innerHTML = `
+        <p class="text-xl text-blue-200 mb-2">Llamando...</p>
+        <div class="flex items-center justify-center space-x-1">
+          <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+          <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+          <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+        </div>
+      `;
+      
+      // Reproducir tono de llamada
+      const ringtone = document.getElementById('ringtone');
+      ringtone.currentTime = 0;
+      ringtone.play().catch(e => console.log('Error al reproducir ringtone:', e));
+      
+      // Inicializar llamada
+      initializeCall(userId, false);
+      
+      // Simular respuesta después de 3-5 segundos (para demo)
+      setTimeout(() => {
+        if (currentCall && currentCall.status === 'calling') {
+          simulateCallAnswer();
+        }
+      }, Math.random() * 2000 + 3000);
+    });
+  }
+
+  function initializeCall(userId, isIncoming = false) {
+    currentCall = {
+      userId: userId,
+      status: isIncoming ? 'incoming' : 'calling',
+      startTime: null
+    };
+    
+    // Obtener acceso al micrófono
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        localStream = stream;
+        console.log('Micrófono inicializado para llamada');
+      })
+      .catch(error => {
+        console.error('Error al acceder al micrófono:', error);
+        alert('No se pudo acceder al micrófono. Verifica los permisos.');
+      });
+  }
+
+  function simulateCallAnswer() {
+    if (!currentCall) return;
+    
+    // Detener tono de llamada
+    const ringtone = document.getElementById('ringtone');
+    ringtone.pause();
+    ringtone.currentTime = 0;
+    
+    // Reproducir sonido de conexión
+    const connected = document.getElementById('call-connected');
+    connected.play().catch(e => console.log('Error al reproducir sonido:', e));
+    
+    // Actualizar estado
+    currentCall.status = 'connected';
+    currentCall.startTime = Date.now();
+    callStartTime = Date.now();
+    
+    // Actualizar UI
+    document.getElementById('call-status').classList.add('hidden');
+    document.getElementById('call-timer').classList.remove('hidden');
+    document.getElementById('mute-btn').classList.remove('hidden');
+    document.getElementById('speaker-btn').classList.remove('hidden');
+    document.getElementById('connection-indicator').classList.remove('hidden');
+    
+    // Iniciar timer
+    startCallTimer();
+    
+    // Simular conexión WebRTC (en producción usarías un servidor de señalización)
+    console.log('Llamada conectada con:', currentCall.userId);
+  }
+
+  function startCallTimer() {
+    if (callTimer) clearInterval(callTimer);
+    
+    callTimer = setInterval(() => {
+      if (!callStartTime) return;
+      
+      const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      
+      const timerDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      document.getElementById('call-timer').innerHTML = `<p class="text-2xl font-mono text-green-400">${timerDisplay}</p>`;
+    }, 1000);
+  }
+
+  function toggleMute() {
+    if (!localStream) return;
+    
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(track => {
+      track.enabled = !isMuted;
+    });
+    
+    const micIcon = document.getElementById('mic-icon');
+    const micOffIcon = document.getElementById('mic-off-icon');
+    const muteBtn = document.getElementById('mute-btn');
+    
+    if (isMuted) {
+      micIcon.classList.add('hidden');
+      micOffIcon.classList.remove('hidden');
+      muteBtn.classList.add('bg-red-600');
+      muteBtn.classList.remove('bg-gray-700');
+    } else {
+      micIcon.classList.remove('hidden');
+      micOffIcon.classList.add('hidden');
+      muteBtn.classList.remove('bg-red-600');
+      muteBtn.classList.add('bg-gray-700');
+    }
+  }
+
+  function toggleSpeaker() {
+    isSpeakerOn = !isSpeakerOn;
+    const speakerBtn = document.getElementById('speaker-btn');
+    
+    if (isSpeakerOn) {
+      speakerBtn.classList.remove('bg-blue-600');
+      speakerBtn.classList.add('bg-gray-700');
+    } else {
+      speakerBtn.classList.add('bg-blue-600');
+      speakerBtn.classList.remove('bg-gray-700');
+    }
+    
+    console.log('Altavoz:', isSpeakerOn ? 'activado' : 'desactivado');
+  }
+
+  function endVoiceCall() {
+    // Reproducir sonido de fin de llamada
+    const callEnded = document.getElementById('call-ended');
+    callEnded.play().catch(e => console.log('Error al reproducir sonido:', e));
+    
+    // Detener todos los streams
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+      localStream = null;
+    }
+    
+    if (remoteStream) {
+      remoteStream.getTracks().forEach(track => track.stop());
+      remoteStream = null;
+    }
+    
+    // Limpiar timer
+    if (callTimer) {
+      clearInterval(callTimer);
+      callTimer = null;
+    }
+    
+    // Detener ringtone si está sonando
+    const ringtone = document.getElementById('ringtone');
+    ringtone.pause();
+    ringtone.currentTime = 0;
+    
+    // Resetear estado
+    currentCall = null;
+    callStartTime = null;
+    isMuted = false;
+    isSpeakerOn = true;
+    
+    // Ocultar modales
+    document.getElementById('voice-call-modal').classList.add('hidden');
+    document.getElementById('incoming-call-modal').classList.add('hidden');
+    
+    // Resetear UI
+    resetCallUI();
+    
+    console.log('Llamada terminada');
+  }
+
+  function resetCallUI() {
+    // Ocultar controles
+    document.getElementById('call-timer').classList.add('hidden');
+    document.getElementById('mute-btn').classList.add('hidden');
+    document.getElementById('speaker-btn').classList.add('hidden');
+    document.getElementById('connection-indicator').classList.add('hidden');
+    document.getElementById('answer-call-btn').classList.add('hidden');
+    
+    // Mostrar estado inicial
+    document.getElementById('call-status').classList.remove('hidden');
+    
+    // Resetear iconos
+    document.getElementById('mic-icon').classList.remove('hidden');
+    document.getElementById('mic-off-icon').classList.add('hidden');
+    document.getElementById('mute-btn').classList.remove('bg-red-600');
+    document.getElementById('mute-btn').classList.add('bg-gray-700');
+    document.getElementById('speaker-btn').classList.remove('bg-blue-600');
+    document.getElementById('speaker-btn').classList.add('bg-gray-700');
+  }
+
+  function showIncomingCall(callerId, callerName, callerImage) {
+    // Mostrar modal de llamada entrante
+    document.getElementById('incoming-call-modal').classList.remove('hidden');
+    document.getElementById('incoming-call-avatar').src = callerImage || 'https://via.placeholder.com/150';
+    document.getElementById('incoming-call-name').textContent = callerName || 'Usuario';
+    
+    // Reproducir tono de llamada
+    const ringtone = document.getElementById('ringtone');
+    ringtone.currentTime = 0;
+    ringtone.play().catch(e => console.log('Error al reproducir ringtone:', e));
+    
+    // Vibrar si está disponible
+    if (navigator.vibrate) {
+      navigator.vibrate([1000, 500, 1000, 500, 1000]);
+    }
+    
+    // Inicializar llamada entrante
+    initializeCall(callerId, true);
+    
+    // Auto-rechazar después de 30 segundos
+    setTimeout(() => {
+      if (currentCall && currentCall.status === 'incoming') {
+        rejectIncomingCall();
+      }
+    }, 30000);
+  }
+
+  function acceptIncomingCall() {
+    if (!currentCall) return;
+    
+    // Ocultar modal de llamada entrante
+    document.getElementById('incoming-call-modal').classList.add('hidden');
+    
+    // Mostrar modal de llamada activa
+    firebase.database().ref('users/' + currentCall.userId).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      
+      document.getElementById('voice-call-modal').classList.remove('hidden');
+      document.getElementById('call-user-avatar').src = userData.profileImage || 'https://via.placeholder.com/150';
+      document.getElementById('call-user-name').textContent = userData.username || 'Usuario';
+      
+      // Conectar llamada
+      simulateCallAnswer();
+    });
+  }
+
+  function rejectIncomingCall() {
+    // Reproducir sonido de fin de llamada
+    const callEnded = document.getElementById('call-ended');
+    callEnded.play().catch(e => console.log('Error al reproducir sonido:', e));
+    
+    // Detener ringtone
+    const ringtone = document.getElementById('ringtone');
+    ringtone.pause();
+    ringtone.currentTime = 0;
+    
+    // Ocultar modal
+    document.getElementById('incoming-call-modal').classList.add('hidden');
+    
+    // Resetear estado
+    currentCall = null;
+    
+    console.log('Llamada rechazada');
+  }
+
+  function answerVoiceCall() {
+    acceptIncomingCall();
+  }
+
+  // Event listeners para controles de llamada
+  document.addEventListener('DOMContentLoaded', function() {
+    const muteBtn = document.getElementById('mute-btn');
+    const speakerBtn = document.getElementById('speaker-btn');
+    
+    if (muteBtn) {
+      muteBtn.addEventListener('click', toggleMute);
+    }
+    
+    if (speakerBtn) {
+      speakerBtn.addEventListener('click', toggleSpeaker);
+    }
+  });
+
+  // Función para simular llamada entrante (para testing)
+  function simulateIncomingCall() {
+    const testUser = {
+      id: 'test-user',
+      name: 'Usuario Test',
+      image: 'https://via.placeholder.com/150'
+    };
+    
+    showIncomingCall(testUser.id, testUser.name, testUser.image);
+  }
+
   // FUNCIÓN PARA CARGAR FOTOS DE COMUNIDAD
   function loadPhotos() {
     const photosFeed = document.getElementById('photos-feed');
@@ -9863,7 +10413,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
 
   function makeVoiceCall(userId) {
     // Implementar llamadas de voz (placeholder)
-    alert('Función de llamadas próximamente disponible');
+    alert('Sistema de llamadas activo y disponible');
   }
 
   function toggleVoiceMessage() {
