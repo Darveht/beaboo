@@ -1264,114 +1264,229 @@ setInterval(checkScheduledChapters, 60000);
   </div>
 </div>
 
-<!-- MODAL DE REPORTAR PERFIL ESTILO TWITTER/X -->
-<div id="report-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 ease-out" style="z-index: 9999;">
-  <div class="report-modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-all duration-300 ease-out">
-    <!-- Header con gradiente -->
-    <div class="bg-gradient-to-r from-[#1DA1F2] to-[#0084b4] text-white p-6 rounded-t-2xl">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div>
-            <h2 id="report-title" class="text-xl font-bold">Reportar Perfil</h2>
-            <p class="text-white/80 text-sm">Ayúdanos a mantener la comunidad segura</p>
-          </div>
-        </div>
-        <button onclick="closeReportModal()" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+<!-- MODAL DE REPORTAR PERFIL RESPONSIVE -->
+<div id="report-modal" class="fixed inset-0 bg-black/50 z-50 hidden">
+  <!-- Vista móvil - pantalla completa -->
+  <div class="block md:hidden w-full h-full bg-white">
+    <!-- Header fijo -->
+    <div class="bg-gradient-to-r from-[#1DA1F2] to-[#0084b4] text-white p-4 sticky top-0 z-10">
+      <div class="flex items-center justify-between">
+        <button onclick="closeReportModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
+        <h2 class="text-lg font-bold">Reportar Perfil</h2>
+        <div class="w-10"></div>
       </div>
+      <p class="text-white/80 text-sm mt-2 text-center">Ayúdanos a mantener la comunidad segura</p>
     </div>
 
-    <!-- Contenido principal -->
-    <div class="p-6">
-      <p id="report-instructions" class="text-gray-600 mb-6">Selecciona el motivo del reporte para ayudarnos a revisar más rápido:</p>
+    <!-- Contenido scrolleable -->
+    <div class="flex-1 overflow-y-auto p-4 pb-32">
+      <p class="text-gray-600 mb-6">Selecciona el motivo del reporte:</p>
       
-      <form id="report-form" class="space-y-4">
-        <!-- Opciones de reporte con radio buttons personalizados -->
+      <form id="report-form-mobile" class="space-y-4">
         <div class="space-y-3">
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('perfil_falso')">
+          <label class="report-option block p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('perfil_falso')">
             <input type="radio" name="report-reason" value="perfil_falso" class="hidden">
-            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
-              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-gray-900">Perfil falso</div>
-              <div class="text-sm text-gray-500">El autor está suplantando identidad</div>
+            <div class="flex items-center">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 text-lg">Perfil falso</div>
+                <div class="text-sm text-gray-500">El autor está suplantando identidad</div>
+              </div>
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('spam')">
+          <label class="report-option block p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('spam')">
             <input type="radio" name="report-reason" value="spam" class="hidden">
-            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
-              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-gray-900">Spam</div>
-              <div class="text-sm text-gray-500">Contenido repetitivo o promocional</div>
+            <div class="flex items-center">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 text-lg">Spam</div>
+                <div class="text-sm text-gray-500">Contenido repetitivo o promocional</div>
+              </div>
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('contenido_inapropiado')">
+          <label class="report-option block p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('contenido_inapropiado')">
             <input type="radio" name="report-reason" value="contenido_inapropiado" class="hidden">
-            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
-              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-gray-900">Contenido inapropiado</div>
-              <div class="text-sm text-gray-500">Violencia, acoso o contenido ofensivo</div>
+            <div class="flex items-center">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 text-lg">Contenido inapropiado</div>
+                <div class="text-sm text-gray-500">Violencia, acoso o contenido ofensivo</div>
+              </div>
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('infraccion_normas')">
+          <label class="report-option block p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('infraccion_normas')">
             <input type="radio" name="report-reason" value="infraccion_normas" class="hidden">
-            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
-              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-gray-900">Infracción a las normas</div>
-              <div class="text-sm text-gray-500">Viola los términos de servicio</div>
+            <div class="flex items-center">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 text-lg">Infracción a las normas</div>
+                <div class="text-sm text-gray-500">Viola los términos de servicio</div>
+              </div>
             </div>
           </label>
 
-          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('otro')">
+          <label class="report-option block p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('otro')">
             <input type="radio" name="report-reason" value="otro" class="hidden">
-            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
-              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-gray-900">Otro motivo</div>
-              <div class="text-sm text-gray-500">Especifica en el campo de abajo</div>
+            <div class="flex items-center">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 text-lg">Otro motivo</div>
+                <div class="text-sm text-gray-500">Especifica en el campo de abajo</div>
+              </div>
             </div>
           </label>
         </div>
 
-        <!-- Textarea mejorado -->
-        <div class="relative">
-          <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-[#1DA1F2] focus:bg-white focus:outline-none resize-none transition-all duration-200" rows="3" maxlength="500" oninput="updateCharCounter()"></textarea>
+        <div class="relative mt-6">
+          <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-[#1DA1F2] focus:bg-white focus:outline-none resize-none transition-all duration-200 text-lg" rows="4" maxlength="500" oninput="updateCharCounter()"></textarea>
           <div class="absolute bottom-3 right-3 text-xs text-gray-400" id="char-counter">
             <span id="char-count">0</span>/500
           </div>
         </div>
-
-        <!-- Botón de envío mejorado -->
-        <button id="btn-enviar-report" type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-xl font-bold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-          <span class="send-text">Enviar Reporte</span>
-          <span class="loading-text hidden">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Enviando...
-          </span>
-        </button>
       </form>
+    </div>
+
+    <!-- Botón fijo en la parte inferior -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
+      <button id="btn-enviar-report" onclick="sendReport()" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-xl font-bold transition-all duration-200 transform active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-lg" disabled>
+        <span class="send-text">Enviar Reporte</span>
+        <span class="loading-text hidden">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Enviando...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Vista desktop - modal centrado -->
+  <div class="hidden md:flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 ease-out">
+      <!-- Header con gradiente -->
+      <div class="bg-gradient-to-r from-[#1DA1F2] to-[#0084b4] text-white p-6 rounded-t-2xl">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold">Reportar Perfil</h2>
+              <p class="text-white/80 text-sm">Ayúdanos a mantener la comunidad segura</p>
+            </div>
+          </div>
+          <button onclick="closeReportModal()" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="p-6">
+        <p class="text-gray-600 mb-6">Selecciona el motivo del reporte para ayudarnos a revisar más rápido:</p>
+        
+        <form id="report-form-desktop" class="space-y-4">
+          <!-- Opciones de reporte con radio buttons personalizados -->
+          <div class="space-y-3">
+            <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('perfil_falso')">
+              <input type="radio" name="report-reason" value="perfil_falso" class="hidden">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900">Perfil falso</div>
+                <div class="text-sm text-gray-500">El autor está suplantando identidad</div>
+              </div>
+            </label>
+
+            <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('spam')">
+              <input type="radio" name="report-reason" value="spam" class="hidden">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900">Spam</div>
+                <div class="text-sm text-gray-500">Contenido repetitivo o promocional</div>
+              </div>
+            </label>
+
+            <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('contenido_inapropiado')">
+              <input type="radio" name="report-reason" value="contenido_inapropiado" class="hidden">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900">Contenido inapropiado</div>
+                <div class="text-sm text-gray-500">Violencia, acoso o contenido ofensivo</div>
+              </div>
+            </label>
+
+            <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('infraccion_normas')">
+              <input type="radio" name="report-reason" value="infraccion_normas" class="hidden">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900">Infracción a las normas</div>
+                <div class="text-sm text-gray-500">Viola los términos de servicio</div>
+              </div>
+            </label>
+
+            <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200" onclick="selectReportOption('otro')">
+              <input type="radio" name="report-reason" value="otro" class="hidden">
+              <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900">Otro motivo</div>
+                <div class="text-sm text-gray-500">Especifica en el campo de abajo</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Textarea mejorado -->
+          <div class="relative">
+            <textarea id="report-description-desktop" placeholder="Describe el problema (opcional)" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-[#1DA1F2] focus:bg-white focus:outline-none resize-none transition-all duration-200" rows="3" maxlength="500" oninput="updateCharCounter()"></textarea>
+            <div class="absolute bottom-3 right-3 text-xs text-gray-400" id="char-counter-desktop">
+              <span id="char-count-desktop">0</span>/500
+            </div>
+          </div>
+
+          <!-- Botón de envío mejorado -->
+          <button id="btn-enviar-report-desktop" onclick="sendReport()" type="button" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-xl font-bold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            <span class="send-text">Enviar Reporte</span>
+            <span class="loading-text hidden">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Enviando...
+            </span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -6426,33 +6541,52 @@ function saveNote() {
   firebase.initializeApp(firebaseConfig);
   // Todos los usuarios están autorizados para transmitir en vivo
   const authorizedEmails = [];
-  /*********************** SISTEMA DE REPORTES **************************/
+  /*********************** SISTEMA DE REPORTES MEJORADO **************************/
   let selectedReportReason = null;
   let reportedUserId = null;
 
   function openReportModal() {
     const modal = document.getElementById('report-modal');
-    modal.classList.remove('pointer-events-none');
-    setTimeout(() => {
-      modal.classList.remove('opacity-0');
-      modal.querySelector('.report-modal-content').classList.remove('scale-95');
-      modal.querySelector('.report-modal-content').classList.add('scale-100');
-    }, 10);
+    modal.classList.remove('hidden');
+    
+    // Prevenir scroll del body en móviles
+    document.body.style.overflow = 'hidden';
+    
+    // Forzar pantalla completa en móviles
+    if (window.innerWidth <= 768) {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen error:', e));
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+      }
+    }
   }
 
   function closeReportModal() {
     const modal = document.getElementById('report-modal');
-    modal.classList.add('opacity-0');
-    modal.querySelector('.report-modal-content').classList.remove('scale-100');
-    modal.querySelector('.report-modal-content').classList.add('scale-95');
-    setTimeout(() => {
-      modal.classList.add('pointer-events-none');
-      resetReportForm();
-    }, 300);
+    modal.classList.add('hidden');
+    
+    // Restaurar scroll del body
+    document.body.style.overflow = '';
+    
+    // Salir de pantalla completa en móviles
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+    
+    resetReportForm();
   }
 
   function selectReportOption(reason) {
-    // Limpiar selecciones anteriores
+    // Limpiar selecciones anteriores en ambas vistas
     document.querySelectorAll('.report-option').forEach(option => {
       const radioDot = option.querySelector('.radio-dot');
       const border = option.querySelector('.radio-custom');
@@ -6463,22 +6597,50 @@ function saveNote() {
       option.classList.remove('border-[#1DA1F2]', 'bg-blue-50');
     });
 
-    // Seleccionar la opción actual
-    const selectedOption = document.querySelector(`input[value="${reason}"]`).closest('.report-option');
-    const radioDot = selectedOption.querySelector('.radio-dot');
-    const border = selectedOption.querySelector('.radio-custom');
-    
-    radioDot.classList.remove('opacity-0', 'scale-0');
-    radioDot.classList.add('opacity-100', 'scale-100');
-    border.classList.remove('border-gray-300');
-    border.classList.add('border-[#1DA1F2]');
-    selectedOption.classList.add('border-[#1DA1F2]', 'bg-blue-50');
+    // Seleccionar la opción actual en ambas vistas
+    document.querySelectorAll(`input[value="${reason}"]`).forEach(input => {
+      const selectedOption = input.closest('.report-option');
+      const radioDot = selectedOption.querySelector('.radio-dot');
+      const border = selectedOption.querySelector('.radio-custom');
+      
+      radioDot.classList.remove('opacity-0', 'scale-0');
+      radioDot.classList.add('opacity-100', 'scale-100');
+      border.classList.remove('border-gray-300');
+      border.classList.add('border-[#1DA1F2]');
+      selectedOption.classList.add('border-[#1DA1F2]', 'bg-blue-50');
+    });
 
     selectedReportReason = reason;
     
-    // Habilitar el botón de envío
-    const submitBtn = document.getElementById('btn-enviar-report');
-    submitBtn.disabled = false;
+    // Habilitar ambos botones de envío
+    const submitBtnMobile = document.getElementById('btn-enviar-report');
+    const submitBtnDesktop = document.getElementById('btn-enviar-report-desktop');
+    
+    if (submitBtnMobile) submitBtnMobile.disabled = false;
+    if (submitBtnDesktop) submitBtnDesktop.disabled = false;
+  }
+
+  function updateCharCounter() {
+    // Detectar si estamos en móvil o desktop
+    const isMobile = window.innerWidth <= 768;
+    const textarea = isMobile ? 
+      document.getElementById('report-description') : 
+      document.getElementById('report-description-desktop');
+    const charCount = isMobile ? 
+      document.getElementById('char-count') : 
+      document.getElementById('char-count-desktop');
+    
+    if (!textarea || !charCount) return;
+    
+    const currentLength = textarea.value.length;
+    charCount.textContent = currentLength;
+    
+    const counter = charCount.parentElement;
+    if (currentLength > 450) {
+      counter.classList.add('text-red-500');
+    } else {
+      counter.classList.remove('text-red-500');
+    }
   }
 
   function updateCharCounter() {
@@ -6525,8 +6687,17 @@ function saveNote() {
       return;
     }
 
-    const description = document.getElementById('report-description').value.trim();
-    const submitBtn = document.getElementById('btn-enviar-report');
+    // Detectar si estamos en móvil o desktop para obtener la descripción correcta
+    const isMobile = window.innerWidth <= 768;
+    const description = isMobile ? 
+      document.getElementById('report-description').value.trim() : 
+      document.getElementById('report-description-desktop').value.trim();
+    
+    // Obtener el botón correcto según la plataforma
+    const submitBtn = isMobile ? 
+      document.getElementById('btn-enviar-report') : 
+      document.getElementById('btn-enviar-report-desktop');
+    
     const sendText = submitBtn.querySelector('.send-text');
     const loadingText = submitBtn.querySelector('.loading-text');
 
@@ -6546,6 +6717,11 @@ function saveNote() {
     };
 
     firebase.database().ref('reports').push(reportData).then(() => {
+      // Iniciar análisis automático del perfil reportado
+      if (selectedReportReason === 'perfil_falso') {
+        startAutomaticProfileAnalysis(reportedUserId || currentViewedAuthorId, user.uid);
+      }
+      
       // Mostrar modal de respuesta
       setTimeout(() => {
         closeReportModal();
@@ -6559,6 +6735,180 @@ function saveNote() {
       submitBtn.disabled = false;
       sendText.classList.remove('hidden');
       loadingText.classList.add('hidden');
+    });
+  }
+
+  // ALGORITMO DE DETECCIÓN AUTOMÁTICA DE PERFILES FALSOS
+  function startAutomaticProfileAnalysis(reportedUserId, reporterUserId) {
+    // Mostrar notificación de análisis iniciado
+    addNotification(reporterUserId, 'Hemos iniciado el análisis automático del perfil reportado. Te notificaremos el resultado en 30 segundos.', 'analysis');
+    
+    // Iniciar análisis con temporizador de 30 segundos
+    setTimeout(() => {
+      analyzeProfileForFakeContent(reportedUserId, reporterUserId);
+    }, 30000); // 30 segundos
+  }
+
+  function analyzeProfileForFakeContent(reportedUserId, reporterUserId) {
+    firebase.database().ref('users/' + reportedUserId).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      if (!userData) return;
+
+      let suspicionLevel = 0;
+      let detectedIssues = [];
+
+      // 1. Análisis del nombre de usuario
+      const username = userData.username || '';
+      const suspiciousPatterns = [
+        /^[a-z]+\d{4,}$/i, // Letras seguidas de 4+ números
+        /^(test|fake|bot|spam)/i, // Palabras sospechosas
+        /([a-z])\1{3,}/i, // Letras repetidas 4+ veces
+        /^[a-z]{1,3}\d{1,3}[a-z]{1,3}\d{1,3}$/i, // Patrón alternado sospechoso
+        /(admin|oficial|verified|check|mark)/i, // Intentos de parecer oficial
+        /([0-9]){6,}/, // 6 o más números seguidos
+        /^(.)\1+$/, // Solo un carácter repetido
+        /(celebrity|famoso|star|idol)/i // Intentos de suplantación de celebridades
+      ];
+
+      suspiciousPatterns.forEach(pattern => {
+        if (pattern.test(username)) {
+          suspicionLevel += 15;
+          detectedIssues.push('Patrón sospechoso en nombre de usuario');
+        }
+      });
+
+      // 2. Análisis de la biografía
+      const bio = userData.bio || '';
+      const suspiciousBioPatterns = [
+        /(soy|I am).*(famoso|celebrity|influencer|actor|actress)/i,
+        /(oficial|official|real|authentic)/i,
+        /(mi cuenta real|this is my real account)/i,
+        /(verificado|verified|check)/i,
+        /https?:\/\/[^\s]+/g // Enlaces sospechosos
+      ];
+
+      suspiciousBioPatterns.forEach(pattern => {
+        if (pattern.test(bio)) {
+          suspicionLevel += 10;
+          detectedIssues.push('Contenido sospechoso en biografía');
+        }
+      });
+
+      // 3. Análisis de actividad
+      const createdAt = userData.createdAt || Date.now();
+      const accountAge = Date.now() - createdAt;
+      const daysSinceCreation = accountAge / (1000 * 60 * 60 * 24);
+
+      if (daysSinceCreation < 1) {
+        suspicionLevel += 20;
+        detectedIssues.push('Cuenta muy reciente (menos de 24 horas)');
+      } else if (daysSinceCreation < 7) {
+        suspicionLevel += 10;
+        detectedIssues.push('Cuenta reciente (menos de 7 días)');
+      }
+
+      // 4. Análisis de imagen de perfil
+      const profileImage = userData.profileImage || '';
+      if (profileImage.includes('placeholder') || profileImage.includes('default') || !profileImage) {
+        suspicionLevel += 5;
+        detectedIssues.push('Sin imagen de perfil personalizada');
+      }
+
+      // 5. Análisis de redes sociales
+      const socialLinks = [userData.instagram, userData.tiktok, userData.website, userData.inkspired].filter(Boolean);
+      if (socialLinks.length === 0) {
+        suspicionLevel += 5;
+        detectedIssues.push('Sin enlaces a redes sociales');
+      }
+
+      // 6. Análisis de actividad de historias
+      firebase.database().ref('stories').orderByChild('userId').equalTo(reportedUserId).once('value').then(storiesSnapshot => {
+        const storiesCount = storiesSnapshot.numChildren();
+        
+        if (storiesCount === 0) {
+          suspicionLevel += 10;
+          detectedIssues.push('Sin historias publicadas');
+        }
+
+        // 7. Análisis de interacciones
+        firebase.database().ref('following/' + reportedUserId).once('value').then(followingSnapshot => {
+          const followingCount = followingSnapshot.numChildren();
+          
+          firebase.database().ref('followers/' + reportedUserId).once('value').then(followersSnapshot => {
+            const followersCount = followersSnapshot.numChildren();
+            
+            // Ratio sospechoso de seguidos vs seguidores
+            if (followingCount > 100 && followersCount < 10) {
+              suspicionLevel += 15;
+              detectedIssues.push('Ratio sospechoso de seguidos/seguidores');
+            }
+
+            // Determinar resultado del análisis
+            let analysisResult = '';
+            let actionTaken = '';
+
+            if (suspicionLevel >= 50) {
+              // Perfil muy sospechoso - bloqueo automático
+              actionTaken = 'blocked';
+              analysisResult = 'El análisis detectó múltiples indicadores de perfil falso. La cuenta ha sido bloqueada automáticamente.';
+              
+              // Bloquear cuenta
+              firebase.database().ref('users/' + reportedUserId).update({
+                blocked: true,
+                blockReason: 'Perfil falso detectado automáticamente',
+                blockTimestamp: Date.now(),
+                suspicionLevel: suspicionLevel,
+                detectedIssues: detectedIssues
+              });
+
+            } else if (suspicionLevel >= 30) {
+              // Perfil sospechoso - marcar para revisión manual
+              actionTaken = 'flagged';
+              analysisResult = 'El análisis detectó algunos indicadores sospechosos. El perfil ha sido marcado para revisión manual por nuestro equipo.';
+              
+              firebase.database().ref('users/' + reportedUserId).update({
+                flagged: true,
+                flagReason: 'Perfil sospechoso - revisión manual requerida',
+                flagTimestamp: Date.now(),
+                suspicionLevel: suspicionLevel,
+                detectedIssues: detectedIssues
+              });
+
+            } else {
+              // Perfil parece legítimo
+              actionTaken = 'cleared';
+              analysisResult = 'El análisis no encontró indicadores significativos de perfil falso. El perfil parece ser legítimo.';
+            }
+
+            // Enviar notificación con el resultado
+            const notificationMessage = `Análisis completado: ${analysisResult} Nivel de sospecha: ${suspicionLevel}/100. Problemas detectados: ${detectedIssues.length}`;
+            addNotification(reporterUserId, notificationMessage, 'analysis_result');
+
+            // Registrar el análisis en la base de datos
+            firebase.database().ref('automaticAnalysis').push({
+              reportedUserId: reportedUserId,
+              reporterUserId: reporterUserId,
+              suspicionLevel: suspicionLevel,
+              detectedIssues: detectedIssues,
+              result: actionTaken,
+              timestamp: Date.now(),
+              analysisDetails: {
+                username: username,
+                accountAge: daysSinceCreation,
+                storiesCount: storiesCount,
+                followingCount: followingCount,
+                followersCount: followersCount
+              }
+            });
+
+            console.log(`Análisis automático completado para usuario ${reportedUserId}:`, {
+              suspicionLevel,
+              detectedIssues,
+              actionTaken
+            });
+          });
+        });
+      });
     });
   }
 
@@ -6780,11 +7130,11 @@ function saveNote() {
       }, 1000);
     }, 3000);
   });
-  /*********************** NOTIFICACIONES **************************/
+  /*********************** NOTIFICACIONES MEJORADAS **************************/
   async function addNotification(userId, message, type = 'info') {
     const notificationsRef = firebase.database().ref('notifications/' + userId);
     const newNotificationRef = notificationsRef.push();
-    newNotificationRef.set({
+    await newNotificationRef.set({
       message: message,
       timestamp: Date.now(),
       read: false,
@@ -6792,53 +7142,191 @@ function saveNote() {
       notificationId: newNotificationRef.key
     });
     
-    // Play sound based on notification type
-    const audio = new Audio();
-    switch(type) {
-      case 'follow':
-        audio.src = 'https://assets.mixkit.co/active_storage/sfx/213/213.wav';
-        break;
-      case 'like':
-        audio.src = 'https://assets.mixkit.co/active_storage/sfx/208/208.wav';
-        break;
-      case 'comment':
-        audio.src = 'https://assets.mixkit.co/active_storage/sfx/221/221.wav';
-        break;
-      default:
-        audio.src = 'https://assets.mixkit.co/active_storage/sfx/206/206.wav';
-    }
-    audio.play().catch(e => console.log('Audio play failed:', e));
+    // Reproducir sonido según el tipo de notificación
+    playNotificationSound(type);
     
-    // Handle notifications for both mobile and desktop
-    if ('Notification' in window) {
-      if (Notification.permission === "granted") {
-        new Notification("BeaBoo", {
-          body: message,
-          icon: "https://cdn-icons-png.flaticon.com/512/907/907822.png",
-          vibrate: [200, 100, 200]
-        });
-      } else if (Notification.permission !== "denied") {
-        // Request permission on mobile
-        try {
-          const permission = await Notification.requestPermission();
-          if (permission === "granted") {
-            new Notification("BeaBoo", {
-              body: message,
-              icon: "https://cdn-icons-png.flaticon.com/512/907/907822.png",
-              vibrate: [200, 100, 200]
-            });
-          }
-        } catch (error) {
-          console.log('Notification permission error:', error);
+    // Manejar notificaciones push para móviles y desktop
+    await handlePushNotification(message, type);
+    
+    // Vibración para dispositivos móviles
+    triggerMobileVibration(type);
+    
+    // Mostrar notificación visual en la app
+    showInAppNotification(message, type);
+  }
+
+  function playNotificationSound(type) {
+    try {
+      const audio = new Audio();
+      switch(type) {
+        case 'follow':
+          audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+H'.split(',')[0];
+          break;
+        case 'like':
+          audio.src = 'data:audio/wav;base64,UklGRmAGAABXQVZFZm10IBAAAAABAAEAIlYAAEJWAAABAAgAZGF0YQwGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+H'.split(',')[0];
+          break;
+        case 'analysis':
+        case 'analysis_result':
+          audio.src = 'data:audio/wav;base64,UklGRlAGAABXQVZFZm10IBAAAAABAAEARUYAAJRGAAABAAgAZGF0YQwGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+H'.split(',')[0];
+          break;
+        default:
+          audio.src = 'data:audio/wav;base64,UklGRkAGAABXQVZFZm10IBAAAAABAAEAcUYAAHFGAAABAAgAZGF0YQwGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+H'.split(',')[0];
+      }
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    } catch (error) {
+      console.log('Error playing notification sound:', error);
+    }
+  }
+
+  async function handlePushNotification(message, type) {
+    // Verificar soporte de notificaciones
+    if (!('Notification' in window)) {
+      console.log('Este navegador no soporta notificaciones de escritorio');
+      return;
+    }
+
+    // Función para mostrar la notificación
+    const showNotification = () => {
+      const iconMap = {
+        follow: 'https://cdn-icons-png.flaticon.com/512/1077/1077012.png',
+        like: 'https://cdn-icons-png.flaticon.com/512/833/833472.png',
+        analysis: 'https://cdn-icons-png.flaticon.com/512/2920/2920277.png',
+        analysis_result: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
+        info: 'https://cdn-icons-png.flaticon.com/512/907/907822.png'
+      };
+
+      const notification = new Notification('BeaBoo', {
+        body: message,
+        icon: iconMap[type] || iconMap.info,
+        badge: 'https://cdn-icons-png.flaticon.com/512/907/907822.png',
+        tag: type + '_' + Date.now(),
+        requireInteraction: type === 'analysis_result', // Requiere interacción para resultados importantes
+        silent: false,
+        vibrate: getVibrationPattern(type),
+        data: {
+          type: type,
+          timestamp: Date.now()
         }
+      });
+
+      notification.onclick = function() {
+        window.focus();
+        notification.close();
+        
+        // Abrir la sección de notificaciones
+        if (typeof openNotifications === 'function') {
+          openNotifications();
+        }
+      };
+
+      // Auto-cerrar después de 5 segundos (excepto para resultados de análisis)
+      if (type !== 'analysis_result') {
+        setTimeout(() => {
+          notification.close();
+        }, 5000);
+      }
+    };
+
+    // Verificar y solicitar permisos
+    if (Notification.permission === 'granted') {
+      showNotification();
+    } else if (Notification.permission === 'default') {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          showNotification();
+        }
+      } catch (error) {
+        console.log('Error solicitando permisos de notificación:', error);
       }
     }
-    
-    // Fallback vibration for mobile devices
-    if (navigator.vibrate) {
-      navigator.vibrate([200, 100, 200]);
+  }
+
+  function triggerMobileVibration(type) {
+    if (!navigator.vibrate) return;
+
+    const vibrationPattern = getVibrationPattern(type);
+    navigator.vibrate(vibrationPattern);
+  }
+
+  function getVibrationPattern(type) {
+    switch(type) {
+      case 'follow':
+        return [200, 100, 200];
+      case 'like':
+        return [100, 50, 100];
+      case 'analysis':
+        return [300, 200, 300, 200, 300];
+      case 'analysis_result':
+        return [500, 200, 500];
+      default:
+        return [200, 100, 200];
     }
-}
+  }
+
+  function showInAppNotification(message, type) {
+    // Crear elemento de notificación visual dentro de la app
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 max-w-sm bg-white border-l-4 border-${getTypeColor(type)} rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ease-out`;
+    
+    const iconMap = {
+      follow: '👥',
+      like: '❤️',
+      analysis: '🔍',
+      analysis_result: '✅',
+      info: 'ℹ️'
+    };
+
+    notification.innerHTML = `
+      <div class="p-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <span class="text-2xl">${iconMap[type] || iconMap.info}</span>
+          </div>
+          <div class="ml-3 flex-1">
+            <p class="text-sm text-gray-900 font-medium">BeaBoo</p>
+            <p class="text-sm text-gray-600 mt-1">${message}</p>
+          </div>
+          <button onclick="this.parentElement.parentElement.parentElement.remove()" class="ml-4 text-gray-400 hover:text-gray-600">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animación de entrada
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full');
+      notification.classList.add('translate-x-0');
+    }, 100);
+
+    // Auto-remover después de un tiempo
+    const duration = type === 'analysis_result' ? 10000 : 5000;
+    setTimeout(() => {
+      notification.classList.remove('translate-x-0');
+      notification.classList.add('translate-x-full');
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 300);
+    }, duration);
+  }
+
+  function getTypeColor(type) {
+    switch(type) {
+      case 'follow': return 'blue-500';
+      case 'like': return 'red-500';
+      case 'analysis': return 'yellow-500';
+      case 'analysis_result': return 'green-500';
+      default: return 'gray-500';
+    }
+  }
 
   function openNotifications() {
     if (document.documentElement.requestFullscreen) {
