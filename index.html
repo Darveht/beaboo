@@ -4806,117 +4806,65 @@ function toggleVoiceInput() {
   </div>
 </div>
 
-<!-- MODAL DE REPORTE DE TRANSMISIÓN EN VIVO ESTILO TWITTER -->
-<div id="live-report-modal" class="fixed inset-0 bg-white z-50 opacity-0 pointer-events-none transition-opacity duration-300">
-  <div class="h-full flex flex-col">
-    <!-- Header estilo Twitter -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200">
-      <div class="flex items-center">
-        <button onclick="closeLiveReportModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors mr-4">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-          </svg>
-        </button>
-        <h1 class="text-xl font-bold">Reportar transmisión</h1>
-      </div>
-      <button id="submit-live-report-btn" onclick="submitLiveReport()" disabled class="bg-gray-300 text-gray-500 px-6 py-2 rounded-full font-bold transition-colors">
-        Reportar
+<!-- MODAL DE REPORTE DE TRANSMISIÓN EN VIVO -->
+<div id="live-report-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 text-black">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-[#FE2C55]">Reportar Live</h2>
+      <button onclick="closeLiveReportModal()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
       </button>
     </div>
 
-    <!-- Contenido del reporte de transmisión -->
-    <div class="flex-1 overflow-y-auto p-4">
-      <div class="max-w-2xl mx-auto">
-        <!-- Información del streamer -->
-        <div class="bg-gray-50 rounded-xl p-4 mb-6">
-          <div class="flex items-center space-x-3">
-            <img id="report-streamer-avatar" src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full object-cover">
-            <div>
-              <h3 id="report-streamer-name" class="font-bold text-lg">Nombre del streamer</h3>
-              <p class="text-gray-600 text-sm">Transmisión en vivo</p>
-            </div>
-          </div>
+    <p class="mb-6 text-gray-600">¿Qué problema hay con esta transmisión en vivo?</p>
+
+    <div class="space-y-3 mb-6">
+      <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="liveReportReason" value="contenido_inapropiado" class="mr-3 text-[#FE2C55]" onchange="enableLiveReportSubmit()">
+        <div>
+          <div class="font-semibold">Contenido inapropiado</div>
+          <div class="text-sm text-gray-600">Desnudez, violencia o contenido sexual</div>
         </div>
-
-        <!-- Pregunta principal -->
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold mb-2">¿Qué está pasando en la transmisión?</h2>
-          <p class="text-gray-600">Selecciona la opción que mejor describa el problema con esta transmisión en vivo.</p>
+      </label>
+      
+      <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="liveReportReason" value="acoso" class="mr-3 text-[#FE2C55]" onchange="enableLiveReportSubmit()">
+        <div>
+          <div class="font-semibold">Acoso o bullying</div>
+          <div class="text-sm text-gray-600">Comportamiento abusivo hacia otros</div>
         </div>
-
-        <!-- Opciones de reporte para transmisiones -->
-        <div class="space-y-3">
-          <div class="live-report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectLiveReportOption('inappropriate_content')">
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 text-red-500 mt-1">
-                <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-bold text-lg">Contenido inapropiado</h3>
-                <p class="text-gray-600">Desnudez, contenido sexual o violento que no debería estar en una transmisión pública.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="live-report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectLiveReportOption('harassment')">
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 text-orange-500 mt-1">
-                <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-bold text-lg">Acoso o bullying</h3>
-                <p class="text-gray-600">El streamer está acosando, intimidando o siendo abusivo hacia otros usuarios.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="live-report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectLiveReportOption('hate_speech')">
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 text-red-600 mt-1">
-                <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-bold text-lg">Discurso de odio</h3>
-                <p class="text-gray-600">Contenido que promueve odio hacia grupos de personas por raza, religión, orientación sexual, etc.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="live-report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectLiveReportOption('illegal_activity')">
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 text-red-700 mt-1">
-                <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-bold text-lg">Actividad ilegal</h3>
-                <p class="text-gray-600">Se están mostrando actividades ilegales como drogas, violencia física o contenido criminal.</p>
-              </div>
-            </div>
-          </div>
+      </label>
+      
+      <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="liveReportReason" value="discurso_odio" class="mr-3 text-[#FE2C55]" onchange="enableLiveReportSubmit()">
+        <div>
+          <div class="font-semibold">Discurso de odio</div>
+          <div class="text-sm text-gray-600">Promueve odio hacia grupos específicos</div>
         </div>
-
-        <!-- Campo de descripción adicional -->
-        <div class="mt-8 mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Detalles adicionales (opcional)
-          </label>
-          <textarea id="live-report-details" placeholder="Proporciona más contexto sobre lo que está ocurriendo..." 
-                    class="w-full p-4 border border-gray-200 rounded-xl resize-none h-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    maxlength="280"
-                    oninput="checkOffensiveLanguage(this.value)"></textarea>
-          <div class="text-right text-sm text-gray-500 mt-1">
-            <span id="live-char-count">0</span>/280
-          </div>
+      </label>
+      
+      <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="liveReportReason" value="spam" class="mr-3 text-[#FE2C55]" onchange="enableLiveReportSubmit()">
+        <div>
+          <div class="font-semibold">Spam o estafa</div>
+          <div class="text-sm text-gray-600">Contenido promocional no deseado</div>
         </div>
-      </div>
+      </label>
+    </div>
+
+    <textarea id="live-report-details" placeholder="Detalles adicionales (opcional)" 
+              class="w-full p-3 border border-gray-200 rounded-lg resize-none h-20 mb-4"
+              maxlength="200"></textarea>
+
+    <div class="flex space-x-3">
+      <button onclick="closeLiveReportModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
+        Cancelar
+      </button>
+      <button id="submit-live-report-btn" onclick="submitLiveReport()" disabled class="flex-1 bg-gray-300 text-gray-500 py-3 rounded-lg">
+        Reportar
+      </button>
     </div>
   </div>
 </div>
@@ -6524,10 +6472,7 @@ function likeNote(noteId) {
   }
 
   // FUNCIONES PARA REPORTAR TRANSMISIONES EN VIVO
-  let selectedLiveReportReason = null;
-
   function openLiveReportModal() {
-    const modal = document.getElementById('live-report-modal');
     const currentUser = firebase.auth().currentUser;
     
     if (!currentUser) {
@@ -6535,130 +6480,67 @@ function likeNote(noteId) {
       return;
     }
 
-    // Cargar información del streamer
-    if (liveBroadcasterId) {
-      firebase.database().ref('users/' + liveBroadcasterId).once('value').then(snapshot => {
-        const streamerData = snapshot.val();
-        if (streamerData) {
-          document.getElementById('report-streamer-name').textContent = streamerData.username || 'Usuario';
-          document.getElementById('report-streamer-avatar').src = streamerData.profileImage || 'https://via.placeholder.com/50';
-        }
-      });
-    } else {
-      document.getElementById('report-streamer-name').textContent = 'Transmisor';
-      document.getElementById('report-streamer-avatar').src = 'https://via.placeholder.com/50';
-    }
-
-    modal.style.opacity = '1';
-    modal.style.pointerEvents = 'auto';
-    modal.classList.remove('hidden');
-    
-    // Configurar contador de caracteres
-    const textarea = document.getElementById('live-report-details');
-    const charCount = document.getElementById('live-char-count');
-    
-    textarea.addEventListener('input', function() {
-      charCount.textContent = this.value.length;
-    });
+    document.getElementById('live-report-modal').classList.remove('hidden');
   }
 
   function closeLiveReportModal() {
-    const modal = document.getElementById('live-report-modal');
-    modal.style.opacity = '0';
-    modal.style.pointerEvents = 'none';
-    modal.classList.add('hidden');
+    document.getElementById('live-report-modal').classList.add('hidden');
     
     // Resetear formulario
-    selectedLiveReportReason = null;
-    document.getElementById('live-report-details').value = '';
-    document.getElementById('live-char-count').textContent = '0';
-    document.getElementById('submit-live-report-btn').disabled = true;
-    document.getElementById('submit-live-report-btn').className = 'bg-gray-300 text-gray-500 px-6 py-2 rounded-full font-bold transition-colors';
-    
-    // Remover selección de opciones
-    document.querySelectorAll('.live-report-option').forEach(option => {
-      option.classList.remove('border-blue-500', 'bg-blue-50');
+    document.querySelectorAll('input[name="liveReportReason"]').forEach(radio => {
+      radio.checked = false;
     });
+    document.getElementById('live-report-details').value = '';
+    document.getElementById('submit-live-report-btn').disabled = true;
+    document.getElementById('submit-live-report-btn').className = 'flex-1 bg-gray-300 text-gray-500 py-3 rounded-lg';
   }
 
-  function selectLiveReportOption(reason) {
-    selectedLiveReportReason = reason;
-    
-    // Actualizar interfaz visual
-    document.querySelectorAll('.live-report-option').forEach(option => {
-      option.classList.remove('border-blue-500', 'bg-blue-50');
-    });
-    
-    event.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
-    
-    // Habilitar botón de envío
+  function enableLiveReportSubmit() {
     const submitBtn = document.getElementById('submit-live-report-btn');
     submitBtn.disabled = false;
-    submitBtn.className = 'bg-red-600 text-white px-6 py-2 rounded-full font-bold hover:bg-red-700 transition-colors';
+    submitBtn.className = 'flex-1 bg-[#FE2C55] text-white py-3 rounded-lg hover:bg-red-600 transition-colors';
   }
 
   function submitLiveReport() {
-    if (!selectedLiveReportReason) {
+    const selectedReason = document.querySelector('input[name="liveReportReason"]:checked');
+    
+    if (!selectedReason) {
       alert('Por favor selecciona un motivo para el reporte');
       return;
     }
 
     const currentUser = firebase.auth().currentUser;
-    if (!currentUser || !liveBroadcasterId) return;
+    if (!currentUser) return;
 
     const details = document.getElementById('live-report-details').value;
     
     // Mostrar indicador de procesamiento
     const submitBtn = document.getElementById('submit-live-report-btn');
-    const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Procesando...';
     submitBtn.disabled = true;
 
-    // Guardar reporte en Firebase
-    const reportData = {
-      reporterId: currentUser.uid,
-      streamerId: liveBroadcasterId,
-      reason: selectedLiveReportReason,
-      details: details,
-      timestamp: Date.now(),
-      status: 'pending',
-      type: 'live_report',
-      reporterInfo: {
-        username: currentUser.displayName || 'Usuario anónimo',
-        email: currentUser.email
-      }
-    };
-
-    firebase.database().ref('liveStreamReports').push(reportData)
-      .then(() => {
-        // Procesar reporte automáticamente
-        processReportAutomatically(reportData);
-        
-        closeLiveReportModal();
-        showReportSuccess();
-        
-        // Si es un reporte crítico, ejecutar acción inmediata
-        if (['inappropriate_content', 'harassment', 'hate_speech', 'illegal_activity'].includes(selectedLiveReportReason)) {
-          executeImmediateModeration(liveBroadcasterId, selectedLiveReportReason);
-        }
-      })
-      .catch(error => {
-        console.error('Error al enviar reporte:', error);
-        alert('Error al enviar el reporte. Intenta nuevamente.');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-      });
+    // Simular procesamiento del reporte
+    setTimeout(() => {
+      closeLiveReportModal();
+      showReportSuccess();
+    }, 2000);
   }
 
   // Función original para compatibilidad
   function openReportModal() {
-    // Determinar si es un reporte de perfil o de transmisión según el contexto
-    if (liveBroadcasterId && document.getElementById('live-view-modal').style.display !== 'none') {
+    // Verificar si estamos en una vista de live (espectador o transmisor)
+    const liveViewModal = document.getElementById('live-view-modal');
+    const liveStreamModal = document.getElementById('live-stream-modal');
+    
+    if ((!liveViewModal.classList.contains('hidden')) || (!liveStreamModal.classList.contains('hidden'))) {
+      // Estamos en una transmisión en vivo, abrir modal de reporte de live
       openLiveReportModal();
     } else if (currentViewedAuthorId) {
+      // Estamos viendo un perfil de autor, abrir modal de reporte de perfil
       openProfileReportModal(currentViewedAuthorId);
     } else {
-      openProfileReportModal(currentViewedAuthorId || 'unknown');
+      // Fallback - abrir modal de reporte de perfil genérico
+      openProfileReportModal('unknown');
     }
   }
 
