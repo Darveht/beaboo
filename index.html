@@ -4477,60 +4477,7 @@ function toggleVoiceInput() {
       </div>
     </div>
 
-    <!-- Banner promocional pequeño (estilo TikTok) -->
-    <div id="promo-banner" class="absolute bottom-24 left-4 right-4 bg-black/30 backdrop-blur-sm rounded-lg p-2 flex items-center cursor-pointer" onclick="expandPromoBanner()">
-      <div class="flex-shrink-0 mr-2">
-        <i class="fas fa-broadcast-tower" style="color: #00D6C9; font-size: 20px;"></i>
-      </div>
-      <div class="flex-grow">
-        <p class="text-white text-sm">Descubre funciones LIVE exclusivas</p>
-      </div>
-      <div class="flex-shrink-0">
-        <i class="fas fa-chevron-up text-white"></i>
-      </div>
-    </div>
-
-    <!-- Banner expandido -->
-    <div id="expanded-banner" class="fixed inset-x-0 bottom-0 h-1/2 bg-black/80 backdrop-blur-md z-60 rounded-t-xl transition-transform duration-300 transform translate-y-full">
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-[#00D6C9] text-xl font-bold">Funciones LIVE</h3>
-          <button onclick="closeExpandedBanner()" class="text-white">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="grid grid-cols-2 gap-4 mb-6">
-          <div class="bg-white/10 p-3 rounded-lg">
-            <i class="fas fa-heart text-pink-500 text-2xl mb-2"></i>
-            <h4 class="text-white font-medium mb-1">Doble tap</h4>
-            <p class="text-gray-300 text-sm">Toca dos veces para enviar corazones</p>
-          </div>
-          <div class="bg-white/10 p-3 rounded-lg">
-            <i class="fas fa-gift text-[#00D6C9] text-2xl mb-2"></i>
-            <h4 class="text-white font-medium mb-1">Regalos</h4>
-            <p class="text-gray-300 text-sm">Envía regalos y sorprende al creador</p>
-          </div>
-          <div class="bg-white/10 p-3 rounded-lg">
-            <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
-            <h4 class="text-white font-medium mb-1">Monetización</h4>
-            <p class="text-gray-300 text-sm">Gana por tus transmisiones</p>
-          </div>
-          <div class="bg-white/10 p-3 rounded-lg">
-            <i class="fas fa-users text-blue-500 text-2xl mb-2"></i>
-            <h4 class="text-white font-medium mb-1">Comunidad</h4>
-            <p class="text-gray-300 text-sm">Conecta con tus seguidores en vivo</p>
-          </div>
-        </div>
-        <!-- Animación moderna de hilos subiendo de forma infinita -->
-        <div id="animated-lines">
-          <div class="line" style="left: 10%; animation-delay: 0s;"></div>
-          <div class="line" style="left: 30%; animation-delay: 0.5s;"></div>
-          <div class="line" style="left: 50%; animation-delay: 1s;"></div>
-          <div class="line" style="left: 70%; animation-delay: 1.5s;"></div>
-          <div class="line" style="left: 90%; animation-delay: 2s;"></div>
-        </div>
-      </div>
-    </div>
+    
 
     <!-- Contador de taps/corazones para el espectador -->
     <div id="viewer-tapCount" class="absolute top-16 right-4 text-lg bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full text-[#00D6C9]">
@@ -4567,9 +4514,9 @@ function toggleVoiceInput() {
       
       <!-- Botón de reportar -->
       <div class="side-button flex flex-col items-center">
-        <button class="w-14 h-14 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/50 transition-all duration-200 group" id="reportButtonViewer" onclick="showReportModal()">
+        <button class="w-14 h-14 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/50 transition-all duration-200 group" onclick="openReportModal()">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </button>
         <span class="text-white text-xs mt-1 font-medium">Reportar</span>
@@ -6179,13 +6126,7 @@ function likeNote(noteId) {
     document.getElementById('live-view-modal').classList.add('hidden');
   }
 
-  function expandPromoBanner() {
-    document.getElementById('expanded-banner').classList.remove('translate-y-full');
-  }
-
-  function closeExpandedBanner() {
-    document.getElementById('expanded-banner').classList.add('translate-y-full');
-  }
+  
 
   function openGiftDrawer() {
     document.getElementById('gift-drawer').classList.add('open');
@@ -6260,7 +6201,7 @@ function likeNote(noteId) {
   ];
 
   // Función para mostrar el modal de reporte estilo Twitter
-  function showReportModal() {
+  function openReportModal() {
     const modal = document.getElementById('report-modal');
     const currentUser = firebase.auth().currentUser;
     
@@ -6278,10 +6219,15 @@ function likeNote(noteId) {
           document.getElementById('report-streamer-avatar').src = streamerData.profileImage || 'https://via.placeholder.com/50';
         }
       });
+    } else {
+      // Si no hay streamer específico, usar datos genéricos
+      document.getElementById('report-streamer-name').textContent = 'Transmisor';
+      document.getElementById('report-streamer-avatar').src = 'https://via.placeholder.com/50';
     }
 
     modal.style.opacity = '1';
     modal.style.pointerEvents = 'auto';
+    modal.classList.remove('hidden');
     
     // Configurar contador de caracteres
     const textarea = document.getElementById('report-details');
@@ -6296,6 +6242,7 @@ function likeNote(noteId) {
     const modal = document.getElementById('report-modal');
     modal.style.opacity = '0';
     modal.style.pointerEvents = 'none';
+    modal.classList.add('hidden');
     
     // Resetear formulario
     selectedReportReason = null;
