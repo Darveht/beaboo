@@ -4696,40 +4696,199 @@ function toggleVoiceInput() {
   </div>
 </div>
 
-<!-- MODAL DE REPORTE (Estilo TikTok) -->
-<div id="report-modal" class="fixed inset-0 bg-black/50 flex items-end justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
-  <div class="w-full max-w-lg bg-white rounded-t-2xl p-6 transform translate-y-full transition-transform duration-300 ease-out">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-[#FE2C55] text-xl font-bold">Reportar transmisión</h3>
-      <button onclick="closeReportModal()" class="text-gray-400 hover:text-[#FE2C55] transition-colors">
-        <i class="fas fa-times"></i>
+<!-- MODAL DE REPORTE ESTILO TWITTER (PANTALLA COMPLETA) -->
+<div id="report-modal" class="fixed inset-0 bg-white z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="h-full flex flex-col">
+    <!-- Header estilo Twitter -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <div class="flex items-center">
+        <button onclick="closeReportModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+        </button>
+        <h1 class="text-xl font-bold">Reportar transmisión</h1>
+      </div>
+      <button id="submit-report-btn" onclick="submitReport()" disabled class="bg-gray-300 text-gray-500 px-6 py-2 rounded-full font-bold transition-colors">
+        Reportar
       </button>
     </div>
-    <p class="text-gray-600 mb-4">Selecciona el motivo del reporte:</p>
-    <div class="space-y-3 mb-6">
-      <div class="bg-gray-50 hover:bg-gray-100 transition-colors p-4 rounded-xl flex items-center cursor-pointer">
-        <input type="radio" name="report-reason" id="reason-sexual" class="mr-3 accent-[#FE2C55]">
-        <label for="reason-sexual" class="text-gray-800">Contenido sexual</label>
-      </div>
-      <div class="bg-gray-50 hover:bg-gray-100 transition-colors p-4 rounded-xl flex items-center cursor-pointer">
-        <input type="radio" name="report-reason" id="reason-violence" class="mr-3 accent-[#FE2C55]">
-        <label for="reason-violence" class="text-gray-800">Violencia o acoso</label>
-      </div>
-      <div class="bg-gray-50 hover:bg-gray-100 transition-colors p-4 rounded-xl flex items-center cursor-pointer">
-        <input type="radio" name="report-reason" id="reason-spam" class="mr-3 accent-[#FE2C55]">
-        <label for="reason-spam" class="text-gray-800">Spam o engaño</label>
-      </div>
-      <div class="bg-gray-50 hover:bg-gray-100 transition-colors p-4 rounded-xl flex items-center cursor-pointer">
-        <input type="radio" name="report-reason" id="reason-rights" class="mr-3 accent-[#FE2C55]">
-        <label for="reason-rights" class="text-gray-800">Infracción de derechos</label>
-      </div>
-      <div class="bg-gray-50 hover:bg-gray-100 transition-colors p-4 rounded-xl flex items-center cursor-pointer">
-        <input type="radio" name="report-reason" id="reason-other" class="mr-3 accent-[#FE2C55]">
-        <label for="reason-other" class="text-gray-800">Otro motivo</label>
+
+    <!-- Contenido del reporte -->
+    <div class="flex-1 overflow-y-auto p-4">
+      <div class="max-w-2xl mx-auto">
+        <!-- Información del streamer -->
+        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+          <div class="flex items-center space-x-3">
+            <img id="report-streamer-avatar" src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full object-cover">
+            <div>
+              <h3 id="report-streamer-name" class="font-bold text-lg">Nombre del streamer</h3>
+              <p class="text-gray-600 text-sm">Transmisión en vivo</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pregunta principal -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold mb-2">¿Qué está pasando?</h2>
+          <p class="text-gray-600">Selecciona la opción que mejor describa el problema con esta transmisión en vivo.</p>
+        </div>
+
+        <!-- Opciones de reporte -->
+        <div class="space-y-3">
+          <div class="report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectReportOption('inappropriate_content')">
+            <div class="flex items-start space-x-3">
+              <div class="w-6 h-6 text-red-500 mt-1">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">Contenido inapropiado</h3>
+                <p class="text-gray-600">Desnudez, contenido sexual o violento que no debería estar en una transmisión pública.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectReportOption('harassment')">
+            <div class="flex items-start space-x-3">
+              <div class="w-6 h-6 text-orange-500 mt-1">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">Acoso o bullying</h3>
+                <p class="text-gray-600">El streamer está acosando, intimidando o siendo abusivo hacia otros usuarios.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectReportOption('hate_speech')">
+            <div class="flex items-start space-x-3">
+              <div class="w-6 h-6 text-red-600 mt-1">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">Discurso de odio</h3>
+                <p class="text-gray-600">Contenido que promueve odio hacia grupos de personas por raza, religión, orientación sexual, etc.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectReportOption('spam')">
+            <div class="flex items-start space-x-3">
+              <div class="w-6 h-6 text-yellow-600 mt-1">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">Spam o contenido engañoso</h3>
+                <p class="text-gray-600">La transmisión contiene spam, estafas o información falsa deliberada.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectReportOption('self_harm')">
+            <div class="flex items-start space-x-3">
+              <div class="w-6 h-6 text-purple-600 mt-1">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">Autolesión o suicidio</h3>
+                <p class="text-gray-600">La persona está mostrando comportamientos de autolesión o expresando intenciones suicidas.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-option border border-gray-200 rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectReportOption('illegal_activity')">
+            <div class="flex items-start space-x-3">
+              <div class="w-6 h-6 text-red-700 mt-1">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">Actividad ilegal</h3>
+                <p class="text-gray-600">Se están mostrando actividades ilegales como drogas, violencia física o contenido criminal.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campo de descripción adicional -->
+        <div class="mt-8 mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Detalles adicionales (opcional)
+          </label>
+          <textarea id="report-details" placeholder="Proporciona más contexto sobre lo que está ocurriendo..." 
+                    class="w-full p-4 border border-gray-200 rounded-xl resize-none h-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxlength="280"></textarea>
+          <div class="text-right text-sm text-gray-500 mt-1">
+            <span id="char-count">0</span>/280
+          </div>
+        </div>
+
+        <!-- Aviso importante -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <div class="flex items-start space-x-3">
+            <div class="w-5 h-5 text-blue-600 mt-0.5">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-blue-900">Importante</h4>
+              <p class="text-blue-800 text-sm">Tu reporte será revisado por nuestro equipo de moderación. Los reportes falsos pueden resultar en restricciones en tu cuenta.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <button onclick="submitReport()" class="w-full bg-[#FE2C55] hover:bg-[#ef2950] text-white py-4 rounded-full font-medium transition-colors shadow-lg">
-      Enviar reporte
+  </div>
+</div>
+
+<!-- MODAL DE ADVERTENCIA AUTOMÁTICA -->
+<div id="auto-warning-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-60 hidden">
+  <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+    </div>
+    <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ ADVERTENCIA AUTOMÁTICA</h2>
+    <p id="warning-message" class="text-gray-700 mb-6">Se ha detectado contenido inapropiado en tu transmisión.</p>
+    <div class="space-y-3">
+      <button onclick="acknowledgeWarning()" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">
+        Entendido
+      </button>
+      <p class="text-sm text-gray-500">Continuar con este comportamiento resultará en la suspensión de tu cuenta.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CUENTA BLOQUEADA -->
+<div id="account-suspended-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-60 hidden">
+  <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+    <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+      </svg>
+    </div>
+    <h2 class="text-2xl font-bold text-red-600 mb-4">🚫 CUENTA SUSPENDIDA</h2>
+    <p class="text-gray-700 mb-6">Tu cuenta ha sido suspendida por violaciones repetidas de nuestras normas comunitarias.</p>
+    <div class="space-y-3">
+      <p class="text-sm text-gray-600">• Contenido inapropiado detectado</p>
+      <p class="text-sm text-gray-600">• Múltiples advertencias ignoradas</p>
+      <p class="text-sm text-gray-600">• Reportes confirmados por moderadores</p>
+    </div>
+    <button onclick="closeApp()" class="w-full bg-gray-600 text-white py-3 rounded-lg font-bold mt-6 hover:bg-gray-700 transition">
+      Cerrar aplicación
     </button>
   </div>
 </div>
@@ -5034,6 +5193,65 @@ function toggleVoiceInput() {
       top: -50px;
       opacity: 0;
     }
+  }
+
+  /* Estilos para el modal de reporte estilo Twitter */
+  .report-option {
+    transition: all 0.2s ease;
+  }
+
+  .report-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .report-option.selected {
+    border-color: #1d4ed8;
+    background-color: #eff6ff;
+  }
+
+  /* Animaciones para advertencias automáticas */
+  @keyframes warningPulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  #auto-warning-modal.show {
+    animation: warningPulse 0.5s ease-in-out;
+  }
+
+  /* Estilos para notificaciones de éxito */
+  .notification-success {
+    animation: slideInFromTop 0.3s ease-out;
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      transform: translate(-50%, -100%);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
+
+  /* Indicador de cuenta suspendida */
+  .suspended-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #dc2626, #991b1b);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-weight: bold;
+    z-index: 1000;
   }
 </style>
 
@@ -6027,14 +6245,345 @@ function likeNote(noteId) {
     document.getElementById('report-modal').classList.add('translate-y-full');
   }
 
-  function submitReport() {
-    closeReportModal();
-    document.getElementById('report-success').classList.remove('hidden');
-    setTimeout(closeReportSuccess, 3000);
+  // Variables para el sistema de reportes y moderación
+  let selectedReportReason = null;
+  let warningCount = 0;
+  let isStreamSuspended = false;
+  
+  // Lista de palabras inapropiadas para detección automática
+  const inappropriateWords = [
+    'puta', 'mierda', 'coño', 'joder', 'cabrón', 'perra', 'maricón', 'bastardo',
+    'idiota', 'estúpido', 'imbécil', 'pendejo', 'carajo', 'verga', 'chingar',
+    'puto', 'zorra', 'gilipollas', 'capullo', 'hijo de puta', 'me cago en',
+    'drogas', 'cocaína', 'marihuana', 'heroína', 'matar', 'suicidio', 'muerte',
+    'nazi', 'hitler', 'racista', 'terrorista', 'bomba', 'arma', 'violación'
+  ];
+
+  // Función para mostrar el modal de reporte estilo Twitter
+  function showReportModal() {
+    const modal = document.getElementById('report-modal');
+    const currentUser = firebase.auth().currentUser;
+    
+    if (!currentUser) {
+      alert('Debes iniciar sesión para reportar transmisiones');
+      return;
+    }
+
+    // Cargar información del streamer
+    if (liveBroadcasterId) {
+      firebase.database().ref('users/' + liveBroadcasterId).once('value').then(snapshot => {
+        const streamerData = snapshot.val();
+        if (streamerData) {
+          document.getElementById('report-streamer-name').textContent = streamerData.username || 'Usuario';
+          document.getElementById('report-streamer-avatar').src = streamerData.profileImage || 'https://via.placeholder.com/50';
+        }
+      });
+    }
+
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+    
+    // Configurar contador de caracteres
+    const textarea = document.getElementById('report-details');
+    const charCount = document.getElementById('char-count');
+    
+    textarea.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+    });
   }
 
-  function closeReportSuccess() {
-    document.getElementById('report-success').classList.add('hidden');
+  function closeReportModal() {
+    const modal = document.getElementById('report-modal');
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+    
+    // Resetear formulario
+    selectedReportReason = null;
+    document.getElementById('report-details').value = '';
+    document.getElementById('char-count').textContent = '0';
+    document.getElementById('submit-report-btn').disabled = true;
+    document.getElementById('submit-report-btn').className = 'bg-gray-300 text-gray-500 px-6 py-2 rounded-full font-bold transition-colors';
+    
+    // Remover selección de opciones
+    document.querySelectorAll('.report-option').forEach(option => {
+      option.classList.remove('border-blue-500', 'bg-blue-50');
+    });
+  }
+
+  function selectReportOption(reason) {
+    selectedReportReason = reason;
+    
+    // Actualizar interfaz visual
+    document.querySelectorAll('.report-option').forEach(option => {
+      option.classList.remove('border-blue-500', 'bg-blue-50');
+    });
+    
+    event.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
+    
+    // Habilitar botón de envío
+    const submitBtn = document.getElementById('submit-report-btn');
+    submitBtn.disabled = false;
+    submitBtn.className = 'bg-red-600 text-white px-6 py-2 rounded-full font-bold hover:bg-red-700 transition-colors';
+  }
+
+  function submitReport() {
+    if (!selectedReportReason) {
+      alert('Por favor selecciona un motivo para el reporte');
+      return;
+    }
+
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser || !liveBroadcasterId) return;
+
+    const details = document.getElementById('report-details').value;
+    
+    // Mostrar indicador de procesamiento
+    const submitBtn = document.getElementById('submit-report-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Procesando...';
+    submitBtn.disabled = true;
+
+    // Guardar reporte en Firebase
+    const reportData = {
+      reporterId: currentUser.uid,
+      streamerId: liveBroadcasterId,
+      reason: selectedReportReason,
+      details: details,
+      timestamp: Date.now(),
+      status: 'pending',
+      reporterInfo: {
+        username: currentUser.displayName || 'Usuario anónimo',
+        email: currentUser.email
+      }
+    };
+
+    firebase.database().ref('liveStreamReports').push(reportData)
+      .then(() => {
+        // Procesar reporte automáticamente
+        processReportAutomatically(reportData);
+        
+        closeReportModal();
+        showReportSuccess();
+        
+        // Si es un reporte crítico, ejecutar acción inmediata
+        if (['inappropriate_content', 'harassment', 'hate_speech', 'illegal_activity'].includes(selectedReportReason)) {
+          executeImmediateModeration(liveBroadcasterId, selectedReportReason);
+        }
+      })
+      .catch(error => {
+        console.error('Error al enviar reporte:', error);
+        alert('Error al enviar el reporte. Intenta nuevamente.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      });
+  }
+
+  function processReportAutomatically(reportData) {
+    // Algoritmo de procesamiento automático
+    console.log('Procesando reporte automáticamente:', reportData);
+    
+    // Incrementar contador de reportes del streamer
+    firebase.database().ref('users/' + reportData.streamerId + '/reportCount').transaction(count => {
+      return (count || 0) + 1;
+    });
+
+    // Si es el tercer reporte, suspender automáticamente
+    firebase.database().ref('users/' + reportData.streamerId + '/reportCount').once('value')
+      .then(snapshot => {
+        const reportCount = snapshot.val() || 0;
+        if (reportCount >= 3) {
+          suspendStreamerAccount(reportData.streamerId);
+        }
+      });
+  }
+
+  function executeImmediateModeration(streamerId, reason) {
+    // Ejecutar moderación inmediata para reportes críticos
+    const warningMessages = {
+      'inappropriate_content': 'Se detectó contenido inapropiado en tu transmisión. Modera tu contenido inmediatamente.',
+      'harassment': 'Se reportó comportamiento de acoso. Detén este comportamiento inmediatamente.',
+      'hate_speech': 'Se detectó discurso de odio. Este comportamiento está prohibido.',
+      'illegal_activity': 'Se reportó actividad ilegal. Tu transmisión será terminada inmediatamente.'
+    };
+
+    // Enviar advertencia al streamer
+    sendAutomaticWarning(streamerId, warningMessages[reason]);
+    
+    // Para actividades ilegales, suspender inmediatamente
+    if (reason === 'illegal_activity') {
+      suspendStreamerAccount(streamerId);
+    }
+  }
+
+  function showReportSuccess() {
+    // Crear notificación de éxito estilo Twitter
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 flex items-center';
+    notification.innerHTML = `
+      <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <div>
+        <div class="font-bold">Reporte enviado</div>
+        <div class="text-sm opacity-90">Gracias por ayudar a mantener la comunidad segura</div>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translate(-50%, -20px)';
+      notification.style.transition = 'all 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 4000);
+  }
+
+  // Sistema de detección automática de contenido inapropiado
+  function startContentMonitoring() {
+    // Simular monitoreo de audio en tiempo real
+    setInterval(() => {
+      if (isStreamSuspended) return;
+      
+      // Simular detección de palabras inapropiadas (en una implementación real, esto sería con Web Speech API)
+      if (Math.random() < 0.1) { // 10% de probabilidad de detección para demo
+        const randomWord = inappropriateWords[Math.floor(Math.random() * inappropriateWords.length)];
+        detectInappropriateContent(randomWord);
+      }
+    }, 10000); // Verificar cada 10 segundos
+  }
+
+  function detectInappropriateContent(detectedWord) {
+    console.log('Contenido inapropiado detectado:', detectedWord);
+    
+    warningCount++;
+    
+    if (warningCount >= 3) {
+      // Tercera advertencia = suspensión de cuenta
+      suspendStreamerAccount(firebase.auth().currentUser?.uid);
+    } else {
+      // Enviar advertencia
+      const warningMessage = `Se detectó lenguaje inapropiado: "${detectedWord}". Advertencia ${warningCount}/3.`;
+      sendAutomaticWarning(firebase.auth().currentUser?.uid, warningMessage);
+    }
+  }
+
+  function sendAutomaticWarning(userId, message) {
+    if (!userId) return;
+    
+    // Mostrar modal de advertencia
+    document.getElementById('warning-message').textContent = message;
+    document.getElementById('auto-warning-modal').classList.remove('hidden');
+    
+    // Guardar advertencia en Firebase
+    firebase.database().ref('userWarnings/' + userId).push({
+      message: message,
+      timestamp: Date.now(),
+      type: 'automatic'
+    });
+
+    // Reproducir sonido de advertencia
+    const warningAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/316/316.wav');
+    warningAudio.play().catch(e => console.log('Audio warning failed:', e));
+  }
+
+  function suspendStreamerAccount(userId) {
+    if (!userId) return;
+    
+    isStreamSuspended = true;
+    
+    // Actualizar estado en Firebase
+    firebase.database().ref('users/' + userId).update({
+      suspended: true,
+      suspensionTimestamp: Date.now(),
+      suspensionReason: 'Múltiples violaciones de normas comunitarias'
+    });
+
+    // Mostrar modal de suspensión
+    document.getElementById('account-suspended-modal').classList.remove('hidden');
+    
+    // Cerrar transmisión si está activa
+    if (document.getElementById('live-stream-modal').style.display !== 'none') {
+      endLiveStream();
+    }
+  }
+
+  function acknowledgeWarning() {
+    document.getElementById('auto-warning-modal').classList.add('hidden');
+  }
+
+  function closeApp() {
+    firebase.auth().signOut();
+    window.location.reload();
+  }
+
+  // Inicializar monitoreo de contenido cuando se inicia una transmisión
+  function startLiveStream() {
+    const startBtn = document.getElementById('live-startBtn');
+    const startContainer = startBtn.parentElement;
+    const endContainer = document.getElementById('live-end-container');
+    const spinner = document.getElementById('live-spinner');
+    const overlay = document.getElementById('live-overlay');
+    const indicator = document.getElementById('live-indicator');
+    
+    // Verificar si la cuenta está suspendida
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+      firebase.database().ref('users/' + currentUser.uid + '/suspended').once('value')
+        .then(snapshot => {
+          if (snapshot.val() === true) {
+            suspendStreamerAccount(currentUser.uid);
+            return;
+          }
+          
+          // Continuar con inicio normal de transmisión
+          proceedWithStreamStart();
+        });
+    } else {
+      proceedWithStreamStart();
+    }
+
+    function proceedWithStreamStart() {
+      // Mostrar spinner
+      spinner.classList.remove('hidden');
+      
+      // Cambiar botón a estado de "iniciando"
+      startBtn.innerHTML = `
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+      `;
+      startBtn.disabled = true;
+      startBtn.className = "w-20 h-20 bg-gray-600 text-white rounded-full cursor-not-allowed flex items-center justify-center mx-auto";
+      
+      // Simular inicio de transmisión
+      setTimeout(() => {
+        spinner.classList.add('hidden');
+        overlay.classList.add('hidden');
+        
+        // Ocultar contenedor de inicio y mostrar el de finalización
+        startContainer.classList.add('hidden');
+        endContainer.classList.remove('hidden');
+        
+        // Mostrar indicador de transmisión en vivo
+        if (indicator) {
+          indicator.classList.remove('hidden');
+          indicator.innerHTML = '<div class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center shadow-lg"><div class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>EN VIVO</div>';
+        }
+        
+        // Actualizar contador de vistas
+        document.getElementById('live-viewCount').innerHTML = `
+          <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <span class="text-sm font-medium">LIVE • 0 visualizaciones</span>
+        `;
+        
+        // Iniciar monitoreo de contenido automático
+        startContentMonitoring();
+        
+        // Iniciar sincronización de vistas en tiempo real
+        syncViewerCount();
+        
+        console.log('Transmisión iniciada correctamente con monitoreo automático');
+      }, 2000);
+    }
   }
 
   function handleLiveVideoUpload(event) {
