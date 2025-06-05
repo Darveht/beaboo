@@ -897,251 +897,6 @@
       opacity: 1;
     }
 
-    /* Panel de opciones del reproductor */
-    .video-options-panel {
-      position: absolute;
-      top: 20%;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.9);
-      border-radius: 12px;
-      padding: 20px;
-      min-width: 250px;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-      border: 1px solid #333639;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-    }
-
-    .video-options-panel.active {
-      transform: translateX(0);
-    }
-
-    .options-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #333639;
-    }
-
-    .options-title {
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .options-close {
-      background: transparent;
-      border: none;
-      color: #71767b;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-
-    .options-close:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .option-group {
-      margin-bottom: 20px;
-    }
-
-    .option-label {
-      color: #71767b;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .option-selector {
-      background: #202327;
-      border: 1px solid #333639;
-      border-radius: 8px;
-      color: #ffffff;
-      padding: 10px;
-      width: 100%;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .option-selector:hover {
-      border-color: #1d9bf0;
-      background: #333639;
-    }
-
-    .option-selector:focus {
-      outline: none;
-      border-color: #1d9bf0;
-      box-shadow: 0 0 0 2px rgba(29, 155, 240, 0.2);
-    }
-
-    /* Candado para contenido bloqueado */
-    .locked-feature {
-      position: relative;
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .locked-feature::after {
-      content: '\f023';
-      font-family: 'Font Awesome 6 Free';
-      font-weight: 900;
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-      color: #ffd700;
-      font-size: 14px;
-    }
-
-    .premium-badge {
-      background: linear-gradient(45deg, #ffd700, #ffed4e);
-      color: #000;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-left: 8px;
-    }
-
-    /* Estilos para ajustes */
-    .settings-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 3500;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(12px);
-    }
-
-    .settings-modal.active {
-      display: flex;
-    }
-
-    .settings-content {
-      background: #000000;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
-      max-height: 80vh;
-      overflow-y: auto;
-      border: 1px solid #333639;
-    }
-
-    .settings-header {
-      padding: 20px;
-      border-bottom: 1px solid #333639;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .settings-title {
-      color: #ffffff;
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .settings-close {
-      background: transparent;
-      border: none;
-      color: #71767b;
-      font-size: 24px;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-
-    .settings-close:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .settings-body {
-      padding: 20px;
-    }
-
-    .setting-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 0;
-      border-bottom: 1px solid #333639;
-    }
-
-    .setting-item:last-child {
-      border-bottom: none;
-    }
-
-    .setting-info {
-      flex: 1;
-    }
-
-    .setting-name {
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .setting-description {
-      color: #71767b;
-      font-size: 12px;
-    }
-
-    .setting-control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 50px;
-      height: 24px;
-      background: #333639;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-switch.active {
-      background: #1d9bf0;
-    }
-
-    .toggle-switch::before {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background: #ffffff;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-switch.active::before {
-      transform: translateX(26px);
-    }
-
     /* Indicador EN VIVO en el video */
     .video-live-indicator {
       display: flex;
@@ -1642,12 +1397,8 @@
         <p class="hero-description">Una aterradora experiencia cinematográfica que desafía los límites del horror psicológico.</p>
 
         <div class="hero-buttons">
-          <button class="hero-btn primary" onclick="playEpisode(1, 1); currentSeries = seriesDatabase.dontlookaway;">
+          <button class="hero-btn primary" onclick="playTrailer()">
             <i class="fas fa-play"></i>
-            Reproducir
-          </button>
-          <button class="hero-btn secondary" onclick="playTrailer()">
-            <i class="fas fa-film"></i>
             Ver Trailer
           </button>
           <button class="hero-btn secondary" onclick="showSeriesDetail('dontlookaway')">
@@ -1660,9 +1411,9 @@
 
     <!-- Secciones de contenido -->
     <div class="content-sections">
-      <!-- Películas Destacadas -->
+      <!-- Películas -->
       <div class="section">
-        <h2 class="section-title">🎬 Películas Destacadas</h2>
+        <h2 class="section-title">Películas</h2>
         <div class="carousel-container">
           <div class="carousel" id="moviesCarousel">
             <div class="carousel-item" onclick="showSeriesDetail('dontlookaway')">
@@ -1673,47 +1424,13 @@
                 <div class="carousel-item-info">2025 • Terror • Thriller</div>
               </div>
             </div>
-            <div class="carousel-item" onclick="showSeriesDetail('doublevision')">
-              <img src="https://m.media-amazon.com/images/M/MV5BODZiOGIxZTQtZjA2My00NzY3LTlkZTktZmFlZjJkOThhN2NjXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg" alt="DOUBLE VISION">
-              <div class="movie-badge">Película</div>
-              <div class="carousel-item-overlay">
-                <div class="carousel-item-title">DOUBLE VISION</div>
-                <div class="carousel-item-info">2025 • Terror • Thriller</div>
-              </div>
-            </div>
             <div class="carousel-item" onclick="handleMovieClick('notemuevas')">
               <img src="https://i.ibb.co/DDh79krZ/image.png" alt="NO TE MUEVAS">
               <div class="movie-badge">Película</div>
               <div id="notemuevas-badge" class="premiere-badge">Estreno</div>
               <div class="carousel-item-overlay">
                 <div class="carousel-item-title">NO TE MUEVAS</div>
-                <div class="carousel-item-info">2025 • Terror • Suspenso</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estrenos y Tendencias -->
-      <div class="section">
-        <h2 class="section-title">🔥 Estrenos y Tendencias</h2>
-        <div class="carousel-container">
-          <div class="carousel" id="trendingCarousel">
-            <div class="carousel-item" onclick="handleMovieClick('notemuevas')">
-              <img src="https://i.ibb.co/DDh79krZ/image.png" alt="NO TE MUEVAS">
-              <div class="movie-badge">Película</div>
-              <div class="premiere-badge">Estreno Mundial</div>
-              <div class="carousel-item-overlay">
-                <div class="carousel-item-title">NO TE MUEVAS</div>
-                <div class="carousel-item-info">Estreno: 11 de Junio</div>
-              </div>
-            </div>
-            <div class="carousel-item" onclick="showSeriesDetail('dontlookaway')">
-              <img src="https://i0.wp.com/lugarnenhum.net/wp-content/uploads/2019/02/dont-look-away-e1549769239207-1024x512.png?resize=1024%2C512&ssl=1" alt="DON'T LOOK AWAY">
-              <div class="movie-badge">Película</div>
-              <div class="carousel-item-overlay">
-                <div class="carousel-item-title">DON'T LOOK AWAY</div>
-                <div class="carousel-item-info">Disponible Ahora</div>
+                <div class="carousel-item-info">2025 • Terror</div>
               </div>
             </div>
             <div class="carousel-item" onclick="showSeriesDetail('doublevision')">
@@ -1721,23 +1438,24 @@
               <div class="movie-badge">Película</div>
               <div class="carousel-item-overlay">
                 <div class="carousel-item-title">DOUBLE VISION</div>
-                <div class="carousel-item-info">Popular</div>
+                <div class="carousel-item-info">2025 • Terror</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Series -->
+      <!-- Tendencias -->
       <div class="section">
-        <h2 class="section-title">📺 Series</h2>
+        <h2 class="section-title">Tendencias</h2>
         <div class="carousel-container">
-          <div class="carousel" id="seriesCarousel">
-            <!-- Aquí se pueden agregar series cuando las tengas -->
-            <div class="carousel-item" style="display: flex; align-items: center; justify-content: center; background: #202327; color: #71767b;">
-              <div style="text-align: center;">
-                <i class="fas fa-plus" style="font-size: 32px; margin-bottom: 8px;"></i>
-                <div>Próximamente</div>
+          <div class="carousel" id="trendingCarousel">
+            <div class="carousel-item" onclick="showSeriesDetail('dontlookaway')">
+              <img src="https://i0.wp.com/lugarnenhum.net/wp-content/uploads/2019/02/dont-look-away-e1549769239207-1024x512.png?resize=1024%2C512&ssl=1" alt="DON'T LOOK AWAY">
+              <div class="movie-badge">Película</div>
+              <div class="carousel-item-overlay">
+                <div class="carousel-item-title">DON'T LOOK AWAY</div>
+                <div class="carousel-item-info">2025 • Terror</div>
               </div>
             </div>
           </div>
@@ -1746,16 +1464,10 @@
 
       <!-- Anime -->
       <div class="section">
-        <h2 class="section-title">🎌 Anime</h2>
+        <h2 class="section-title">Anime</h2>
         <div class="carousel-container">
           <div class="carousel" id="animeCarousel">
-            <!-- Aquí se pueden agregar animes cuando los tengas -->
-            <div class="carousel-item" style="display: flex; align-items: center; justify-content: center; background: #202327; color: #71767b;">
-              <div style="text-align: center;">
-                <i class="fas fa-plus" style="font-size: 32px; margin-bottom: 8px;"></i>
-                <div>Próximamente</div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -1862,57 +1574,6 @@
         <i class="fas fa-pause"></i>
       </div>
 
-      <!-- Panel de opciones del reproductor -->
-      <div id="videoOptionsPanel" class="video-options-panel">
-        <div class="options-header">
-          <div class="options-title">Opciones</div>
-          <button class="options-close" onclick="closeVideoOptions()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        
-        <div class="option-group">
-          <label class="option-label">Audio</label>
-          <select class="option-selector" id="audioTrackSelector">
-            <option value="0">Español (Original)</option>
-            <option value="1" class="locked-feature">English (Doblado) <span class="premium-badge">Premium</span></option>
-            <option value="2" class="locked-feature">Français (Doblado) <span class="premium-badge">Premium</span></option>
-          </select>
-        </div>
-
-        <div class="option-group">
-          <label class="option-label">Subtítulos</label>
-          <select class="option-selector" id="subtitleTrackSelector">
-            <option value="-1">Desactivado</option>
-            <option value="0">Español</option>
-            <option value="1">English</option>
-            <option value="2" class="locked-feature">Français <span class="premium-badge">Premium</span></option>
-          </select>
-        </div>
-
-        <div class="option-group">
-          <label class="option-label">Calidad</label>
-          <select class="option-selector" id="qualityTrackSelector">
-            <option value="auto">Automática</option>
-            <option value="1080p" class="locked-feature">1080p Full HD <span class="premium-badge">Premium</span></option>
-            <option value="720p">720p HD</option>
-            <option value="480p">480p</option>
-          </select>
-        </div>
-
-        <div class="option-group">
-          <label class="option-label">Velocidad</label>
-          <select class="option-selector" id="speedSelector">
-            <option value="0.5">0.5x</option>
-            <option value="0.75">0.75x</option>
-            <option value="1" selected>Normal</option>
-            <option value="1.25">1.25x</option>
-            <option value="1.5">1.5x</option>
-            <option value="2">2x</option>
-          </select>
-        </div>
-      </div>
-
       <div class="video-player-controls">
         <div class="video-progress-container">
           <div class="video-progress" id="videoProgress">
@@ -1938,14 +1599,8 @@
             <button class="video-control-btn" id="volumeBtn" onclick="toggleMute()">
               <i class="fas fa-volume-up"></i>
             </button>
-            <button class="video-control-btn" id="audioBtn" onclick="toggleAudioOptions()">
-              <i class="fas fa-language"></i>
-            </button>
             <button class="video-control-btn" id="subtitlesBtn" onclick="toggleSubtitles()">
               <i class="fas fa-closed-captioning"></i>
-            </button>
-            <button class="video-control-btn" id="optionsBtn" onclick="toggleVideoOptions()">
-              <i class="fas fa-cog"></i>
             </button>
           </div>
         </div>
@@ -1980,88 +1635,6 @@
     </div>
   </div>
 
-  <!-- Modal de Ajustes -->
-  <div id="settingsModal" class="settings-modal">
-    <div class="settings-content">
-      <div class="settings-header">
-        <div class="settings-title">Ajustes</div>
-        <button class="settings-close" onclick="closeSettings()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="settings-body">
-        <div class="setting-item">
-          <div class="setting-info">
-            <div class="setting-name">Reproducción automática</div>
-            <div class="setting-description">Reproduce automáticamente el siguiente episodio</div>
-          </div>
-          <div class="setting-control">
-            <div class="toggle-switch active" id="autoplayToggle" onclick="toggleAutoplay()"></div>
-          </div>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <div class="setting-name">Calidad de video</div>
-            <div class="setting-description">Ajustar calidad según conexión</div>
-          </div>
-          <div class="setting-control">
-            <select class="option-selector" id="qualitySelector">
-              <option value="auto">Automática</option>
-              <option value="1080p">1080p HD</option>
-              <option value="720p">720p</option>
-              <option value="480p">480p</option>
-            </select>
-          </div>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <div class="setting-name">Subtítulos por defecto</div>
-            <div class="setting-description">Idioma predeterminado para subtítulos</div>
-          </div>
-          <div class="setting-control">
-            <select class="option-selector" id="defaultSubtitles">
-              <option value="off">Desactivado</option>
-              <option value="es">Español</option>
-              <option value="en">English</option>
-            </select>
-          </div>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <div class="setting-name">Audio por defecto</div>
-            <div class="setting-description">Idioma predeterminado para audio</div>
-          </div>
-          <div class="setting-control">
-            <select class="option-selector" id="defaultAudio">
-              <option value="es">Español</option>
-              <option value="en">English</option>
-              <option value="original">Audio Original</option>
-            </select>
-          </div>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <div class="setting-name">Notificaciones</div>
-            <div class="setting-description">Recibir alertas de nuevos contenidos</div>
-          </div>
-          <div class="setting-control">
-            <div class="toggle-switch" id="notificationsToggle" onclick="toggleNotifications()"></div>
-          </div>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <div class="setting-name">Controles parentales</div>
-            <div class="setting-description">Bloquear contenido para adultos</div>
-          </div>
-          <div class="setting-control">
-            <div class="toggle-switch" id="parentalToggle" onclick="toggleParentalControls()"></div>
-            <span class="premium-badge">Premium</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Navegación inferior -->
   <nav class="bottom-nav">
     <button id="navHome" class="active">
@@ -2071,10 +1644,6 @@
     <button id="navSearch">
       <i class="fas fa-search"></i>
       <span>Buscar</span>
-    </button>
-    <button id="navSettings">
-      <i class="fas fa-cog"></i>
-      <span>Ajustes</span>
     </button>
   </nav>
 
@@ -2182,35 +1751,7 @@
         ]
       },
 
-      sampleSeries: {
-        id: 'sampleSeries',
-        title: "Aventura Épica",
-        year: '2023',
-        genre: 'Acción, Drama, Aventura',
-        rating: '13+',
-        type: 'series',
-        description: 'Una épica aventura que te llevará a mundos inexplorados llenos de acción y emoción.',
-        poster: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400',
-        trailer: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        episodes: [
-          {
-            id: 1,
-            title: "El Comienzo",
-            description: 'El inicio de una gran aventura que cambiará todo.',
-            duration: '45:30',
-            thumbnail: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400',
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-          },
-          {
-            id: 2,
-            title: "El Descubrimiento",
-            description: 'Nuevos secretos salen a la luz en este emocionante episodio.',
-            duration: '42:15',
-            thumbnail: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400',
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
-          }
-        ]
-      }
+      
     };
 
     // Variables globales
@@ -3480,241 +3021,20 @@
       }
     });
 
-    // Variables para controles avanzados
-    let videoOptionsOpen = false;
-    let audioTracksAvailable = [];
-    let currentAudioTrack = 0;
-
-    // Función para alternar panel de opciones del video
-    function toggleVideoOptions() {
-      const panel = document.getElementById('videoOptionsPanel');
-      videoOptionsOpen = !videoOptionsOpen;
-      
-      if (videoOptionsOpen) {
-        panel.classList.add('active');
-        loadVideoOptions();
-      } else {
-        panel.classList.remove('active');
-      }
-    }
-
-    // Función para cerrar opciones del video
-    function closeVideoOptions() {
-      document.getElementById('videoOptionsPanel').classList.remove('active');
-      videoOptionsOpen = false;
-    }
-
-    // Función para cargar opciones del video
-    function loadVideoOptions() {
-      // Configurar selector de velocidad
-      const speedSelector = document.getElementById('speedSelector');
-      speedSelector.value = videoElement.playbackRate || 1;
-      speedSelector.onchange = (e) => {
-        videoElement.playbackRate = parseFloat(e.target.value);
-        showVideoMessage(`Velocidad: ${e.target.value}x`);
-      };
-
-      // Configurar selector de calidad (simulado)
-      const qualitySelector = document.getElementById('qualityTrackSelector');
-      qualitySelector.onchange = (e) => {
-        if (e.target.selectedOptions[0].classList.contains('locked-feature')) {
-          showVideoMessage('Función Premium requerida');
-          e.target.value = 'auto';
-          return;
-        }
-        showVideoMessage(`Calidad cambiada a: ${e.target.value}`);
-      };
-
-      // Configurar selector de audio
-      const audioSelector = document.getElementById('audioTrackSelector');
-      audioSelector.onchange = (e) => {
-        if (e.target.selectedOptions[0].classList.contains('locked-feature')) {
-          showVideoMessage('Audio en otros idiomas requiere Premium');
-          e.target.value = '0';
-          return;
-        }
-        showVideoMessage('Audio cambiado a: Español');
-      };
-
-      // Configurar selector de subtítulos
-      const subtitleSelector = document.getElementById('subtitleTrackSelector');
-      subtitleSelector.value = currentSubtitleTrack;
-      subtitleSelector.onchange = (e) => {
-        if (e.target.selectedOptions[0].classList.contains('locked-feature')) {
-          showVideoMessage('Subtítulos en otros idiomas requiere Premium');
-          e.target.value = currentSubtitleTrack;
-          return;
-        }
-        
-        const newTrack = parseInt(e.target.value);
-        switchSubtitleTrack(newTrack);
-      };
-    }
-
-    // Función para cambiar track de subtítulos
-    function switchSubtitleTrack(trackIndex) {
-      const tracks = videoElement.textTracks;
-
-      // Desactivar track actual
-      if (currentSubtitleTrack >= 0 && tracks[currentSubtitleTrack]) {
-        tracks[currentSubtitleTrack].mode = 'hidden';
-      }
-
-      currentSubtitleTrack = trackIndex;
-
-      if (trackIndex >= 0 && tracks[trackIndex]) {
-        tracks[trackIndex].mode = 'showing';
-        const trackLabel = tracks[trackIndex].label || 'Desconocido';
-        showVideoMessage(`Subtítulos: ${trackLabel}`);
-      } else {
-        showVideoMessage('Subtítulos desactivados');
-      }
-
-      updateSubtitlesButton();
-    }
-
-    // Función para alternar opciones de audio
-    function toggleAudioOptions() {
-      showVideoMessage('Selecciona audio en el panel de opciones');
-      if (!videoOptionsOpen) {
-        toggleVideoOptions();
-      }
-    }
-
-    // Función para mostrar mensaje en el video
-    function showVideoMessage(message) {
-      const messageEl = document.createElement('div');
-      messageEl.style.cssText = `
-        position: absolute;
-        top: 25%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        z-index: 150;
-        pointer-events: none;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(29, 155, 240, 0.3);
-      `;
-      messageEl.textContent = message;
-
-      const playerContainer = document.querySelector('.video-player-container');
-      playerContainer.appendChild(messageEl);
-
-      setTimeout(() => {
-        if (messageEl.parentNode) {
-          messageEl.parentNode.removeChild(messageEl);
-        }
-      }, 2000);
-    }
-
-    // Funciones para ajustes
-    function openSettings() {
-      document.getElementById('settingsModal').classList.add('active');
-      loadSettings();
-    }
-
-    function closeSettings() {
-      document.getElementById('settingsModal').classList.remove('active');
-    }
-
-    function loadSettings() {
-      // Cargar configuraciones guardadas
-      const autoplay = localStorage.getItem('autoplay') !== 'false';
-      const notifications = localStorage.getItem('notifications') === 'true';
-      const parentalControls = localStorage.getItem('parentalControls') === 'true';
-
-      document.getElementById('autoplayToggle').classList.toggle('active', autoplay);
-      document.getElementById('notificationsToggle').classList.toggle('active', notifications);
-      document.getElementById('parentalToggle').classList.toggle('active', parentalControls);
-
-      // Cargar preferencias de idioma
-      const defaultAudio = localStorage.getItem('defaultAudio') || 'es';
-      const defaultSubtitles = localStorage.getItem('defaultSubtitles') || 'off';
-      const quality = localStorage.getItem('quality') || 'auto';
-
-      document.getElementById('defaultAudio').value = defaultAudio;
-      document.getElementById('defaultSubtitles').value = defaultSubtitles;
-      document.getElementById('qualitySelector').value = quality;
-    }
-
-    function toggleAutoplay() {
-      const toggle = document.getElementById('autoplayToggle');
-      const isActive = toggle.classList.contains('active');
-      
-      toggle.classList.toggle('active', !isActive);
-      localStorage.setItem('autoplay', (!isActive).toString());
-      
-      showSettingsMessage(`Reproducción automática ${!isActive ? 'activada' : 'desactivada'}`);
-    }
-
-    function toggleNotifications() {
-      const toggle = document.getElementById('notificationsToggle');
-      const isActive = toggle.classList.contains('active');
-      
-      toggle.classList.toggle('active', !isActive);
-      localStorage.setItem('notifications', (!isActive).toString());
-      
-      showSettingsMessage(`Notificaciones ${!isActive ? 'activadas' : 'desactivadas'}`);
-    }
-
-    function toggleParentalControls() {
-      showSettingsMessage('Controles parentales requieren Premium');
-      // No cambiar el estado ya que es premium
-    }
-
-    function showSettingsMessage(message) {
-      const messageEl = document.createElement('div');
-      messageEl.style.cssText = `
-        position: fixed;
-        top: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(29, 155, 240, 0.9);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        z-index: 4000;
-        backdrop-filter: blur(10px);
-      `;
-      messageEl.textContent = message;
-
-      document.body.appendChild(messageEl);
-
-      setTimeout(() => {
-        if (messageEl.parentNode) {
-          messageEl.parentNode.removeChild(messageEl);
-        }
-      }, 2000);
-    }
-
     // Navegación inferior
     document.getElementById('navHome').addEventListener('click', () => {
       closeSearchSection();
       closeSeriesDetail();
-      closeSettings();
       updateNavigation('navHome');
     });
 
     document.getElementById('navSearch').addEventListener('click', () => {
       closeSeriesDetail();
-      closeSettings();
       document.getElementById('searchInput').focus();
       updateNavigation('navSearch');
     });
 
-    document.getElementById('navSettings').addEventListener('click', () => {
-      closeSearchSection();
-      closeSeriesDetail();
-      openSettings();
-      updateNavigation('navSettings');
-    });
+    
 
     // Función para actualizar navegación
     function updateNavigation(activeId) {
