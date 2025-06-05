@@ -1264,28 +1264,115 @@ setInterval(checkScheduledChapters, 60000);
   </div>
 </div>
 
-<!-- MODAL DE REPORTAR PERFIL -->
-<div id="report-modal" class="fixed inset-x-0 bottom-0 transform translate-y-full transition-transform duration-300 bg-white rounded-t-xl shadow-lg" style="height: 50vh; z-index: 9999;">
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 id="report-title" class="text-2xl font-bold text-[#58CC02]">Reportar Perfil</h2>
-      <button onclick="closeReportModal()" class="text-gray-500">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+<!-- MODAL DE REPORTAR PERFIL ESTILO TWITTER/X -->
+<div id="report-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 ease-out" style="z-index: 9999;">
+  <div class="report-modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-all duration-300 ease-out">
+    <!-- Header con gradiente -->
+    <div class="bg-gradient-to-r from-[#1DA1F2] to-[#0084b4] text-white p-6 rounded-t-2xl">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <h2 id="report-title" class="text-xl font-bold">Reportar Perfil</h2>
+            <p class="text-white/80 text-sm">Ayúdanos a mantener la comunidad segura</p>
+          </div>
+        </div>
+        <button onclick="closeReportModal()" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
-    <p id="report-instructions" class="mb-4">Selecciona un motivo o describe el problema:</p>
-    <form id="report-form" class="space-y-4">
-      <select id="report-reason" class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50">
-        <option value="perfil_falso">Perfil falso: el autor está suplantando identidad</option>
-        <option value="spam">Spam</option>
-        <option value="infraccion_normas">Infracción a las normas</option>
-        <option value="otro">Otro</option>
-      </select>
-      <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50" rows="4"></textarea>
-      <button id="btn-enviar-report" type="submit" class="w-full bg-red-500 text-white p-3 rounded-xl">Enviar Reporte</button>
-    </form>
+
+    <!-- Contenido principal -->
+    <div class="p-6">
+      <p id="report-instructions" class="text-gray-600 mb-6">Selecciona el motivo del reporte para ayudarnos a revisar más rápido:</p>
+      
+      <form id="report-form" class="space-y-4">
+        <!-- Opciones de reporte con radio buttons personalizados -->
+        <div class="space-y-3">
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+            <input type="radio" name="report-reason" value="perfil_falso" class="hidden">
+            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+            </div>
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">Perfil falso</div>
+              <div class="text-sm text-gray-500">El autor está suplantando identidad</div>
+            </div>
+          </label>
+
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+            <input type="radio" name="report-reason" value="spam" class="hidden">
+            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+            </div>
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">Spam</div>
+              <div class="text-sm text-gray-500">Contenido repetitivo o promocional</div>
+            </div>
+          </label>
+
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+            <input type="radio" name="report-reason" value="contenido_inapropiado" class="hidden">
+            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+            </div>
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">Contenido inapropiado</div>
+              <div class="text-sm text-gray-500">Violencia, acoso o contenido ofensivo</div>
+            </div>
+          </label>
+
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+            <input type="radio" name="report-reason" value="infraccion_normas" class="hidden">
+            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+            </div>
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">Infracción a las normas</div>
+              <div class="text-sm text-gray-500">Viola los términos de servicio</div>
+            </div>
+          </label>
+
+          <label class="report-option flex items-center p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-[#1DA1F2] hover:bg-blue-50 transition-all duration-200">
+            <input type="radio" name="report-reason" value="otro" class="hidden">
+            <div class="radio-custom w-5 h-5 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+              <div class="radio-dot w-3 h-3 bg-[#1DA1F2] rounded-full opacity-0 transform scale-0 transition-all duration-200"></div>
+            </div>
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">Otro motivo</div>
+              <div class="text-sm text-gray-500">Especifica en el campo de abajo</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Textarea mejorado -->
+        <div class="relative">
+          <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-[#1DA1F2] focus:bg-white focus:outline-none resize-none transition-all duration-200" rows="3"></textarea>
+          <div class="absolute bottom-3 right-3 text-xs text-gray-400" id="char-counter">
+            <span id="char-count">0</span>/500
+          </div>
+        </div>
+
+        <!-- Botón de envío mejorado -->
+        <button id="btn-enviar-report" type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-xl font-bold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+          <span class="send-text">Enviar Reporte</span>
+          <span class="loading-text hidden">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Enviando...
+          </span>
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -11324,4 +11411,3 @@ function closeBeabooStudio() {
 </script>
 
 </body>
-<
