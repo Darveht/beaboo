@@ -4249,13 +4249,23 @@ function toggleVoiceInput() {
 <div id="story-detail-modal" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
   <div class="p-6 relative max-w-4xl mx-auto bg-white min-h-screen">
 
-    <!-- Botón de volver -->
-    <button onclick="closeStoryDetail()" class="text-[#FE2C55] mb-6 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
-      <span>Volver</span>
-    </button>
+    <!-- Header con botones de volver y reportar -->
+    <div class="flex justify-between items-center mb-6">
+      <button onclick="closeStoryDetail()" class="text-[#FE2C55] flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span>Volver</span>
+      </button>
+      
+      <!-- Botón de reportar historia -->
+      <button onclick="openReportStoryModal()" class="text-red-500 flex items-center space-x-1 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Reportar</span>
+      </button>
+    </div>
 
     <!-- Sección principal: portada + título/autor -->
     <div class="flex items-start space-x-6 mb-8">
@@ -4273,6 +4283,23 @@ function toggleVoiceInput() {
            onclick="openAuthorProfile(this.dataset.userid)">
           Nombre del autor
         </p>
+        
+        <!-- Botones de acción de la historia -->
+        <div class="flex space-x-3 mb-4">
+          <button id="download-story-btn" onclick="downloadStoryOffline()" class="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Descargar</span>
+          </button>
+          
+          <button onclick="shareStory()" class="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+            </svg>
+            <span>Compartir</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -4308,6 +4335,94 @@ function toggleVoiceInput() {
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- MODAL DE REPORTAR HISTORIA ESPECÍFICO -->
+<div id="report-story-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-[#FE2C55]">Reportar Historia</h2>
+      <button onclick="closeReportStoryModal()" class="text-gray-500 hover:text-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <p class="text-gray-600 mb-4">Selecciona el motivo del reporte:</p>
+    
+    <form id="report-story-form" class="space-y-3">
+      <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <input type="radio" name="reportReason" value="contenido_inapropiado" class="text-[#FE2C55]" required>
+        <div>
+          <div class="font-medium">Contenido inapropiado</div>
+          <div class="text-sm text-gray-500">Contenido sexual, violento o ofensivo</div>
+        </div>
+      </label>
+      
+      <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <input type="radio" name="reportReason" value="plagio" class="text-[#FE2C55]" required>
+        <div>
+          <div class="font-medium">Plagio</div>
+          <div class="text-sm text-gray-500">La historia no es original del autor</div>
+        </div>
+      </label>
+      
+      <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <input type="radio" name="reportReason" value="spam" class="text-[#FE2C55]" required>
+        <div>
+          <div class="font-medium">Spam o engaño</div>
+          <div class="text-sm text-gray-500">Contenido promocional no deseado</div>
+        </div>
+      </label>
+      
+      <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <input type="radio" name="reportReason" value="derechos_autor" class="text-[#FE2C55]" required>
+        <div>
+          <div class="font-medium">Infracción de derechos de autor</div>
+          <div class="text-sm text-gray-500">Uso no autorizado de contenido protegido</div>
+        </div>
+      </label>
+      
+      <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <input type="radio" name="reportReason" value="otro" class="text-[#FE2C55]" required>
+        <div>
+          <div class="font-medium">Otro motivo</div>
+          <div class="text-sm text-gray-500">Especifica en la descripción</div>
+        </div>
+      </label>
+      
+      <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción adicional (opcional):</label>
+        <textarea id="report-story-description" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#FE2C55] focus:border-transparent resize-none" rows="3" placeholder="Proporciona más detalles sobre el problema..."></textarea>
+      </div>
+      
+      <div class="flex space-x-3 mt-6">
+        <button type="button" onclick="closeReportStoryModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors">
+          Cancelar
+        </button>
+        <button type="submit" class="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors">
+          Enviar Reporte
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN DE REPORTE ENVIADO -->
+<div id="report-story-success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
+    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold text-gray-900 mb-2">¡Reporte Enviado!</h2>
+    <p class="text-gray-600 mb-6">Gracias por ayudarnos a mantener la comunidad segura. Revisaremos tu reporte pronto.</p>
+    <button onclick="closeReportStorySuccessModal()" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg hover:bg-red-600 transition-colors">
+      Continuar
+    </button>
   </div>
 </div>
 
@@ -5224,6 +5339,202 @@ function toggleVoiceInput() {
       </button>
     `;
     document.body.appendChild(modal);
+  }
+
+  // FUNCIONES PARA REPORTAR HISTORIAS
+  let currentStoryForReport = null;
+
+  function openReportStoryModal() {
+    document.getElementById('report-story-modal').classList.remove('hidden');
+  }
+
+  function closeReportStoryModal() {
+    document.getElementById('report-story-modal').classList.add('hidden');
+    // Limpiar formulario
+    document.getElementById('report-story-form').reset();
+    document.getElementById('report-story-description').value = '';
+  }
+
+  function closeReportStorySuccessModal() {
+    document.getElementById('report-story-success-modal').classList.add('hidden');
+  }
+
+  // Manejar envío del formulario de reporte
+  document.addEventListener('DOMContentLoaded', function() {
+    const reportForm = document.getElementById('report-story-form');
+    if (reportForm) {
+      reportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitStoryReport();
+      });
+    }
+  });
+
+  function submitStoryReport() {
+    const form = document.getElementById('report-story-form');
+    const formData = new FormData(form);
+    const reason = formData.get('reportReason');
+    const description = document.getElementById('report-story-description').value.trim();
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+      alert('Debes iniciar sesión para reportar una historia.');
+      return;
+    }
+
+    if (!reason) {
+      alert('Por favor selecciona un motivo para el reporte.');
+      return;
+    }
+
+    // Crear el reporte en Firebase
+    const reportData = {
+      reporterId: user.uid,
+      reporterEmail: user.email,
+      storyId: currentStoryForReport?.id || 'unknown',
+      storyTitle: currentStoryForReport?.title || 'Título desconocido',
+      storyAuthorId: currentStoryForReport?.userId || 'unknown',
+      reason: reason,
+      description: description,
+      timestamp: Date.now(),
+      status: 'pending'
+    };
+
+    firebase.database().ref('storyReports').push(reportData)
+      .then(() => {
+        closeReportStoryModal();
+        document.getElementById('report-story-success-modal').classList.remove('hidden');
+        
+        // Enviar notificación a los administradores (opcional)
+        sendReportNotificationToAdmins(reportData);
+      })
+      .catch(error => {
+        console.error('Error al enviar reporte:', error);
+        alert('Error al enviar el reporte. Por favor intenta de nuevo.');
+      });
+  }
+
+  function sendReportNotificationToAdmins(reportData) {
+    // Lista de administradores (puedes cambiar estos IDs)
+    const adminEmails = ['darelvega6@icloud.com', 'glamworksappstv@gmail.com'];
+    
+    // Aquí podrías implementar notificaciones a administradores
+    console.log('Reporte enviado para revisión:', reportData);
+  }
+
+  // Función para descargar historia offline
+  function downloadStoryOffline() {
+    if (!currentStoryForReport) {
+      alert('No hay historia seleccionada para descargar.');
+      return;
+    }
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para descargar historias.');
+      return;
+    }
+
+    // Mostrar indicador de descarga
+    const downloadBtn = document.getElementById('download-story-btn');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Descargando...';
+    downloadBtn.disabled = true;
+
+    // Obtener todos los capítulos de la historia
+    firebase.database().ref('stories/' + currentStoryForReport.id + '/chapters').once('value')
+      .then(snapshot => {
+        let storyContent = `${currentStoryForReport.title}\n`;
+        storyContent += `Por: ${currentStoryForReport.authorName || 'Autor desconocido'}\n\n`;
+        
+        if (currentStoryForReport.synopsis) {
+          storyContent += `Sinopsis:\n${currentStoryForReport.synopsis}\n\n`;
+        }
+
+        storyContent += '==========================================\n\n';
+
+        if (snapshot.exists()) {
+          snapshot.forEach(chapterSnap => {
+            const chapter = chapterSnap.val();
+            storyContent += `Capítulo ${chapter.number || 'Sin número'}\n`;
+            storyContent += `${chapter.content || 'Sin contenido'}\n\n`;
+            storyContent += '------------------------------------------\n\n';
+          });
+        } else {
+          storyContent += 'Esta historia no tiene capítulos disponibles.\n';
+        }
+
+        // Crear y descargar archivo
+        const blob = new Blob([storyContent], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentStoryForReport.title.replace(/[^a-z0-9]/gi, '_')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        // Restaurar botón
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+
+        // Mostrar notificación de éxito
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        notification.textContent = '¡Historia descargada exitosamente!';
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+
+        // Ganar monedas por descargar historia
+        earnCoinsForViewing(user.uid, 'download', currentStoryForReport.id);
+      })
+      .catch(error => {
+        console.error('Error al descargar historia:', error);
+        alert('Error al descargar la historia. Por favor intenta de nuevo.');
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+      });
+  }
+
+  // Función para compartir historia
+  function shareStory() {
+    if (!currentStoryForReport) {
+      alert('No hay historia seleccionada para compartir.');
+      return;
+    }
+
+    const shareData = {
+      title: currentStoryForReport.title,
+      text: `Lee "${currentStoryForReport.title}" en BeaBoo`,
+      url: window.location.href
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData)
+        .then(() => console.log('Historia compartida exitosamente'))
+        .catch(err => console.log('Error al compartir:', err));
+    } else {
+      // Fallback para navegadores sin soporte nativo
+      const shareText = `Lee "${currentStoryForReport.title}" en BeaBoo: ${window.location.href}`;
+      navigator.clipboard.writeText(shareText)
+        .then(() => {
+          alert('Enlace copiado al portapapeles');
+        })
+        .catch(() => {
+          // Fallback manual
+          const textArea = document.createElement('textarea');
+          textArea.value = shareText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('Enlace copiado al portapapeles');
+        });
+    }
   }
 
   // FUNCIONES DE MARCOS ANIMADOS
