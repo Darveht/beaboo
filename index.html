@@ -4283,23 +4283,6 @@ function toggleVoiceInput() {
            onclick="openAuthorProfile(this.dataset.userid)">
           Nombre del autor
         </p>
-        
-        <!-- Botones de acción de la historia -->
-        <div class="flex space-x-3 mb-4">
-          <button id="download-story-btn" onclick="downloadStoryOffline()" class="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Descargar</span>
-          </button>
-          
-          <button onclick="shareStory()" class="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-            </svg>
-            <span>Compartir</span>
-          </button>
-        </div>
       </div>
     </div>
 
@@ -5422,120 +5405,7 @@ function toggleVoiceInput() {
     console.log('Reporte enviado para revisión:', reportData);
   }
 
-  // Función para descargar historia offline
-  function downloadStoryOffline() {
-    if (!currentStoryForReport) {
-      alert('No hay historia seleccionada para descargar.');
-      return;
-    }
-
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert('Debes iniciar sesión para descargar historias.');
-      return;
-    }
-
-    // Mostrar indicador de descarga
-    const downloadBtn = document.getElementById('download-story-btn');
-    const originalText = downloadBtn.innerHTML;
-    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Descargando...';
-    downloadBtn.disabled = true;
-
-    // Obtener todos los capítulos de la historia
-    firebase.database().ref('stories/' + currentStoryForReport.id + '/chapters').once('value')
-      .then(snapshot => {
-        let storyContent = `${currentStoryForReport.title}\n`;
-        storyContent += `Por: ${currentStoryForReport.authorName || 'Autor desconocido'}\n\n`;
-        
-        if (currentStoryForReport.synopsis) {
-          storyContent += `Sinopsis:\n${currentStoryForReport.synopsis}\n\n`;
-        }
-
-        storyContent += '==========================================\n\n';
-
-        if (snapshot.exists()) {
-          snapshot.forEach(chapterSnap => {
-            const chapter = chapterSnap.val();
-            storyContent += `Capítulo ${chapter.number || 'Sin número'}\n`;
-            storyContent += `${chapter.content || 'Sin contenido'}\n\n`;
-            storyContent += '------------------------------------------\n\n';
-          });
-        } else {
-          storyContent += 'Esta historia no tiene capítulos disponibles.\n';
-        }
-
-        // Crear y descargar archivo
-        const blob = new Blob([storyContent], { type: 'text/plain;charset=utf-8' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${currentStoryForReport.title.replace(/[^a-z0-9]/gi, '_')}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-
-        // Restaurar botón
-        downloadBtn.innerHTML = originalText;
-        downloadBtn.disabled = false;
-
-        // Mostrar notificación de éxito
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-        notification.textContent = '¡Historia descargada exitosamente!';
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.remove();
-        }, 3000);
-
-        // Ganar monedas por descargar historia
-        earnCoinsForViewing(user.uid, 'download', currentStoryForReport.id);
-      })
-      .catch(error => {
-        console.error('Error al descargar historia:', error);
-        alert('Error al descargar la historia. Por favor intenta de nuevo.');
-        downloadBtn.innerHTML = originalText;
-        downloadBtn.disabled = false;
-      });
-  }
-
-  // Función para compartir historia
-  function shareStory() {
-    if (!currentStoryForReport) {
-      alert('No hay historia seleccionada para compartir.');
-      return;
-    }
-
-    const shareData = {
-      title: currentStoryForReport.title,
-      text: `Lee "${currentStoryForReport.title}" en BeaBoo`,
-      url: window.location.href
-    };
-
-    if (navigator.share) {
-      navigator.share(shareData)
-        .then(() => console.log('Historia compartida exitosamente'))
-        .catch(err => console.log('Error al compartir:', err));
-    } else {
-      // Fallback para navegadores sin soporte nativo
-      const shareText = `Lee "${currentStoryForReport.title}" en BeaBoo: ${window.location.href}`;
-      navigator.clipboard.writeText(shareText)
-        .then(() => {
-          alert('Enlace copiado al portapapeles');
-        })
-        .catch(() => {
-          // Fallback manual
-          const textArea = document.createElement('textarea');
-          textArea.value = shareText;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          alert('Enlace copiado al portapapeles');
-        });
-    }
-  }
+  
 
   // FUNCIONES DE MARCOS ANIMADOS
   function openFrameSelector() {
