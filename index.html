@@ -88,7 +88,7 @@ body {
   margin-top: 10px;
 }
 
-/* Notificaciones */
+    /* Notificaciones */
 .notification-item {
   padding: 10px;
   border: 1px solid #e5e7eb;
@@ -4952,63 +4952,12 @@ function toggleVoiceInput() {
       <div id="live-indicator" class="hidden"></div>
     </div>
     
-    <!-- Panel de configuración del Live antes de iniciar -->
-    <div id="live-config-panel" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
-      <!-- Descripción del Live -->
-      <div class="mb-4">
-        <div class="bg-black/50 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-          <div class="flex items-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1.1" />
-            </svg>
-            <span class="text-white font-medium">Descripción del Live</span>
-          </div>
-          <textarea id="live-description" 
-                    placeholder="¿De qué vas a hablar en tu transmisión? Comparte con tus espectadores..." 
-                    class="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-white/60 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
-                    rows="2" 
-                    maxlength="200"></textarea>
-          <div class="flex justify-between items-center mt-2">
-            <span id="description-counter" class="text-white/60 text-sm">200 caracteres restantes</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Portadas del Live (máximo 2) -->
-      <div class="mb-4">
-        <div class="bg-black/50 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-          <div class="flex items-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span class="text-white font-medium">Fotos de portada</span>
-            <span class="text-white/60 text-sm ml-2">(máx. 2)</span>
-          </div>
-          
-          <!-- Grid para mostrar fotos subidas -->
-          <div id="live-covers-grid" class="grid grid-cols-2 gap-3 mb-3 hidden">
-            <!-- Las fotos aparecerán aquí -->
-          </div>
-          
-          <!-- Botón para subir fotos -->
-          <label for="live-cover-input" class="block w-full border-2 border-dashed border-white/30 rounded-lg p-4 text-center cursor-pointer hover:border-white/50 transition-colors group">
-            <input type="file" id="live-cover-input" accept="image/*" multiple class="hidden" onchange="handleLiveCoverUpload(event)">
-            <div class="text-white/70 group-hover:text-white transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span class="text-sm" id="upload-cover-text">Agregar fotos de portada</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <!-- Botón de iniciar transmisión -->
-      <button id="live-startBtn" class="w-full bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-xl py-4 transition-all duration-200 flex items-center justify-center shadow-xl font-bold text-lg" onclick="startLiveStream()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Botón de iniciar transmisión estilo Instagram -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+      <button id="live-startBtn" class="w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-xl mx-auto" onclick="startLiveStream()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
-        Iniciar Transmisión
       </button>
     </div>
 
@@ -5204,15 +5153,6 @@ function toggleVoiceInput() {
 
     <!-- Contenedor para corazones animados -->
     <div id="hearts-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
-
-    <!-- Descripción deslizante del Live (vista espectador) -->
-    <div id="live-description-ticker" class="absolute bottom-16 left-0 right-0 h-12 overflow-hidden hidden">
-      <div class="bg-black/60 backdrop-blur-sm border-t border-white/10 h-full flex items-center">
-        <div id="description-scroll-text" class="text-white text-sm whitespace-nowrap animate-scroll-left px-4">
-          <!-- La descripción se insertará aquí -->
-        </div>
-      </div>
-    </div>
 
     <!-- Botones laterales estilo Twitter/X para espectador -->
     <div class="side-buttons absolute bottom-24 right-4 flex flex-col items-center space-y-4">
@@ -5712,87 +5652,6 @@ function toggleVoiceInput() {
       top: -50px;
       opacity: 0;
     }
-  }
-
-  /* Estilos para el ticker de descripción */
-  @keyframes scroll-left {
-    0% {
-      transform: translateX(100%);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
-  }
-
-  .animate-scroll-left {
-    animation: scroll-left 15s linear infinite;
-  }
-
-  /* Estilos para las fotos de portada del live */
-  .live-cover-item {
-    position: relative;
-    aspect-ratio: 16/9;
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .live-cover-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .live-cover-remove {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    background: #ef4444;
-    border: 2px solid white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .live-cover-remove:hover {
-    background: #dc2626;
-    transform: scale(1.1);
-  }
-
-  .live-cover-remove svg {
-    width: 12px;
-    height: 12px;
-    color: white;
-  }
-
-  /* Animación de entrada para las fotos */
-  .cover-enter {
-    animation: coverSlideIn 0.3s ease-out forwards;
-  }
-
-  @keyframes coverSlideIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8) translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  /* Contador de caracteres dinámico */
-  .char-counter-warning {
-    color: #fbbf24 !important;
-  }
-
-  .char-counter-danger {
-    color: #ef4444 !important;
   }
 </style>
 
@@ -7094,8 +6953,6 @@ function likeNote(noteId) {
     heartCount = 0;
   let touchstartX = 0,
     touchendX = 0; // Para detección de swipe
-  let liveCovers = []; // Array para almacenar las fotos de portada del live
-  let liveDescription = ''; // Descripción del live
   // -------------------------------
   // Funciones para Corazones (Taps)
   // -------------------------------
@@ -7158,32 +7015,10 @@ function likeNote(noteId) {
     }
     
     // Resetear la interfaz
-    const configPanel = document.getElementById('live-config-panel');
-    const endContainer = document.getElementById('live-end-container');
-    const startBtn = document.getElementById('live-startBtn');
-    
-    configPanel.classList.remove('hidden');
-    endContainer.classList.add('hidden');
+    document.getElementById('live-startBtn').classList.remove('hidden');
+    document.getElementById('live-endBtn').classList.add('hidden');
     document.getElementById('live-indicator').classList.add('hidden');
     document.getElementById('live-overlay').classList.remove('hidden');
-    
-    // Resetear botón de inicio
-    startBtn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-      </svg>
-      Iniciar Transmisión
-    `;
-    startBtn.disabled = false;
-    startBtn.className = "w-full bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-xl py-4 transition-all duration-200 flex items-center justify-center shadow-xl font-bold text-lg";
-    
-    // Limpiar datos del live
-    liveCovers = [];
-    liveDescription = '';
-    document.getElementById('live-description').value = '';
-    document.getElementById('description-counter').textContent = '200 caracteres restantes';
-    document.getElementById('description-counter').className = 'text-white/60 text-sm';
-    updateLiveCoversDisplay();
     
     // Cerrar modal
     document.getElementById('live-stream-modal').classList.add('hidden');
@@ -7330,127 +7165,6 @@ function likeNote(noteId) {
     document.getElementById('report-success').classList.add('hidden');
   }
 
-  // FUNCIONES PARA CONFIGURACIÓN DEL LIVE
-  function handleLiveCoverUpload(event) {
-    const files = Array.from(event.target.files);
-    
-    // Validar que no se excedan las 2 fotos
-    if (liveCovers.length + files.length > 2) {
-      alert('Solo puedes subir máximo 2 fotos de portada');
-      return;
-    }
-
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const coverData = {
-            id: Date.now() + Math.random(),
-            url: e.target.result,
-            file: file
-          };
-          liveCovers.push(coverData);
-          updateLiveCoversDisplay();
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Limpiar el input
-    event.target.value = '';
-  }
-
-  function updateLiveCoversDisplay() {
-    const grid = document.getElementById('live-covers-grid');
-    const uploadText = document.getElementById('upload-cover-text');
-    
-    grid.innerHTML = '';
-    
-    if (liveCovers.length > 0) {
-      grid.classList.remove('hidden');
-      
-      liveCovers.forEach(cover => {
-        const coverElement = document.createElement('div');
-        coverElement.className = 'live-cover-item cover-enter';
-        coverElement.innerHTML = `
-          <img src="${cover.url}" alt="Portada del Live">
-          <button class="live-cover-remove" onclick="removeLiveCover('${cover.id}')" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        `;
-        grid.appendChild(coverElement);
-      });
-
-      // Actualizar texto del botón
-      if (liveCovers.length >= 2) {
-        uploadText.textContent = 'Máximo de fotos alcanzado';
-        document.getElementById('live-cover-input').disabled = true;
-        document.querySelector('label[for="live-cover-input"]').classList.add('opacity-50', 'cursor-not-allowed');
-      } else {
-        uploadText.textContent = `Agregar ${2 - liveCovers.length} foto${2 - liveCovers.length === 1 ? '' : 's'} más`;
-      }
-    } else {
-      grid.classList.add('hidden');
-      uploadText.textContent = 'Agregar fotos de portada';
-      document.getElementById('live-cover-input').disabled = false;
-      document.querySelector('label[for="live-cover-input"]').classList.remove('opacity-50', 'cursor-not-allowed');
-    }
-  }
-
-  function removeLiveCover(coverId) {
-    liveCovers = liveCovers.filter(cover => cover.id !== coverId);
-    updateLiveCoversDisplay();
-  }
-
-  // Contador de caracteres para la descripción
-  document.addEventListener('DOMContentLoaded', function() {
-    const descriptionInput = document.getElementById('live-description');
-    const counter = document.getElementById('description-counter');
-    
-    if (descriptionInput && counter) {
-      descriptionInput.addEventListener('input', function() {
-        const remaining = 200 - this.value.length;
-        counter.textContent = `${remaining} caracteres restantes`;
-        
-        // Cambiar color según caracteres restantes
-        counter.className = 'text-sm ';
-        if (remaining <= 20) {
-          counter.className += 'char-counter-danger';
-        } else if (remaining <= 50) {
-          counter.className += 'char-counter-warning';
-        } else {
-          counter.className += 'text-white/60';
-        }
-      });
-    }
-  });
-
-  function startLiveDescription() {
-    const description = document.getElementById('live-description').value.trim();
-    if (description) {
-      liveDescription = description;
-      showDescriptionTicker(description);
-    }
-  }
-
-  function showDescriptionTicker(description) {
-    const ticker = document.getElementById('live-description-ticker');
-    const scrollText = document.getElementById('description-scroll-text');
-    
-    if (ticker && scrollText) {
-      scrollText.textContent = `📡 ${description} • En vivo ahora • `;
-      ticker.classList.remove('hidden');
-      
-      // Reiniciar animación
-      scrollText.style.animation = 'none';
-      setTimeout(() => {
-        scrollText.style.animation = 'scroll-left 15s linear infinite';
-      }, 10);
-    }
-  }
-
   function handleLiveVideoUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -7462,36 +7176,29 @@ function likeNote(noteId) {
   // Función para iniciar transmisión
   function startLiveStream() {
     const startBtn = document.getElementById('live-startBtn');
-    const configPanel = document.getElementById('live-config-panel');
+    const startContainer = startBtn.parentElement;
     const endContainer = document.getElementById('live-end-container');
     const spinner = document.getElementById('live-spinner');
     const overlay = document.getElementById('live-overlay');
     const indicator = document.getElementById('live-indicator');
     
-    // Obtener descripción del live
-    const descriptionInput = document.getElementById('live-description');
-    if (descriptionInput && descriptionInput.value.trim()) {
-      liveDescription = descriptionInput.value.trim();
-    }
-    
     // Mostrar spinner
     spinner.classList.remove('hidden');
     
-    // Cambiar botón a estado de "iniciando"
+    // Cambiar botón a estado de "iniciando" (mantener estilo circular)
     startBtn.innerHTML = `
-      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-      Iniciando transmisión...
+      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
     `;
     startBtn.disabled = true;
-    startBtn.className = "w-full bg-gray-600 text-white rounded-xl py-4 cursor-not-allowed flex items-center justify-center font-bold text-lg";
+    startBtn.className = "w-20 h-20 bg-gray-600 text-white rounded-full cursor-not-allowed flex items-center justify-center mx-auto";
     
     // Simular inicio de transmisión
     setTimeout(() => {
       spinner.classList.add('hidden');
       overlay.classList.add('hidden');
       
-      // Ocultar panel de configuración y mostrar el de finalización
-      configPanel.classList.add('hidden');
+      // Ocultar contenedor de inicio y mostrar el de finalización
+      startContainer.classList.add('hidden');
       endContainer.classList.remove('hidden');
       
       // Mostrar indicador de transmisión en vivo
@@ -7506,17 +7213,10 @@ function likeNote(noteId) {
         <span class="text-sm font-medium">LIVE • 0 visualizaciones</span>
       `;
       
-      // Iniciar descripción deslizante si existe
-      if (liveDescription) {
-        startLiveDescription();
-      }
-      
       // Iniciar sincronización de vistas en tiempo real
       syncViewerCount();
       
       console.log('Transmisión iniciada correctamente');
-      console.log('Descripción:', liveDescription);
-      console.log('Fotos de portada:', liveCovers.length);
     }, 2000);
   }
   
