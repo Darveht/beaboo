@@ -5034,6 +5034,15 @@ function toggleVoiceInput() {
   function openLiveStreamModal() {
     document.getElementById('live-stream-modal').classList.remove('hidden');
     
+    // Obtener datos del usuario actual para el streamer
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+        const userData = snapshot.val();
+        setCurrentStreamer(user.uid, userData);
+      });
+    }
+    
     // Inicializar la cámara
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -5069,9 +5078,13 @@ function toggleVoiceInput() {
             <img id="streamerProfileImage" src="https://via.placeholder.com/150" alt="Streamer" class="w-8 h-8 rounded-full object-cover mr-3">
             <div>
               <p id="streamerName" class="text-white font-bold text-sm">Broadcast Name</p>
-              <div class="flex items-center space-x-1">
+              <div class="flex items-center space-x-2">
                 <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 <span class="text-red-400 text-xs font-medium">EN VIVO</span>
+                <!-- Botón de rosa para club de fans -->
+                <button onclick="openFanClubModal()" class="ml-2 bg-pink-500/80 hover:bg-pink-500 rounded-full p-1 transition-colors" title="Club de Fans">
+                  <span class="text-xs">🌹</span>
+                </button>
               </div>
             </div>
           </div>
@@ -5371,6 +5384,65 @@ function toggleVoiceInput() {
 
 <!-- CONTENEDOR PARA LA ANIMACIÓN DEL REGALO -->
 <div id="gift-animation"></div>
+
+<!-- MODAL DE CLUB DE FANS -->
+<div id="fan-club-modal" class="fixed inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-pink-900 via-pink-800 to-pink-700 transform translate-y-full transition-transform duration-300 z-60 rounded-t-3xl">
+  <div class="p-6 h-full flex flex-col">
+    <!-- Header del club de fans -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center">
+        <span class="text-3xl mr-3">🌹</span>
+        <div>
+          <h2 class="text-2xl font-bold text-white">Club de Fans</h2>
+          <p class="text-pink-200 text-sm">Únete y apoya a tu streamer favorito</p>
+        </div>
+      </div>
+      <button onclick="closeFanClubModal()" class="text-white/70 hover:text-white text-2xl">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Información del club y botón de unirse -->
+    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <h3 class="text-white font-bold text-lg mb-2">Únete al Club de Fans</h3>
+          <p class="text-pink-200 text-sm mb-3">Envía una rosa y forma parte de la comunidad exclusiva</p>
+          <div class="flex items-center text-yellow-400">
+            <span class="text-lg mr-1">🪙</span>
+            <span class="font-bold">3 monedas</span>
+          </div>
+        </div>
+        <button id="join-fan-club-btn" onclick="joinFanClub()" class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center">
+          <span class="mr-2">🌹</span>
+          Enviar Rosa
+        </button>
+      </div>
+    </div>
+
+    <!-- Clasificación del club de fans -->
+    <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 overflow-hidden">
+      <h3 class="text-white font-bold text-lg mb-4 flex items-center">
+        <span class="mr-2">👑</span>
+        Fans Más Destacados
+      </h3>
+      <div id="fan-club-ranking" class="space-y-3 overflow-y-auto max-h-48">
+        <!-- La clasificación se cargará dinámicamente -->
+      </div>
+    </div>
+
+    <!-- Contador de miembros del club -->
+    <div class="mt-4 text-center">
+      <div class="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 inline-block">
+        <span class="text-white font-bold">
+          <span id="fan-club-count">0</span> miembros en el club
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- INPUTS ocultos para video pregrabado y audio -->
 <input type="file" id="live-video-input" accept="video/*" class="hidden" onchange="handleLiveVideoUpload(event)">
@@ -6034,6 +6106,214 @@ function toggleVoiceInput() {
       // Actualizar inventario
       loadUserGiftInventory(user.uid);
     });
+  }
+
+  // FUNCIONES DEL CLUB DE FANS
+  let currentStreamerId = null;
+
+  function openFanClubModal() {
+    document.getElementById('fan-club-modal').classList.remove('translate-y-full');
+    loadFanClubData();
+  }
+
+  function closeFanClubModal() {
+    document.getElementById('fan-club-modal').classList.add('translate-y-full');
+  }
+
+  function joinFanClub() {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para unirte al club de fans');
+      return;
+    }
+
+    if (!currentStreamerId) {
+      alert('Error: No se pudo identificar al streamer');
+      return;
+    }
+
+    // Verificar monedas del usuario
+    firebase.database().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
+      const currentCoins = snapshot.val() || 0;
+      
+      if (currentCoins < 3) {
+        alert('No tienes suficientes monedas. Necesitas 3 monedas para enviar una rosa.');
+        return;
+      }
+
+      // Confirmar envío de rosa
+      if (confirm('¿Enviar una rosa por 3 monedas y unirte al club de fans?')) {
+        processFanClubJoin(user.uid);
+      }
+    });
+  }
+
+  function processFanClubJoin(userId) {
+    const now = Date.now();
+    
+    // Obtener datos del usuario
+    firebase.database().ref('users/' + userId).once('value').then(userSnapshot => {
+      const userData = userSnapshot.val();
+      
+      const fanData = {
+        userId: userId,
+        username: userData.username || 'Usuario',
+        profileImage: userData.profileImage || 'https://via.placeholder.com/150',
+        joinDate: now,
+        rosesCount: 1
+      };
+
+      const updates = {};
+      
+      // Deducir monedas
+      updates[`/users/${userId}/coins`] = firebase.database.ServerValue.increment(-3);
+      
+      // Agregar al club de fans del streamer
+      updates[`/fanClubs/${currentStreamerId}/members/${userId}`] = fanData;
+      
+      // Actualizar contador total del club
+      updates[`/fanClubs/${currentStreamerId}/totalMembers`] = firebase.database.ServerValue.increment(1);
+      updates[`/fanClubs/${currentStreamerId}/totalRoses`] = firebase.database.ServerValue.increment(1);
+      
+      // Agregar historial de monedas
+      updates[`/users/${userId}/coinHistory/${now}`] = {
+        amount: -3,
+        reason: 'Club de fans - Enviar rosa',
+        timestamp: now
+      };
+
+      // Aplicar actualizaciones
+      firebase.database().ref().update(updates).then(() => {
+        // Mostrar animación de rosa enviada
+        showRoseAnimation();
+        
+        // Actualizar interfaz
+        loadFanClubData();
+        updateCoinDisplay(userId);
+        
+        // Mostrar mensaje de éxito
+        showFanClubSuccessMessage();
+        
+        // Notificar al streamer
+        addNotification(currentStreamerId, 
+          `${userData.username || 'Alguien'} se unió a tu club de fans enviando una rosa 🌹`, 
+          'fanclub'
+        );
+      }).catch(error => {
+        console.error('Error al unirse al club de fans:', error);
+        alert('Error al procesar el envío de la rosa. Por favor intenta de nuevo.');
+      });
+    });
+  }
+
+  function showRoseAnimation() {
+    const animation = document.createElement('div');
+    animation.className = 'fixed inset-0 flex items-center justify-center pointer-events-none z-70';
+    animation.innerHTML = `
+      <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-2xl p-8 text-center animate-bounce">
+        <div class="text-6xl mb-4">🌹</div>
+        <div class="text-2xl font-bold">¡Rosa Enviada!</div>
+        <div class="text-lg opacity-90">Te has unido al club de fans</div>
+      </div>
+    `;
+    
+    document.body.appendChild(animation);
+    
+    setTimeout(() => {
+      animation.remove();
+    }, 3000);
+  }
+
+  function showFanClubSuccessMessage() {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-pink-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+    notification.innerHTML = `
+      <span class="mr-2">🌹</span>
+      <span>¡Bienvenido al club de fans!</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translate(-50%, -20px)';
+      notification.style.transition = 'all 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+
+  function loadFanClubData() {
+    if (!currentStreamerId) return;
+
+    // Cargar miembros del club de fans
+    firebase.database().ref('fanClubs/' + currentStreamerId + '/members').orderByChild('joinDate').limitToLast(10).on('value', snapshot => {
+      const rankingContainer = document.getElementById('fan-club-ranking');
+      rankingContainer.innerHTML = '';
+      
+      if (!snapshot.exists()) {
+        rankingContainer.innerHTML = `
+          <div class="text-center py-8 text-pink-200">
+            <span class="text-4xl mb-2 block">🌹</span>
+            <p>¡Sé el primero en unirte al club de fans!</p>
+          </div>
+        `;
+        return;
+      }
+
+      const members = [];
+      snapshot.forEach(child => {
+        members.unshift({...child.val(), id: child.key});
+      });
+
+      members.forEach((member, index) => {
+        const memberElement = document.createElement('div');
+        memberElement.className = 'flex items-center justify-between bg-white/10 rounded-lg p-3';
+        
+        const rankIcon = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🌹';
+        
+        memberElement.innerHTML = `
+          <div class="flex items-center">
+            <span class="text-xl mr-3">${rankIcon}</span>
+            <img src="${member.profileImage}" alt="${member.username}" class="w-8 h-8 rounded-full mr-3 object-cover">
+            <div>
+              <p class="text-white font-bold text-sm">${member.username}</p>
+              <p class="text-pink-200 text-xs">${member.rosesCount || 1} rosas</p>
+            </div>
+          </div>
+          <div class="text-pink-300 text-xs">
+            ${new Date(member.joinDate).toLocaleDateString()}
+          </div>
+        `;
+        
+        rankingContainer.appendChild(memberElement);
+      });
+    });
+
+    // Cargar contador total
+    firebase.database().ref('fanClubs/' + currentStreamerId + '/totalMembers').on('value', snapshot => {
+      const count = snapshot.val() || 0;
+      document.getElementById('fan-club-count').textContent = count;
+    });
+  }
+
+  // Función para establecer el streamer actual (llamar cuando se inicie una transmisión)
+  function setCurrentStreamer(streamerId, streamerData) {
+    currentStreamerId = streamerId;
+    
+    // Actualizar foto de perfil y nombre en la interfaz
+    const profileImage = document.getElementById('streamerProfileImage');
+    const streamerName = document.getElementById('streamerName');
+    
+    if (profileImage && streamerData.profileImage) {
+      profileImage.src = streamerData.profileImage;
+    }
+    
+    if (streamerName && streamerData.username) {
+      streamerName.textContent = streamerData.username;
+    }
+    
+    // Cargar datos del club de fans
+    loadFanClubData();
   }
 
   // FUNCIONES PARA REPORTAR HISTORIAS
@@ -6701,6 +6981,27 @@ function toggleVoiceInput() {
           
           // GANAR MONEDAS POR PUBLICAR NOTA EN COMUNIDAD
           earnCoinsForCommunityNote(user.uid);
+          
+          function earnCoinsForCommunityNote(userId) {
+            const coinAmount = 10;
+            const updates = {};
+            updates[`/users/${userId}/coins`] = firebase.database.ServerValue.increment(coinAmount);
+            updates[`/users/${userId}/coinHistory/${Date.now()}`] = {
+              amount: coinAmount,
+              reason: 'Publicar nota en comunidad',
+              timestamp: Date.now()
+            };
+            
+            firebase.database().ref().update(updates).then(() => {
+              // Mostrar notificación de monedas ganadas
+              const notification = document.createElement('div');
+              notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+              notification.innerHTML = `<span class="mr-1">🪙</span> +${coinAmount} monedas por publicar`;
+              document.body.appendChild(notification);
+              
+              setTimeout(() => notification.remove(), 3000);
+            });
+          }
           
           alert('¡Nota publicada con éxito!');
         }).catch(error => {
