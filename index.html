@@ -4952,9 +4952,58 @@ function toggleVoiceInput() {
       <div id="live-indicator" class="hidden"></div>
     </div>
     
-    <!-- Botón de iniciar transmisión estilo Instagram -->
-    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-      <button id="live-startBtn" class="w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-xl mx-auto" onclick="startLiveStream()">
+    <!-- Panel de configuración del live -->
+    <div id="live-config-panel" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6">
+      <!-- Sección de descripción y fotos -->
+      <div class="mb-6 space-y-4">
+        <!-- Input de descripción -->
+        <div class="relative">
+          <textarea id="live-description" 
+                    placeholder="Escribe una descripción de tu transmisión..." 
+                    class="w-full bg-black/40 backdrop-blur-sm text-white placeholder-gray-300 rounded-2xl p-4 pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 border border-white/20" 
+                    rows="2" 
+                    maxlength="200"></textarea>
+          <div class="absolute bottom-2 right-2 text-xs text-gray-400">
+            <span id="description-counter">200</span> caracteres
+          </div>
+        </div>
+        
+        <!-- Sección de fotos de portada -->
+        <div class="flex space-x-3">
+          <!-- Foto 1 -->
+          <div class="flex-1">
+            <label for="live-cover-1" class="block relative cursor-pointer">
+              <div id="cover-preview-1" class="w-full h-24 bg-black/40 backdrop-blur-sm border-2 border-dashed border-white/30 rounded-xl flex items-center justify-center text-white hover:border-purple-500 transition-colors">
+                <div class="text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span class="text-xs">Foto 1</span>
+                </div>
+              </div>
+              <input type="file" id="live-cover-1" accept="image/*" class="hidden" onchange="handleCoverUpload(1, event)">
+            </label>
+          </div>
+          
+          <!-- Foto 2 -->
+          <div class="flex-1">
+            <label for="live-cover-2" class="block relative cursor-pointer">
+              <div id="cover-preview-2" class="w-full h-24 bg-black/40 backdrop-blur-sm border-2 border-dashed border-white/30 rounded-xl flex items-center justify-center text-white hover:border-purple-500 transition-colors">
+                <div class="text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span class="text-xs">Foto 2</span>
+                </div>
+              </div>
+              <input type="file" id="live-cover-2" accept="image/*" class="hidden" onchange="handleCoverUpload(2, event)">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón de iniciar transmisión -->
+      <button id="live-startBtn" class="w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-xl mx-auto transform hover:scale-105" onclick="startLiveStream()">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
@@ -5153,6 +5202,32 @@ function toggleVoiceInput() {
 
     <!-- Contenedor para corazones animados -->
     <div id="hearts-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+    
+    <!-- Descripción deslizante estilo Twitter -->
+    <div id="live-description-slider" class="absolute bottom-32 left-0 right-0 pointer-events-none hidden">
+      <div class="px-4">
+        <div id="live-description-content" class="bg-black/70 backdrop-blur-md text-white px-4 py-3 rounded-2xl border border-white/20 shadow-lg transform translate-x-full transition-transform duration-700 ease-out">
+          <div class="flex items-start space-x-3">
+            <img id="live-description-avatar" src="" alt="" class="w-8 h-8 rounded-full">
+            <div class="flex-1">
+              <p id="live-description-text" class="text-sm leading-relaxed"></p>
+              <div class="flex items-center mt-2 space-x-4 text-xs text-gray-300">
+                <span class="flex items-center">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                  <span id="live-description-likes">0</span>
+                </span>
+                <span class="flex items-center">
+                  <div class="w-2 h-2 bg-red-500 rounded-full mr-1 animate-pulse"></div>
+                  EN VIVO
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Botones laterales estilo Twitter/X para espectador -->
     <div class="side-buttons absolute bottom-24 right-4 flex flex-col items-center space-y-4">
@@ -5653,6 +5728,76 @@ function toggleVoiceInput() {
       opacity: 0;
     }
   }
+
+  /* Estilos para el panel de configuración del live */
+  #live-config-panel {
+    animation: slideUpConfig 0.5s ease-out;
+  }
+
+  @keyframes slideUpConfig {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Efectos hover para las zonas de subida de fotos */
+  .cover-upload-area:hover {
+    transform: scale(1.02);
+    border-color: #a855f7;
+  }
+
+  /* Animación de la descripción deslizante estilo Twitter */
+  .description-slide-in {
+    animation: twitterSlideIn 0.7s ease-out forwards;
+  }
+
+  .description-slide-out {
+    animation: twitterSlideOut 0.7s ease-in forwards;
+  }
+
+  @keyframes twitterSlideIn {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes twitterSlideOut {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  /* Efecto de escritura en tiempo real */
+  .typing-effect {
+    border-right: 2px solid #fff;
+    animation: blinkCursor 1s infinite;
+  }
+
+  @keyframes blinkCursor {
+    0%, 50% { border-color: transparent; }
+    51%, 100% { border-color: #fff; }
+  }
 </style>
 
 <!-- JavaScript: Funcionalidades y Gestos -->
@@ -6003,6 +6148,152 @@ function toggleVoiceInput() {
   function updateGiftDrawerWithInventory() {
     // Esta función actualizará el gift drawer para mostrar solo los regalos que el usuario tiene
     // Se llamará cuando se abra el gift drawer
+  }
+
+  // VARIABLES GLOBALES PARA LIVE CONFIG
+  let liveCovers = [];
+  let liveDescription = '';
+  let descriptionInterval = null;
+
+  // FUNCIONES PARA CONFIGURACIÓN DEL LIVE
+  function handleCoverUpload(photoNumber, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Verificar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona solo archivos de imagen');
+      return;
+    }
+
+    // Verificar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La imagen debe ser menor a 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById(`cover-preview-${photoNumber}`);
+      preview.innerHTML = `
+        <img src="${e.target.result}" class="w-full h-full object-cover rounded-xl">
+        <button onclick="removeCover(${photoNumber})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+          ×
+        </button>
+      `;
+      preview.classList.add('relative');
+
+      // Guardar la imagen en el array
+      liveCovers[photoNumber - 1] = e.target.result;
+      
+      // Animación de éxito estilo Twitter
+      preview.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        preview.style.transform = 'scale(1)';
+        preview.style.transition = 'transform 0.2s ease-out';
+      }, 100);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeCover(photoNumber) {
+    const preview = document.getElementById(`cover-preview-${photoNumber}`);
+    preview.innerHTML = `
+      <div class="text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-xs">Foto ${photoNumber}</span>
+      </div>
+    `;
+    preview.classList.remove('relative');
+    liveCovers[photoNumber - 1] = null;
+    
+    // Limpiar el input
+    document.getElementById(`live-cover-${photoNumber}`).value = '';
+  }
+
+  // Contador de caracteres para la descripción
+  document.addEventListener('DOMContentLoaded', function() {
+    const descriptionInput = document.getElementById('live-description');
+    const counter = document.getElementById('description-counter');
+    
+    if (descriptionInput && counter) {
+      descriptionInput.addEventListener('input', function() {
+        const remaining = 200 - this.value.length;
+        counter.textContent = remaining;
+        
+        if (remaining < 20) {
+          counter.classList.add('text-red-400');
+          counter.classList.remove('text-gray-400');
+        } else {
+          counter.classList.remove('text-red-400');
+          counter.classList.add('text-gray-400');
+        }
+        
+        liveDescription = this.value;
+      });
+    }
+  });
+
+  // FUNCIONES PARA MOSTRAR DESCRIPCIÓN EN VISTA DE ESPECTADOR
+  function showLiveDescription() {
+    if (!liveDescription.trim()) return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    // Obtener datos del usuario transmisor
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      
+      const slider = document.getElementById('live-description-slider');
+      const content = document.getElementById('live-description-content');
+      const avatar = document.getElementById('live-description-avatar');
+      const text = document.getElementById('live-description-text');
+      
+      if (slider && content && avatar && text) {
+        // Configurar contenido
+        avatar.src = userData.profileImage || 'https://via.placeholder.com/150';
+        text.textContent = liveDescription;
+        
+        // Mostrar con animación
+        slider.classList.remove('hidden');
+        content.classList.add('description-slide-in');
+        content.classList.remove('translate-x-full');
+        
+        // Ocultar después de 6 segundos
+        setTimeout(() => {
+          content.classList.remove('description-slide-in');
+          content.classList.add('description-slide-out');
+          
+          setTimeout(() => {
+            slider.classList.add('hidden');
+            content.classList.remove('description-slide-out');
+            content.classList.add('translate-x-full');
+          }, 700);
+        }, 6000);
+      }
+    });
+  }
+
+  function startDescriptionLoop() {
+    if (!liveDescription.trim()) return;
+    
+    // Mostrar la descripción inmediatamente
+    showLiveDescription();
+    
+    // Repetir cada 30 segundos
+    descriptionInterval = setInterval(() => {
+      showLiveDescription();
+    }, 30000);
+  }
+
+  function stopDescriptionLoop() {
+    if (descriptionInterval) {
+      clearInterval(descriptionInterval);
+      descriptionInterval = null;
+    }
   }
 
   // FUNCIONES MODIFICADAS PARA TRANSMISIONES EN VIVO
@@ -7176,11 +7467,14 @@ function likeNote(noteId) {
   // Función para iniciar transmisión
   function startLiveStream() {
     const startBtn = document.getElementById('live-startBtn');
-    const startContainer = startBtn.parentElement;
+    const configPanel = document.getElementById('live-config-panel');
     const endContainer = document.getElementById('live-end-container');
     const spinner = document.getElementById('live-spinner');
     const overlay = document.getElementById('live-overlay');
     const indicator = document.getElementById('live-indicator');
+    
+    // Capturar descripción antes de iniciar
+    liveDescription = document.getElementById('live-description').value.trim();
     
     // Mostrar spinner
     spinner.classList.remove('hidden');
@@ -7197,8 +7491,8 @@ function likeNote(noteId) {
       spinner.classList.add('hidden');
       overlay.classList.add('hidden');
       
-      // Ocultar contenedor de inicio y mostrar el de finalización
-      startContainer.classList.add('hidden');
+      // Ocultar panel de configuración y mostrar el de finalización
+      configPanel.classList.add('hidden');
       endContainer.classList.remove('hidden');
       
       // Mostrar indicador de transmisión en vivo
@@ -7213,10 +7507,17 @@ function likeNote(noteId) {
         <span class="text-sm font-medium">LIVE • 0 visualizaciones</span>
       `;
       
+      // Iniciar loop de descripción en vista de espectadores
+      if (liveDescription) {
+        startDescriptionLoop();
+      }
+      
       // Iniciar sincronización de vistas en tiempo real
       syncViewerCount();
       
       console.log('Transmisión iniciada correctamente');
+      console.log('Descripción del live:', liveDescription);
+      console.log('Fotos de portada:', liveCovers.filter(cover => cover !== null));
     }, 2000);
   }
   
