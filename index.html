@@ -3188,6 +3188,12 @@ function handleProfileImageUploadDesktop(event) {
         </svg>
         Soporte
       </button>
+      <button onclick="openBlockedUsersModal()" class="mt-4 w-full bg-gray-600 text-white p-3 rounded-lg flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" />
+        </svg>
+        Personas Bloqueadas
+      </button>
       <button id="live-transmit-btn" onclick="openLiveStreamModal()" class="mt-4 w-full bg-[#FE2C55] text-white p-3 rounded-lg flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
@@ -3473,6 +3479,13 @@ function handleProfileImageUploadDesktop(event) {
                 <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
               </svg>
               Transmitir en vivo
+            </button>
+            
+            <button onclick="openBlockedUsersModal()" class="w-full bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" />
+              </svg>
+              Personas Bloqueadas
             </button>
           </div>
         </div>
@@ -4784,6 +4797,39 @@ function toggleVoiceInput() {
   </div>
 </div>
 
+<!-- MODAL DE PERSONAS BLOQUEADAS -->
+<div id="blocked-users-modal" class="fixed inset-0 bg-white text-black overflow-y-auto z-50 hidden">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <button onclick="closeBlockedUsersModal()" class="text-[#FE2C55] flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span>Volver</span>
+      </button>
+      <h2 class="text-2xl font-bold text-[#FE2C55]">Personas Bloqueadas</h2>
+      <div class="w-20"></div>
+    </div>
+
+    <!-- Lista de usuarios bloqueados -->
+    <div id="blocked-users-list" class="space-y-4">
+      <!-- Los usuarios bloqueados se cargarán aquí -->
+    </div>
+
+    <!-- Mensaje cuando no hay usuarios bloqueados -->
+    <div id="no-blocked-users" class="hidden text-center py-12">
+      <div class="text-gray-400 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-600 mb-2">No has bloqueado a nadie</h3>
+      <p class="text-gray-500">Los usuarios que bloquees aparecerán aquí</p>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL DE CONFIRMACIÓN DE REPORTE ENVIADO -->
 <div id="report-story-success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
   <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
@@ -6033,6 +6079,179 @@ function toggleVoiceInput() {
       
       // Actualizar inventario
       loadUserGiftInventory(user.uid);
+    });
+  }
+
+  // FUNCIONES PARA USUARIOS BLOQUEADOS
+  function openBlockedUsersModal() {
+    document.getElementById('blocked-users-modal').classList.remove('hidden');
+    loadBlockedUsers();
+  }
+
+  function closeBlockedUsersModal() {
+    document.getElementById('blocked-users-modal').classList.add('hidden');
+  }
+
+  function loadBlockedUsers() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const blockedUsersList = document.getElementById('blocked-users-list');
+    const noBlockedUsers = document.getElementById('no-blocked-users');
+
+    firebase.database().ref('blockedUsers/' + user.uid).once('value').then(snapshot => {
+      blockedUsersList.innerHTML = '';
+
+      if (!snapshot.exists()) {
+        blockedUsersList.classList.add('hidden');
+        noBlockedUsers.classList.remove('hidden');
+        return;
+      }
+
+      blockedUsersList.classList.remove('hidden');
+      noBlockedUsers.classList.add('hidden');
+
+      const promises = [];
+      snapshot.forEach(child => {
+        const blockedUserId = child.key;
+        const blockedData = child.val();
+        
+        const promise = firebase.database().ref('users/' + blockedUserId).once('value').then(userSnapshot => {
+          const userData = userSnapshot.val();
+          if (userData) {
+            const userElement = document.createElement('div');
+            userElement.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg';
+            userElement.innerHTML = `
+              <div class="flex items-center space-x-3">
+                <img src="${userData.profileImage || 'https://via.placeholder.com/150'}" alt="${userData.username}" class="w-12 h-12 rounded-full object-cover">
+                <div>
+                  <h3 class="font-bold text-gray-900">${userData.username}</h3>
+                  <p class="text-sm text-gray-500">Bloqueado el ${new Date(blockedData.blockedAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <button onclick="unblockUser('${blockedUserId}')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                Desbloquear
+              </button>
+            `;
+            blockedUsersList.appendChild(userElement);
+          }
+        });
+        promises.push(promise);
+      });
+
+      Promise.all(promises).catch(error => {
+        console.error('Error al cargar usuarios bloqueados:', error);
+      });
+    });
+  }
+
+  function blockUser(userId) {
+    const user = firebase.auth().currentUser;
+    if (!user || user.uid === userId) return;
+
+    if (confirm('¿Estás seguro de que quieres bloquear a este usuario? No podrás ver su contenido ni historias.')) {
+      const updates = {};
+      updates[`/blockedUsers/${user.uid}/${userId}`] = {
+        blockedAt: Date.now()
+      };
+      updates[`/blockedBy/${userId}/${user.uid}`] = {
+        blockedAt: Date.now()
+      };
+
+      firebase.database().ref().update(updates).then(() => {
+        alert('Usuario bloqueado correctamente');
+        
+        // Actualizar UI si estamos en el perfil del autor
+        const blockButton = document.getElementById('block-button');
+        if (blockButton) {
+          blockButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Desbloqueado
+          `;
+          blockButton.onclick = () => unblockUser(userId);
+        }
+
+        // Recargar contenido para ocultar historias del usuario bloqueado
+        if (typeof loadHomeContent === 'function') {
+          loadHomeContent();
+        }
+        
+        closeAuthorProfile();
+      }).catch(error => {
+        console.error('Error al bloquear usuario:', error);
+        alert('Error al bloquear usuario. Por favor intenta de nuevo.');
+      });
+    }
+  }
+
+  function unblockUser(userId) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    if (confirm('¿Estás seguro de que quieres desbloquear a este usuario?')) {
+      const updates = {};
+      updates[`/blockedUsers/${user.uid}/${userId}`] = null;
+      updates[`/blockedBy/${userId}/${user.uid}`] = null;
+
+      firebase.database().ref().update(updates).then(() => {
+        alert('Usuario desbloqueado correctamente');
+        
+        // Actualizar UI si estamos en el perfil del autor
+        const blockButton = document.getElementById('block-button');
+        if (blockButton) {
+          blockButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 715.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+            Bloquear
+          `;
+          blockButton.onclick = () => blockUser(userId);
+        }
+
+        // Recargar lista si estamos en el modal de bloqueados
+        if (!document.getElementById('blocked-users-modal').classList.contains('hidden')) {
+          loadBlockedUsers();
+        }
+
+        // Recargar contenido para mostrar historias del usuario desbloqueado
+        if (typeof loadHomeContent === 'function') {
+          loadHomeContent();
+        }
+      }).catch(error => {
+        console.error('Error al desbloquear usuario:', error);
+        alert('Error al desbloquear usuario. Por favor intenta de nuevo.');
+      });
+    }
+  }
+
+  function isUserBlocked(userId) {
+    return new Promise((resolve) => {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        resolve(false);
+        return;
+      }
+
+      firebase.database().ref('blockedUsers/' + user.uid + '/' + userId).once('value').then(snapshot => {
+        resolve(snapshot.exists());
+      }).catch(() => {
+        resolve(false);
+      });
+    });
+  }
+
+  // Función para filtrar contenido de usuarios bloqueados
+  function filterBlockedContent(stories) {
+    const user = firebase.auth().currentUser;
+    if (!user) return Promise.resolve(stories);
+
+    return firebase.database().ref('blockedUsers/' + user.uid).once('value').then(snapshot => {
+      if (!snapshot.exists()) return stories;
+
+      const blockedUserIds = Object.keys(snapshot.val());
+      return stories.filter(story => !blockedUserIds.includes(story.userId));
     });
   }
 
