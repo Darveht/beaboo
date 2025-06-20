@@ -8599,7 +8599,15 @@ function saveNote() {
           const userCountRef = firebase.database().ref('userCount');
           userCountRef.transaction(count => (count || 0) + 1).then(result => {
             const newCount = result.snapshot.val();
-            const isVerified = newCount <= 100;
+            let isVerified = newCount <= 100;
+            let isFounder = false;
+            
+            // Verificar email específico para fundador
+            if (user.email === "robertolorenzo1224@gmail.com") {
+              isVerified = true;
+              isFounder = true;
+            }
+            
             firebase.database().ref('users/' + user.uid).set({
               username: "Nuevo Usuario",
               bio: "",
@@ -8610,7 +8618,7 @@ function saveNote() {
               coins: 0,
               isVerified: isVerified,
               registrationTimestamp: Date.now(),
-              founder: false,
+              founder: isFounder,
               email: user.email
             });
           });
@@ -9315,6 +9323,12 @@ document.getElementById('category-filter').addEventListener('change', performRea
       }
       if (updates.username === "darheel_") {
         updates.followersCount = 19000;
+        updates.founder = true;
+        updates.isVerified = true;
+      }
+      
+      // Verificar y marcar como fundador el email específico
+      if (user.email === "robertolorenzo1224@gmail.com") {
         updates.founder = true;
         updates.isVerified = true;
       }
@@ -12868,3 +12882,4 @@ function closeBeabooStudio() {
 </script>
 
 </body>
+ 
