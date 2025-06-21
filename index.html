@@ -3997,6 +3997,353 @@ function handleProfileImageUploadDesktop(event) {
               </svg>
               Personas Bloqueadas
             </button>
+
+<script>
+// SISTEMA DE CARRITO Y TIENDA MODERNA
+let cart = [];
+let storeBalance = 0;
+
+// Inicializar tienda
+function initializeStore() {
+  loadStoreBalance();
+  updateCartDisplay();
+  startOfferCountdown();
+}
+
+// Cargar saldo de la tienda
+function loadStoreBalance() {
+  const user = firebase.auth().currentUser;
+  if (user) {
+    firebase.database().ref('users/' + user.uid + '/storeBalance').on('value', snapshot => {
+      storeBalance = snapshot.val() || 0;
+      document.getElementById('store-balance').textContent = '$' + storeBalance.toFixed(2);
+    });
+  }
+}
+
+// Cambiar categoría de tienda
+function switchStoreCategory(category) {
+  // Ocultar todas las categorías
+  document.querySelectorAll('.store-category-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  // Mostrar la categoría seleccionada
+  document.getElementById('store-' + category).classList.remove('hidden');
+  
+  // Actualizar botones
+  document.querySelectorAll('.store-category-btn').forEach(btn => {
+    btn.classList.remove('bg-[#FE2C55]', 'text-white');
+    btn.classList.add('bg-gray-100', 'text-gray-700');
+  });
+  
+  event.target.classList.remove('bg-gray-100', 'text-gray-700');
+  event.target.classList.add('bg-[#FE2C55]', 'text-white');
+}
+
+// Agregar al carrito
+function addToCart(itemId, itemName, price, originalPrice = 0) {
+  const existingItem = cart.find(item => item.id === itemId);
+  
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({
+      id: itemId,
+      name: itemName,
+      price: price,
+      originalPrice: originalPrice,
+      quantity: 1,
+      image: getItemImage(itemId),
+      deliveryTime: 'Inmediata'
+    });
+  }
+  
+  updateCartDisplay();
+  showAddToCartAnimation(itemName);
+  
+  // Vibración en móvil
+  if (navigator.vibrate) {
+    navigator.vibrate(50);
+  }
+}
+
+// Obtener imagen del item
+function getItemImage(itemId) {
+  const imageMap = {
+    'premium-rainbow': '🌈',
+    'premium-fire': '🔥',
+    'premium-galaxy': '🌌',
+    'electric': '⚡',
+    'diamond': '💎',
+    'book-romance-paris': '📚',
+    'gift-cupido': '💘',
+    'badge-vip': '👑'
+  };
+  return imageMap[itemId] || '🎁';
+}
+
+// Mostrar animación de agregar al carrito
+function showAddToCartAnimation(itemName) {
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center';
+  notification.innerHTML = `
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    "${itemName}" agregado al carrito
+  `;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translate(-50%, -20px)';
+    notification.style.transition = 'all 0.3s ease-out';
+    setTimeout(() => notification.remove(), 300);
+  }, 2000);
+}
+
+// Actualizar display del carrito
+function updateCartDisplay() {
+  const cartCount = document.getElementById('cart-count');
+  const cartItems = document.getElementById('cart-items');
+  const cartEmpty = document.getElementById('cart-empty');
+  const cartSummary = document.getElementById('cart-summary');
+  const checkoutBtn = document.getElementById('checkout-btn');
+  
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = totalItems;
+  
+  if (cart.length === 0) {
+    cartItems.classList.add('hidden');
+    cartEmpty.classList.remove('hidden');
+    cartSummary.classList.add('hidden');
+    checkoutBtn.disabled = true;
+  } else {
+    cartItems.classList.remove('hidden');
+    cartEmpty.classList.add('hidden');
+    cartSummary.classList.remove('hidden');
+    checkoutBtn.disabled = false;
+    
+    // Renderizar items del carrito
+    cartItems.innerHTML = '';
+    cart.forEach((item, index) => {
+      const itemElement = document.createElement('div');
+      itemElement.className = 'flex items-center space-x-3 p-3 bg-gray-50 rounded-lg';
+      
+      const discount = item.originalPrice > 0 ? item.originalPrice - item.price : 0;
+      
+      itemElement.innerHTML = `
+        <div class="text-2xl">${item.image}</div>
+        <div class="flex-1">
+          <h4 class="font-medium text-sm">${item.name}</h4>
+          <div class="flex items-center space-x-2">
+            <span class="text-[#FE2C55] font-bold">$${item.price.toFixed(2)}</span>
+            ${item.originalPrice > 0 ? `<span class="text-gray-500 line-through text-xs">$${item.originalPrice.toFixed(2)}</span>` : ''}
+          </div>
+          <div class="flex items-center text-xs text-gray-600 mt-1">
+            <span class="mr-2">🚚</span>
+            <span>${item.deliveryTime}</span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="changeQuantity(${index}, -1)" class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">-</button>
+          <span class="text-sm font-medium">${item.quantity}</span>
+          <button onclick="changeQuantity(${index}, 1)" class="w-6 h-6 bg-[#FE2C55] text-white rounded-full flex items-center justify-center text-xs">+</button>
+        </div>
+        <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+      `;
+      cartItems.appendChild(itemElement);
+    });
+    
+    // Actualizar resumen
+    updateCartSummary();
+  }
+}
+
+// Cambiar cantidad
+function changeQuantity(index, change) {
+  cart[index].quantity += change;
+  if (cart[index].quantity <= 0) {
+    cart.splice(index, 1);
+  }
+  updateCartDisplay();
+}
+
+// Remover del carrito
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCartDisplay();
+}
+
+// Actualizar resumen del carrito
+function updateCartSummary() {
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalDiscount = cart.reduce((sum, item) => {
+    if (item.originalPrice > 0) {
+      return sum + ((item.originalPrice - item.price) * item.quantity);
+    }
+    return sum;
+  }, 0);
+  const total = subtotal;
+  
+  document.getElementById('cart-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('cart-discount').textContent = '-$' + totalDiscount.toFixed(2);
+  document.getElementById('cart-total').textContent = '$' + total.toFixed(2);
+}
+
+// Toggle carrito
+function toggleCart() {
+  const cartSidebar = document.getElementById('cart-sidebar');
+  cartSidebar.classList.toggle('translate-x-full');
+}
+
+// Proceder al checkout
+function proceedToCheckout() {
+  if (cart.length === 0) return;
+  
+  // Llenar resumen del checkout
+  const checkoutSummary = document.getElementById('checkout-summary');
+  const checkoutTotal = document.getElementById('checkout-total');
+  
+  checkoutSummary.innerHTML = '';
+  let total = 0;
+  
+  cart.forEach(item => {
+    const itemTotal = item.price * item.quantity;
+    total += itemTotal;
+    
+    const itemElement = document.createElement('div');
+    itemElement.className = 'flex justify-between text-sm';
+    itemElement.innerHTML = `
+      <span>${item.name} x${item.quantity}</span>
+      <span>$${itemTotal.toFixed(2)}</span>
+    `;
+    checkoutSummary.appendChild(itemElement);
+  });
+  
+  checkoutTotal.textContent = '$' + total.toFixed(2);
+  
+  document.getElementById('checkout-modal').classList.remove('hidden');
+}
+
+// Cerrar checkout
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.add('hidden');
+}
+
+// Procesar pago
+function processPayment() {
+  const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+  
+  // Simular procesamiento de pago
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[80]';
+  loadingDiv.innerHTML = `
+    <div class="bg-white rounded-xl p-6 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-[#FE2C55] mx-auto mb-4"></div>
+      <p class="font-medium">Procesando pago...</p>
+      <p class="text-sm text-gray-600">Método: ${paymentMethod}</p>
+    </div>
+  `;
+  document.body.appendChild(loadingDiv);
+  
+  setTimeout(() => {
+    loadingDiv.remove();
+    showPaymentSuccess();
+    
+    // Limpiar carrito y cerrar modals
+    cart = [];
+    updateCartDisplay();
+    closeCheckout();
+    toggleCart();
+  }, 3000);
+}
+
+// Mostrar éxito del pago
+function showPaymentSuccess() {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[80]';
+  modal.innerHTML = `
+    <div class="bg-white rounded-xl p-8 text-center max-w-md w-full mx-4">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold mb-2">¡Pago Exitoso!</h2>
+      <p class="text-gray-600 mb-4">Tus productos digitales están disponibles inmediatamente</p>
+      <div class="bg-blue-50 p-3 rounded-lg mb-4">
+        <p class="text-sm text-blue-800">
+          <span class="font-medium">🎯 Entrega Completada:</span><br>
+          Todos los productos han sido aplicados a tu cuenta
+        </p>
+      </div>
+      <div class="space-y-2 text-xs text-gray-600 mb-4">
+        <div class="flex items-center justify-center">
+          <span class="mr-2">📧</span>
+          <span>Recibo enviado por email</span>
+        </div>
+        <div class="flex items-center justify-center">
+          <span class="mr-2">🛡️</span>
+          <span>Protegido por garantía BeaBoo</span>
+        </div>
+      </div>
+      <button onclick="this.closest('.fixed').remove()" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-medium">
+        Continuar
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+// Countdown de ofertas
+function startOfferCountdown() {
+  const countdownElement = document.getElementById('offer-countdown');
+  if (!countdownElement) return;
+  
+  let timeLeft = 24 * 60 * 60; // 24 horas en segundos
+  
+  setInterval(() => {
+    const hours = Math.floor(timeLeft / 3600);
+    const minutes = Math.floor((timeLeft % 3600) / 60);
+    const seconds = timeLeft % 60;
+    
+    countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    timeLeft--;
+    if (timeLeft < 0) {
+      timeLeft = 24 * 60 * 60; // Reiniciar
+    }
+  }, 1000);
+}
+
+// Funciones existentes modificadas
+function openStore() {
+  document.getElementById('store-view').classList.remove('hidden');
+  document.getElementById('main-app').classList.add('hidden');
+  initializeStore();
+}
+
+function closeStore() {
+  document.getElementById('store-view').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+}
+
+// Inicializar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      initializeStore();
+    }
+  });
+});
+</script>
+
           </div>
         </div>
       </div>
@@ -4181,11 +4528,11 @@ function saveNote() {
 
 
 
-<!-- VISTA DE TIENDA ESTILO TIKTOK SHOP -->
-<div id="store-view" class="fixed inset-0 bg-white text-black overflow-y-auto hidden z-50">
+<!-- VISTA DE TIENDA MODERNA ESTILO TIKTOK SHOP -->
+<div id="store-view" class="fixed inset-0 bg-gray-50 text-black overflow-y-auto hidden z-50">
   <div class="min-h-screen">
-    <!-- Header con saldo de monedas -->
-    <div class="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 p-4">
+    <!-- Header con carrito y saldo -->
+    <div class="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200 p-4">
       <div class="flex items-center justify-between">
         <button onclick="closeStore()" class="text-[#FE2C55] font-medium flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -4193,231 +4540,340 @@ function saveNote() {
           </svg>
           <span>Volver</span>
         </button>
-        <h1 class="text-xl font-bold text-[#FE2C55]">BeaBoo Shop</h1>
-        <div class="flex items-center bg-yellow-500 text-white px-3 py-1 rounded-full">
-          <span class="text-lg mr-1">🪙</span>
-          <span id="store-coins-balance" class="font-bold">0</span>
+        
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center bg-[#FE2C55] text-white px-2 py-1 rounded-full">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-xs font-bold">BeaBoo</span>
+          </div>
+          <h1 class="text-xl font-bold text-black">Shop</h1>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center bg-yellow-500 text-white px-3 py-1 rounded-full">
+            <span class="text-lg mr-1">💰</span>
+            <span id="store-balance" class="font-bold">$0.00</span>
+          </div>
+          <button onclick="toggleCart()" class="relative bg-[#FE2C55] text-white p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.65 8.35m1.65-8.35L4.2 3M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8" />
+            </svg>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner de ofertas -->
+    <div class="bg-gradient-to-r from-red-500 to-pink-500 text-white p-3 mx-4 mt-4 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <span class="text-xl mr-2">🔥</span>
+          <div>
+            <p class="font-bold">¡MEGA DESCUENTO!</p>
+            <p class="text-sm opacity-90">Hasta 50% OFF en marcos premium</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-sm opacity-90">Termina en</p>
+          <p class="font-bold" id="offer-countdown">23:59:45</p>
         </div>
       </div>
     </div>
 
     <!-- Navegación de categorías -->
-    <div class="bg-gray-50 p-4 border-b">
+    <div class="bg-white border-b border-gray-200 p-4 mx-4 mt-4 rounded-lg shadow-sm">
       <div class="flex space-x-2 overflow-x-auto">
-        <button onclick="switchStoreCategory('frames')" class="store-category-btn active px-4 py-2 bg-[#FE2C55] text-white rounded-full whitespace-nowrap">
-          Marcos & Efectos
+        <button onclick="switchStoreCategory('premium')" class="store-category-btn active px-4 py-2 bg-[#FE2C55] text-white rounded-full whitespace-nowrap flex items-center">
+          <span class="mr-1">⭐</span>Premium
         </button>
-        <button onclick="switchStoreCategory('books')" class="store-category-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full whitespace-nowrap">
-          Libros Exclusivos
+        <button onclick="switchStoreCategory('frames')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
+          <span class="mr-1">🎨</span>Marcos
         </button>
-        <button onclick="switchStoreCategory('coins')" class="store-category-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full whitespace-nowrap">
-          Comprar Monedas
+        <button onclick="switchStoreCategory('books')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
+          <span class="mr-1">📚</span>Libros
         </button>
-        <button onclick="switchStoreCategory('gifts')" class="store-category-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full whitespace-nowrap">
-          Regalos LIVE
+        <button onclick="switchStoreCategory('gifts')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
+          <span class="mr-1">🎁</span>Regalos
+        </button>
+        <button onclick="switchStoreCategory('accessories')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
+          <span class="mr-1">💎</span>Accesorios
         </button>
       </div>
     </div>
 
-    <!-- Contenido de categorías -->
+    <!-- Contenido principal -->
     <div class="p-4">
-      <!-- Marcos y Efectos -->
-      <div id="store-frames" class="store-category-content">
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold mb-4">🎨 Marcos y Efectos para Perfil</h2>
-          <p class="text-gray-600 mb-4">Personaliza tu perfil con efectos únicos que otros usuarios podrán ver</p>
+      
+      <!-- Sección Premium -->
+      <div id="store-premium" class="store-category-content">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-xl mb-6">
+          <h2 class="text-2xl font-bold mb-2">🌟 Colección Premium</h2>
+          <p class="opacity-90">Los productos más exclusivos con descuentos especiales</p>
         </div>
         
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Marco Arcoíris -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full rainbow-frame flex items-center justify-center relative overflow-hidden">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-r from-purple-400 to-pink-400"></div>
-            </div>
-            <h3 class="font-bold text-lg mb-1">Marco Arcoíris</h3>
-            <p class="text-sm text-gray-600 mb-3">Efecto colorido giratorio que llama la atención</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 25</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Producto Premium 1 -->
+          <div class="bg-white rounded-xl shadow-sm border overflow-hidden group hover:shadow-lg transition-all">
+            <div class="relative">
+              <div class="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center relative">
+                <div class="w-20 h-20 rounded-full rainbow-frame"></div>
+                <div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                  -50%
+                </div>
+                <div class="absolute top-2 right-2 bg-black/20 text-white px-2 py-1 rounded-full text-xs">
+                  ✓ Enviado por BeaBoo
+                </div>
               </div>
-              <button onclick="buyStoreItem('rainbow', 25, 'frame')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Comprar
+              <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="addToCart('premium-rainbow', 'Marco Arcoíris Premium', 9.99, 19.99)" class="bg-[#FE2C55] text-white p-2 rounded-full shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="p-4">
+              <h3 class="font-bold text-lg mb-1">Marco Arcoíris Premium</h3>
+              <p class="text-gray-600 text-sm mb-3">Efecto mejorado con partículas brillantes</p>
+              
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xl font-bold text-[#FE2C55]">$9.99</span>
+                  <span class="text-sm text-gray-500 line-through">$19.99</span>
+                </div>
+                <div class="flex items-center text-yellow-500">
+                  <span class="text-sm">⭐⭐⭐⭐⭐</span>
+                  <span class="text-xs text-gray-500 ml-1">(4.9)</span>
+                </div>
+              </div>
+              
+              <div class="space-y-2 text-xs text-gray-600 mb-4">
+                <div class="flex items-center">
+                  <span class="mr-2">🚚</span>
+                  <span>Entrega instantánea digital</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-2">🔄</span>
+                  <span>Garantía de devolución 30 días</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-2">🛡️</span>
+                  <span>Pago 100% seguro</span>
+                </div>
+              </div>
+              
+              <button onclick="addToCart('premium-rainbow', 'Marco Arcoíris Premium', 9.99, 19.99)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg font-medium hover:bg-red-600 transition-colors">
+                Añadir al carrito
               </button>
             </div>
           </div>
 
-          <!-- Marco de Fuego -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full fire-frame flex items-center justify-center relative overflow-hidden">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-r from-red-500 to-orange-500"></div>
-            </div>
-            <h3 class="font-bold text-lg mb-1">Marco de Fuego</h3>
-            <p class="text-sm text-gray-600 mb-3">Energía ardiente con efectos de llama</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 35</span>
+          <!-- Producto Premium 2 -->
+          <div class="bg-white rounded-xl shadow-sm border overflow-hidden group hover:shadow-lg transition-all">
+            <div class="relative">
+              <div class="w-full h-48 bg-gradient-to-br from-yellow-400 to-red-500 flex items-center justify-center relative">
+                <div class="w-20 h-20 rounded-full fire-frame"></div>
+                <div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                  -30%
+                </div>
+                <div class="absolute top-2 right-2 bg-black/20 text-white px-2 py-1 rounded-full text-xs">
+                  ✓ Enviado por BeaBoo
+                </div>
               </div>
-              <button onclick="buyStoreItem('fire', 35, 'frame')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Comprar
+            </div>
+            <div class="p-4">
+              <h3 class="font-bold text-lg mb-1">Marco de Fuego Elite</h3>
+              <p class="text-gray-600 text-sm mb-3">Llamas realistas con efectos de sonido</p>
+              
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xl font-bold text-[#FE2C55]">$13.99</span>
+                  <span class="text-sm text-gray-500 line-through">$19.99</span>
+                </div>
+                <div class="flex items-center text-yellow-500">
+                  <span class="text-sm">⭐⭐⭐⭐⭐</span>
+                  <span class="text-xs text-gray-500 ml-1">(4.8)</span>
+                </div>
+              </div>
+              
+              <div class="space-y-2 text-xs text-gray-600 mb-4">
+                <div class="flex items-center">
+                  <span class="mr-2">🚚</span>
+                  <span>Entrega instantánea digital</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-2">🔄</span>
+                  <span>Garantía de devolución 30 días</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-2">🎵</span>
+                  <span>Incluye efectos de sonido</span>
+                </div>
+              </div>
+              
+              <button onclick="addToCart('premium-fire', 'Marco de Fuego Elite', 13.99, 19.99)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg font-medium hover:bg-red-600 transition-colors">
+                Añadir al carrito
               </button>
             </div>
           </div>
 
-          <!-- Marco Eléctrico -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full electric-frame flex items-center justify-center relative overflow-hidden">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
-            </div>
-            <h3 class="font-bold text-lg mb-1">Marco Eléctrico</h3>
-            <p class="text-sm text-gray-600 mb-3">Poder eléctrico con chispas</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 30</span>
+          <!-- Producto Premium 3 -->
+          <div class="bg-white rounded-xl shadow-sm border overflow-hidden group hover:shadow-lg transition-all">
+            <div class="relative">
+              <div class="w-full h-48 bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center relative">
+                <div class="w-20 h-20 rounded-full galaxy-frame"></div>
+                <div class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                  NUEVO
+                </div>
+                <div class="absolute top-2 right-2 bg-black/20 text-white px-2 py-1 rounded-full text-xs">
+                  ✓ Enviado por BeaBoo
+                </div>
               </div>
-              <button onclick="buyStoreItem('electric', 30, 'frame')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
             </div>
-          </div>
-
-          <!-- Marco Galaxia -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full galaxy-frame flex items-center justify-center relative overflow-hidden">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600"></div>
-            </div>
-            <h3 class="font-bold text-lg mb-1">Marco Galaxia</h3>
-            <p class="text-sm text-gray-600 mb-3">Cosmos infinito con estrellas</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 50</span>
+            <div class="p-4">
+              <h3 class="font-bold text-lg mb-1">Marco Galaxia Infinita</h3>
+              <p class="text-gray-600 text-sm mb-3">Estrellas animadas y nebulosas en 3D</p>
+              
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xl font-bold text-[#FE2C55]">$24.99</span>
+                </div>
+                <div class="flex items-center text-yellow-500">
+                  <span class="text-sm">⭐⭐⭐⭐⭐</span>
+                  <span class="text-xs text-gray-500 ml-1">(5.0)</span>
+                </div>
               </div>
-              <button onclick="buyStoreItem('galaxy', 50, 'frame')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
-            </div>
-          </div>
-
-          <!-- Marco Diamante -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full diamond-frame flex items-center justify-center relative overflow-hidden">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-200 to-blue-300"></div>
-            </div>
-            <h3 class="font-bold text-lg mb-1">Marco Diamante</h3>
-            <p class="text-sm text-gray-600 mb-3">Lujo premium con brillo de diamante</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 75</span>
+              
+              <div class="space-y-2 text-xs text-gray-600 mb-4">
+                <div class="flex items-center">
+                  <span class="mr-2">🚚</span>
+                  <span>Entrega instantánea digital</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-2">✨</span>
+                  <span>Efectos 3D exclusivos</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-2">🏆</span>
+                  <span>Edición limitada</span>
+                </div>
               </div>
-              <button onclick="buyStoreItem('diamond', 75, 'frame')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
-            </div>
-          </div>
-
-          <!-- Marco Real -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full royal-frame flex items-center justify-center relative overflow-hidden">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500"></div>
-            </div>
-            <h3 class="font-bold text-lg mb-1">Marco Real</h3>
-            <p class="text-sm text-gray-600 mb-3">Elegancia dorada con corona</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-purple-100 px-2 py-1 rounded-full">
-                <span class="text-purple-600 font-bold">👑 100</span>
-              </div>
-              <button onclick="buyStoreItem('royal', 100, 'frame')" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Comprar
+              
+              <button onclick="addToCart('premium-galaxy', 'Marco Galaxia Infinita', 24.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg font-medium hover:bg-red-600 transition-colors">
+                Añadir al carrito
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Libros Exclusivos -->
+      <!-- Sección Marcos Básicos -->
+      <div id="store-frames" class="store-category-content hidden">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold mb-2">🎨 Marcos y Efectos</h2>
+          <p class="text-gray-600">Personaliza tu perfil con efectos únicos</p>
+        </div>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Marcos básicos con precios en dólares -->
+          <div class="bg-white rounded-xl shadow-sm border p-4">
+            <div class="w-full aspect-square mb-3 rounded-full electric-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Eléctrico</h3>
+            <p class="text-sm text-gray-600 mb-3">Chispas eléctricas</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$4.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(4.2)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3">
+              <div class="flex items-center mb-1">
+                <span class="mr-2">🚚</span>Entrega: Inmediata
+              </div>
+              <div class="flex items-center">
+                <span class="mr-2">🔄</span>Devoluciones: 30 días
+              </div>
+            </div>
+            
+            <button onclick="addToCart('electric', 'Marco Eléctrico', 4.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+              Añadir al carrito
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border p-4">
+            <div class="w-full aspect-square mb-3 rounded-full diamond-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-200 to-blue-300"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Diamante</h3>
+            <p class="text-sm text-gray-600 mb-3">Brillo de diamante</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$7.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(4.7)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3">
+              <div class="flex items-center mb-1">
+                <span class="mr-2">🚚</span>Entrega: Inmediata
+              </div>
+              <div class="flex items-center">
+                <span class="mr-2">💎</span>Calidad premium
+              </div>
+            </div>
+            
+            <button onclick="addToCart('diamond', 'Marco Diamante', 7.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+              Añadir al carrito
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Libros Digitales -->
       <div id="store-books" class="store-category-content hidden">
         <div class="mb-6">
-          <h2 class="text-2xl font-bold mb-4">📚 Libros Exclusivos de Editorial</h2>
-          <p class="text-gray-600 mb-4">Historias premium con más de 300K lecturas, directamente de nuestros autores destacados</p>
-        </div>
-        <div id="exclusive-books-grid" class="grid grid-cols-1 gap-4">
-          <!-- Los libros exclusivos se cargarán dinámicamente -->
-        </div>
-      </div>
-
-      <!-- Comprar Monedas -->
-      <div id="store-coins" class="store-category-content hidden">
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold mb-4">🪙 Comprar Monedas</h2>
-          <p class="text-gray-600 mb-4">Recarga tu saldo para comprar marcos, regalos y contenido exclusivo</p>
+          <h2 class="text-2xl font-bold mb-2">📚 Libros Digitales Exclusivos</h2>
+          <p class="text-gray-600">Historias premium de autores destacados</p>
         </div>
         
-        <div class="grid grid-cols-1 gap-4">
-          <!-- Paquete Básico -->
-          <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-xl font-bold text-blue-800">Paquete Básico</h3>
-                <p class="text-blue-600">100 Monedas BeaBoo</p>
-                <p class="text-sm text-gray-600 mt-1">Perfecto para empezar</p>
-              </div>
-              <div class="text-right">
-                <div class="text-2xl font-bold text-green-600">$2.99</div>
-                <button onclick="purchaseCoins(100, 2.99)" class="bg-blue-500 text-white px-6 py-2 rounded-lg font-medium mt-2">
-                  Comprar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Paquete Popular -->
-          <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200 relative">
-            <div class="absolute -top-2 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-              MÁS POPULAR
-            </div>
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-xl font-bold text-purple-800">Paquete Popular</h3>
-                <p class="text-purple-600">500 Monedas BeaBoo</p>
-                <p class="text-sm text-gray-600 mt-1">+50 monedas de bonificación</p>
-              </div>
-              <div class="text-right">
-                <div class="text-2xl font-bold text-green-600">$9.99</div>
-                <button onclick="purchaseCoins(550, 9.99)" class="bg-purple-500 text-white px-6 py-2 rounded-lg font-medium mt-2">
-                  Comprar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Paquete Premium -->
-          <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-200">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-xl font-bold text-yellow-800">Paquete Premium</h3>
-                <p class="text-yellow-600">1200 Monedas BeaBoo</p>
-                <p class="text-sm text-gray-600 mt-1">+200 monedas de bonificación</p>
-              </div>
-              <div class="text-right">
-                <div class="text-2xl font-bold text-green-600">$19.99</div>
-                <button onclick="purchaseCoins(1400, 19.99)" class="bg-yellow-500 text-white px-6 py-2 rounded-lg font-medium mt-2">
-                  Comprar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Paquete VIP -->
-          <div class="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-200">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-xl font-bold text-red-800">Paquete VIP</h3>
-                <p class="text-red-600">3000 Monedas BeaBoo</p>
-                <p class="text-sm text-gray-600 mt-1">+500 monedas de bonificación</p>
-              </div>
-              <div class="text-right">
-                <div class="text-2xl font-bold text-green-600">$39.99</div>
-                <button onclick="purchaseCoins(3500, 39.99)" class="bg-red-500 text-white px-6 py-2 rounded-lg font-medium mt-2">
-                  Comprar
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl shadow-sm border p-4">
+            <div class="flex space-x-4">
+              <img src="/api/placeholder/80/120" alt="Libro" class="w-20 h-30 object-cover rounded-lg">
+              <div class="flex-1">
+                <h3 class="font-bold mb-1">Romance en París</h3>
+                <p class="text-sm text-gray-600 mb-2">Por María González</p>
+                <p class="text-xs text-gray-500 mb-3">Una historia de amor en la ciudad de la luz...</p>
+                
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-lg font-bold text-[#FE2C55]">$12.99</span>
+                  <div class="flex items-center text-yellow-500 text-xs">
+                    <span>⭐⭐⭐⭐⭐</span>
+                    <span class="text-gray-500 ml-1">(4.9)</span>
+                  </div>
+                </div>
+                
+                <div class="text-xs text-gray-600 mb-3">
+                  <div class="flex items-center mb-1">
+                    <span class="mr-2">📖</span>320 páginas
+                  </div>
+                  <div class="flex items-center">
+                    <span class="mr-2">🔄</span>Devolución garantizada
+                  </div>
+                </div>
+                
+                <button onclick="addToCart('book-romance-paris', 'Romance en París', 12.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+                  Añadir al carrito
                 </button>
               </div>
             </div>
@@ -4428,81 +4884,262 @@ function saveNote() {
       <!-- Regalos LIVE -->
       <div id="store-gifts" class="store-category-content hidden">
         <div class="mb-6">
-          <h2 class="text-2xl font-bold mb-4">🎁 Regalos para Transmisiones en Vivo</h2>
-          <p class="text-gray-600 mb-4">Compra regalos especiales para enviar en las transmisiones en vivo</p>
+          <h2 class="text-2xl font-bold mb-2">🎁 Regalos para Transmisiones</h2>
+          <p class="text-gray-600">Sorprende a tus streamers favoritos</p>
         </div>
         
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Regalo Cupido -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white rounded-xl shadow-sm border p-4 text-center">
             <div class="w-full aspect-square mb-3 flex items-center justify-center">
               <img src="https://i.pinimg.com/originals/2d/f8/97/2df897364f655a0b14070a9e2f95d602.gif" alt="Cupido" class="w-16 h-16 rounded-lg">
             </div>
-            <h3 class="font-bold text-lg mb-1">Cupido</h3>
-            <p class="text-sm text-gray-600 mb-3">Regalo romántico especial</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 25</span>
-              </div>
-              <button onclick="buyStoreItem('cupido', 25, 'gift')" class="bg-[#FE2C55] text-white px-3 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
+            <h3 class="font-bold mb-1">Cupido</h3>
+            <p class="text-sm text-gray-600 mb-3">Regalo romántico</p>
+            
+            <div class="flex items-center justify-center mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$2.99</span>
             </div>
+            
+            <button onclick="addToCart('gift-cupido', 'Regalo Cupido', 2.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+              Añadir al carrito
+            </button>
           </div>
+        </div>
+      </div>
 
-          <!-- Regalo Diamante -->
+      <!-- Accesorios Digitales -->
+      <div id="store-accessories" class="store-category-content hidden">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold mb-2">💎 Accesorios Digitales</h2>
+          <p class="text-gray-600">Badges, títulos y efectos especiales</p>
+        </div>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 flex items-center justify-center">
-              <img src="https://i.pinimg.com/originals/79/a5/49/79a54992591652b1595c6c61c49170fb.gif" alt="Diamante" class="w-16 h-16 rounded-lg">
+            <div class="w-full h-24 mb-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-lg">👑 VIP</span>
             </div>
-            <h3 class="font-bold text-lg mb-1">Diamante</h3>
-            <p class="text-sm text-gray-600 mb-3">El regalo más lujoso</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 100</span>
-              </div>
-              <button onclick="buyStoreItem('diamante', 100, 'gift')" class="bg-[#FE2C55] text-white px-3 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
+            <h3 class="font-bold mb-1">Badge VIP</h3>
+            <p class="text-sm text-gray-600 mb-3">Insignia dorada premium</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$19.99</span>
+              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Popular</span>
             </div>
-          </div>
-
-          <!-- Regalo Galaxia -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 flex items-center justify-center">
-              <img src="https://64.media.tumblr.com/632f8d471cdef6eb0a5018d125ce6475/tumblr_mv4rb608vh1s5jjtzo1_400.gif" alt="Galaxia" class="w-16 h-16 rounded-lg">
-            </div>
-            <h3 class="font-bold text-lg mb-1">Galaxia</h3>
-            <p class="text-sm text-gray-600 mb-3">Efecto cósmico impresionante</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 75</span>
-              </div>
-              <button onclick="buyStoreItem('galaxia', 75, 'gift')" class="bg-[#FE2C55] text-white px-3 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
-            </div>
-          </div>
-
-          <!-- Regalo Love Max -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 flex items-center justify-center">
-              <img src="https://i.pinimg.com/originals/28/89/15/28891591a6c88725b46c3e9774c3aefc.gif" alt="Love Max" class="w-16 h-16 rounded-lg">
-            </div>
-            <h3 class="font-bold text-lg mb-1">Love Max</h3>
-            <p class="text-sm text-gray-600 mb-3">Amor al máximo nivel</p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                <span class="text-yellow-600 font-bold">🪙 50</span>
-              </div>
-              <button onclick="buyStoreItem('Love_Max', 50, 'gift')" class="bg-[#FE2C55] text-white px-3 py-2 rounded-lg text-sm font-medium">
-                Comprar
-              </button>
-            </div>
+            
+            <button onclick="addToCart('badge-vip', 'Badge VIP', 19.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+              Añadir al carrito
+            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Footer con protecciones de BeaBoo -->
+    <div class="bg-white border-t border-gray-200 p-6 mt-8">
+      <div class="text-center mb-4">
+        <h3 class="font-bold text-lg mb-2">🛡️ Protecciones de BeaBoo Shop</h3>
+      </div>
+      
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+        <div class="p-3">
+          <div class="text-2xl mb-2">🔒</div>
+          <p class="font-medium text-sm">Pago Seguro</p>
+          <p class="text-xs text-gray-600">SSL 256-bit</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">💸</div>
+          <p class="font-medium text-sm">Devolución</p>
+          <p class="text-xs text-gray-600">30 días garantizado</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">🔄</div>
+          <p class="font-medium text-sm">Reembolso</p>
+          <p class="text-xs text-gray-600">Automático por daños</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">📞</div>
+          <p class="font-medium text-sm">Soporte 24/7</p>
+          <p class="text-xs text-gray-600">Asistencia continua</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">🛡️</div>
+          <p class="font-medium text-sm">Privacidad</p>
+          <p class="text-xs text-gray-600">Datos protegidos</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">⚡</div>
+          <p class="font-medium text-sm">Entrega</p>
+          <p class="text-xs text-gray-600">Instantánea digital</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">✅</div>
+          <p class="font-medium text-sm">Verificado</p>
+          <p class="text-xs text-gray-600">Enviado por BeaBoo</p>
+        </div>
+        <div class="p-3">
+          <div class="text-2xl mb-2">🎯</div>
+          <p class="font-medium text-sm">Calidad</p>
+          <p class="text-xs text-gray-600">100% Original</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARRITO DE COMPRAS -->
+<div id="cart-sidebar" class="fixed right-0 top-0 h-full w-80 bg-white shadow-xl transform translate-x-full transition-transform duration-300 z-60 border-l border-gray-200">
+  <div class="flex flex-col h-full">
+    <!-- Header del carrito -->
+    <div class="p-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold">🛒 Mi Carrito</h2>
+        <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Contenido del carrito -->
+    <div class="flex-1 overflow-y-auto p-4">
+      <div id="cart-items" class="space-y-4">
+        <!-- Los items del carrito se cargarán aquí -->
+      </div>
+      
+      <div id="cart-empty" class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.65 8.35m1.65-8.35L4.2 3M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-600 mb-2">Tu carrito está vacío</h3>
+        <p class="text-gray-500 text-sm">Agrega productos para comenzar tu compra</p>
+      </div>
+    </div>
+    
+    <!-- Resumen y checkout -->
+    <div id="cart-summary" class="border-t border-gray-200 p-4 bg-gray-50">
+      <div class="space-y-2 mb-4">
+        <div class="flex justify-between text-sm">
+          <span>Subtotal:</span>
+          <span id="cart-subtotal">$0.00</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Descuentos:</span>
+          <span id="cart-discount" class="text-green-600">-$0.00</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Envío:</span>
+          <span class="text-green-600">GRATIS (Digital)</span>
+        </div>
+        <hr class="border-gray-300">
+        <div class="flex justify-between font-bold text-lg">
+          <span>Total:</span>
+          <span id="cart-total" class="text-[#FE2C55]">$0.00</span>
+        </div>
+      </div>
+      
+      <button onclick="proceedToCheckout()" id="checkout-btn" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-bold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+        Proceder al Pago
+      </button>
+      
+      <div class="flex items-center justify-center mt-3 space-x-2 text-xs text-gray-600">
+        <span>🔒</span>
+        <span>Pago seguro con protección BeaBoo</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CHECKOUT -->
+<div id="checkout-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-70 hidden">
+  <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">💳 Finalizar Compra</h2>
+      <button onclick="closeCheckout()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Resumen de compra -->
+    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+      <h3 class="font-bold mb-2">Resumen de tu pedido</h3>
+      <div id="checkout-summary" class="space-y-2">
+        <!-- Items del checkout -->
+      </div>
+      <hr class="my-3 border-gray-300">
+      <div class="flex justify-between font-bold">
+        <span>Total a pagar:</span>
+        <span id="checkout-total" class="text-[#FE2C55]">$0.00</span>
+      </div>
+    </div>
+    
+    <!-- Método de pago -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-2">Método de pago</label>
+      <div class="space-y-2">
+        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+          <input type="radio" name="payment" value="card" class="mr-3" checked>
+          <span class="mr-2">💳</span>
+          <span>Tarjeta de crédito/débito</span>
+        </label>
+        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+          <input type="radio" name="payment" value="paypal" class="mr-3">
+          <span class="mr-2">🅿️</span>
+          <span>PayPal</span>
+        </label>
+        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+          <input type="radio" name="payment" value="crypto" class="mr-3">
+          <span class="mr-2">₿</span>
+          <span>Criptomonedas</span>
+        </label>
+      </div>
+    </div>
+    
+    <!-- Información de entrega -->
+    <div class="bg-blue-50 p-3 rounded-lg mb-4">
+      <div class="flex items-center">
+        <span class="mr-2">⚡</span>
+        <div>
+          <p class="font-medium text-sm">Entrega Digital Instantánea</p>
+          <p class="text-xs text-gray-600">Recibirás tus productos inmediatamente después del pago</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Garantías -->
+    <div class="mb-4">
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="flex items-center text-green-600">
+          <span class="mr-1">✅</span>
+          <span>Pago seguro</span>
+        </div>
+        <div class="flex items-center text-green-600">
+          <span class="mr-1">🔄</span>
+          <span>30 días garantía</span>
+        </div>
+        <div class="flex items-center text-green-600">
+          <span class="mr-1">🛡️</span>
+          <span>Datos protegidos</span>
+        </div>
+        <div class="flex items-center text-green-600">
+          <span class="mr-1">💸</span>
+          <span>Reembolso seguro</span>
+        </div>
+      </div>
+    </div>
+    
+    <button onclick="processPayment()" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-bold hover:bg-red-600 transition-colors">
+      Pagar Ahora
+    </button>
+    
+    <p class="text-xs text-center text-gray-500 mt-3">
+      Al continuar, aceptas los términos y condiciones de BeaBoo Shop
+    </p>
   </div>
 </div>
 
