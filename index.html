@@ -4014,9 +4014,12 @@ function initializeStore() {
 function loadStoreBalance() {
   const user = firebase.auth().currentUser;
   if (user) {
-    firebase.database().ref('users/' + user.uid + '/storeBalance').on('value', snapshot => {
+    firebase.database().ref('users/' + user.uid + '/coins').on('value', snapshot => {
       storeBalance = snapshot.val() || 0;
-      document.getElementById('store-balance').textContent = '$' + storeBalance.toFixed(2);
+      const balanceElement = document.getElementById('store-balance');
+      if (balanceElement) {
+        balanceElement.textContent = '$' + storeBalance.toFixed(2);
+      }
     });
   }
 }
@@ -4029,7 +4032,10 @@ function switchStoreCategory(category) {
   });
   
   // Mostrar la categoría seleccionada
-  document.getElementById('store-' + category).classList.remove('hidden');
+  const categoryElement = document.getElementById('store-' + category);
+  if (categoryElement) {
+    categoryElement.classList.remove('hidden');
+  }
   
   // Actualizar botones
   document.querySelectorAll('.store-category-btn').forEach(btn => {
@@ -4037,12 +4043,22 @@ function switchStoreCategory(category) {
     btn.classList.add('bg-gray-100', 'text-gray-700');
   });
   
-  event.target.classList.remove('bg-gray-100', 'text-gray-700');
-  event.target.classList.add('bg-[#FE2C55]', 'text-white');
+  // Encontrar el botón correcto y actualizarlo
+  const activeBtn = event.target.closest('.store-category-btn');
+  if (activeBtn) {
+    activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
+    activeBtn.classList.add('bg-[#FE2C55]', 'text-white');
+  }
 }
 
 // Agregar al carrito
 function addToCart(itemId, itemName, price, originalPrice = 0) {
+  // Si el precio es 0 (marco gratis), aplicarlo directamente
+  if (price === 0) {
+    applyFreeFrame(itemId, itemName);
+    return;
+  }
+
   const existingItem = cart.find(item => item.id === itemId);
   
   if (existingItem) {
@@ -4055,7 +4071,8 @@ function addToCart(itemId, itemName, price, originalPrice = 0) {
       originalPrice: originalPrice,
       quantity: 1,
       image: getItemImage(itemId),
-      deliveryTime: 'Inmediata'
+      deliveryTime: 'Inmediata',
+      category: getCategoryFromId(itemId)
     });
   }
   
@@ -4068,19 +4085,81 @@ function addToCart(itemId, itemName, price, originalPrice = 0) {
   }
 }
 
+// Aplicar marco gratuito directamente
+function applyFreeFrame(itemId, itemName) {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  firebase.database().ref('users/' + user.uid + '/profileFrame').set(itemId).then(() => {
+    showAddToCartAnimation(`${itemName} aplicado correctamente`);
+    
+    // Actualizar el marco en la interfaz si está visible
+    updateProfileFrame(itemId);
+  }).catch(error => {
+    console.error('Error al aplicar marco:', error);
+    alert('Error al aplicar el marco. Por favor intenta de nuevo.');
+  });
+}
+
 // Obtener imagen del item
 function getItemImage(itemId) {
   const imageMap = {
+    'none': '⭕',
+    'rainbow': '🌈', 
+    'electric': '⚡',
+    'fire': '🔥',
+    'galaxy': '🌌',
+    'diamond': '💎',
+    'neon': '💚',
+    'royal': '👑',
     'premium-rainbow': '🌈',
     'premium-fire': '🔥',
     'premium-galaxy': '🌌',
-    'electric': '⚡',
-    'diamond': '💎',
     'book-romance-paris': '📚',
     'gift-cupido': '💘',
     'badge-vip': '👑'
   };
   return imageMap[itemId] || '🎁';
+}
+
+// Obtener categoría del item
+function getCategoryFromId(itemId) {
+  if (['none', 'rainbow', 'electric', 'fire', 'galaxy', 'diamond', 'neon', 'royal'].includes(itemId)) {
+    return 'marco';
+  }
+  if (itemId.startsWith('book-')) {
+    return 'libro';
+  }
+  if (itemId.startsWith('gift-')) {
+    return 'regalo';
+  }
+  return 'accesorio';
+}
+
+// Actualizar marco en el perfil
+function updateProfileFrame(frameId) {
+  const profileFrame = document.getElementById('profile-frame');
+  const profileFrameDesktop = document.getElementById('profile-frame-desktop');
+  
+  if (profileFrame) {
+    profileFrame.className = '';
+    if (frameId !== 'none') {
+      profileFrame.classList.add(frameId + '-frame');
+      profileFrame.style.display = 'block';
+    } else {
+      profileFrame.style.display = 'none';
+    }
+  }
+  
+  if (profileFrameDesktop) {
+    profileFrameDesktop.className = '';
+    if (frameId !== 'none') {
+      profileFrameDesktop.classList.add(frameId + '-frame');
+      profileFrameDesktop.style.display = 'block';
+    } else {
+      profileFrameDesktop.style.display = 'none';
+    }
+  }
 }
 
 // Mostrar animación de agregar al carrito
@@ -4199,7 +4278,14 @@ function updateCartSummary() {
 // Toggle carrito
 function toggleCart() {
   const cartSidebar = document.getElementById('cart-sidebar');
-  cartSidebar.classList.toggle('translate-x-full');
+  if (cartSidebar) {
+    cartSidebar.classList.toggle('translate-x-full');
+    
+    // Si se está abriendo el carrito, actualizarlo
+    if (!cartSidebar.classList.contains('translate-x-full')) {
+      updateCartDisplay();
+    }
+  }
 }
 
 // Proceder al checkout
@@ -4542,64 +4628,84 @@ function saveNote() {
         </button>
         
         <div class="flex items-center space-x-2">
-          <div class="flex items-center bg-[#FE2C55] text-white px-2 py-1 rounded-full">
-            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+          <div class="flex items-center bg-[#FE2C55] text-white px-3 py-1 rounded-full">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <span class="text-xs font-bold">BeaBoo</span>
+            <span class="text-sm font-bold">BeaBoo Shop</span>
           </div>
-          <h1 class="text-xl font-bold text-black">Shop</h1>
         </div>
         
         <div class="flex items-center space-x-3">
-          <div class="flex items-center bg-yellow-500 text-white px-3 py-1 rounded-full">
-            <span class="text-lg mr-1">💰</span>
+          <div class="flex items-center bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-2 rounded-full shadow-md">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979.474.787.736 1.979.736 3.021 0 1.042-.262 2.234-.736 3.021C10.792 13.807 10.304 14 10 14c-.304 0-.792-.193-1.264-.979C8.262 12.234 8 11.042 8 10c0-1.042.262-2.234.736-3.021z" clip-rule="evenodd"/>
+            </svg>
             <span id="store-balance" class="font-bold">$0.00</span>
           </div>
-          <button onclick="toggleCart()" class="relative bg-[#FE2C55] text-white p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.65 8.35m1.65-8.35L4.2 3M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8" />
+          <button onclick="toggleCart()" class="relative bg-[#FE2C55] text-white p-3 rounded-full hover:bg-red-600 transition-colors shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold min-w-[20px]">0</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Banner de ofertas -->
-    <div class="bg-gradient-to-r from-red-500 to-pink-500 text-white p-3 mx-4 mt-4 rounded-lg">
+    <!-- Banner de ofertas modernizado -->
+    <div class="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white p-4 mx-4 mt-4 rounded-2xl shadow-lg">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <span class="text-xl mr-2">🔥</span>
+          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-3">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/>
+            </svg>
+          </div>
           <div>
-            <p class="font-bold">¡MEGA DESCUENTO!</p>
-            <p class="text-sm opacity-90">Hasta 50% OFF en marcos premium</p>
+            <p class="font-bold text-lg">Oferta Flash</p>
+            <p class="text-sm opacity-90">Hasta 70% de descuento en marcos premium</p>
           </div>
         </div>
         <div class="text-right">
           <p class="text-sm opacity-90">Termina en</p>
-          <p class="font-bold" id="offer-countdown">23:59:45</p>
+          <p class="font-bold text-xl" id="offer-countdown">23:59:45</p>
         </div>
       </div>
     </div>
 
-    <!-- Navegación de categorías -->
-    <div class="bg-white border-b border-gray-200 p-4 mx-4 mt-4 rounded-lg shadow-sm">
-      <div class="flex space-x-2 overflow-x-auto">
-        <button onclick="switchStoreCategory('premium')" class="store-category-btn active px-4 py-2 bg-[#FE2C55] text-white rounded-full whitespace-nowrap flex items-center">
-          <span class="mr-1">⭐</span>Premium
+    <!-- Navegación de categorías modernizada -->
+    <div class="bg-white border-b border-gray-200 p-4 mx-4 mt-4 rounded-2xl shadow-sm">
+      <div class="flex space-x-3 overflow-x-auto">
+        <button onclick="switchStoreCategory('premium')" class="store-category-btn active px-4 py-3 bg-[#FE2C55] text-white rounded-xl whitespace-nowrap flex items-center font-medium shadow-md">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          Premium
         </button>
-        <button onclick="switchStoreCategory('frames')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
-          <span class="mr-1">🎨</span>Marcos
+        <button onclick="switchStoreCategory('frames')" class="store-category-btn px-4 py-3 bg-gray-100 text-gray-700 rounded-xl whitespace-nowrap flex items-center font-medium hover:bg-gray-200 transition-colors">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Marcos
         </button>
-        <button onclick="switchStoreCategory('books')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
-          <span class="mr-1">📚</span>Libros
+        <button onclick="switchStoreCategory('books')" class="store-category-btn px-4 py-3 bg-gray-100 text-gray-700 rounded-xl whitespace-nowrap flex items-center font-medium hover:bg-gray-200 transition-colors">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          Libros
         </button>
-        <button onclick="switchStoreCategory('gifts')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
-          <span class="mr-1">🎁</span>Regalos
+        <button onclick="switchStoreCategory('gifts')" class="store-category-btn px-4 py-3 bg-gray-100 text-gray-700 rounded-xl whitespace-nowrap flex items-center font-medium hover:bg-gray-200 transition-colors">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+          </svg>
+          Regalos
         </button>
-        <button onclick="switchStoreCategory('accessories')" class="store-category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full whitespace-nowrap flex items-center">
-          <span class="mr-1">💎</span>Accesorios
+        <button onclick="switchStoreCategory('accessories')" class="store-category-btn px-4 py-3 bg-gray-100 text-gray-700 rounded-xl whitespace-nowrap flex items-center font-medium hover:bg-gray-200 transition-colors">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+          </svg>
+          Accesorios
         </button>
       </div>
     </div>
@@ -4770,21 +4876,62 @@ function saveNote() {
         </div>
       </div>
 
-      <!-- Sección Marcos Básicos -->
+      <!-- Sección Marcos Completa -->
       <div id="store-frames" class="store-category-content hidden">
         <div class="mb-6">
-          <h2 class="text-2xl font-bold mb-2">🎨 Marcos y Efectos</h2>
-          <p class="text-gray-600">Personaliza tu perfil con efectos únicos</p>
+          <h2 class="text-3xl font-bold mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Marcos y Efectos</h2>
+          <p class="text-gray-600">Personaliza tu perfil con efectos únicos que otros usuarios podrán ver</p>
         </div>
         
-        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Marcos básicos con precios en dólares -->
-          <div class="bg-white rounded-xl shadow-sm border p-4">
-            <div class="w-full aspect-square mb-3 rounded-full electric-frame flex items-center justify-center relative">
-              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          
+          <!-- Marco Sin Efecto (Gratis) -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-green-300 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full border-2 border-gray-300 flex items-center justify-center relative bg-gray-50">
+              <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 715.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+              </div>
             </div>
-            <h3 class="font-bold mb-1">Marco Eléctrico</h3>
-            <p class="text-sm text-gray-600 mb-3">Chispas eléctricas</p>
+            <h3 class="font-bold mb-1">Sin Marco</h3>
+            <p class="text-sm text-gray-600 mb-3">Perfil básico, sin efectos</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-green-600">GRATIS</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(5.0)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                Aplicación instantánea
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                </svg>
+                Cambiar cuando quieras
+              </div>
+            </div>
+            
+            <button onclick="addToCart('none', 'Sin Marco', 0, 0)" class="w-full bg-green-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-green-600 transition-colors">
+              Aplicar Marco
+            </button>
+          </div>
+
+          <!-- Marco Arcoíris -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-purple-300 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full rainbow-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Arcoíris</h3>
+            <p class="text-sm text-gray-600 mb-3">Efecto colorido giratorio</p>
             
             <div class="flex items-center justify-between mb-3">
               <span class="text-lg font-bold text-[#FE2C55]">$4.99</span>
@@ -4794,48 +4941,242 @@ function saveNote() {
               </div>
             </div>
             
-            <div class="text-xs text-gray-600 mb-3">
-              <div class="flex items-center mb-1">
-                <span class="mr-2">🚚</span>Entrega: Inmediata
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                </svg>
+                Entrega instantánea
               </div>
               <div class="flex items-center">
-                <span class="mr-2">🔄</span>Devoluciones: 30 días
+                <svg class="w-3 h-3 mr-2 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Efecto especial
               </div>
             </div>
             
-            <button onclick="addToCart('electric', 'Marco Eléctrico', 4.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+            <button onclick="addToCart('rainbow', 'Marco Arcoíris', 4.99, 0)" class="w-full bg-[#FE2C55] text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">
               Añadir al carrito
             </button>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm border p-4">
+          <!-- Marco Eléctrico -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-blue-300 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full electric-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Eléctrico</h3>
+            <p class="text-sm text-gray-600 mb-3">Chispas eléctricas animadas</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$6.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(4.3)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                </svg>
+                Entrega instantánea
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                </svg>
+                Efecto eléctrico
+              </div>
+            </div>
+            
+            <button onclick="addToCart('electric', 'Marco Eléctrico', 6.99, 0)" class="w-full bg-[#FE2C55] text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">
+              Añadir al carrito
+            </button>
+          </div>
+
+          <!-- Marco de Fuego -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-red-300 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full fire-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-red-500 to-orange-500"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco de Fuego</h3>
+            <p class="text-sm text-gray-600 mb-3">Llamas ardientes realistas</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$8.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(4.8)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/>
+                </svg>
+                Popular
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Premium
+              </div>
+            </div>
+            
+            <button onclick="addToCart('fire', 'Marco de Fuego', 8.99, 0)" class="w-full bg-[#FE2C55] text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">
+              Añadir al carrito
+            </button>
+          </div>
+
+          <!-- Marco Galaxia -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-purple-300 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full galaxy-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Galaxia</h3>
+            <p class="text-sm text-gray-600 mb-3">Estrellas y nebulosas 3D</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$12.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(4.9)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Exclusivo
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Efectos 3D
+              </div>
+            </div>
+            
+            <button onclick="addToCart('galaxy', 'Marco Galaxia', 12.99, 0)" class="w-full bg-[#FE2C55] text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">
+              Añadir al carrito
+            </button>
+          </div>
+
+          <!-- Marco Diamante -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-blue-300 transition-all">
             <div class="w-full aspect-square mb-3 rounded-full diamond-frame flex items-center justify-center relative">
               <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-200 to-blue-300"></div>
             </div>
             <h3 class="font-bold mb-1">Marco Diamante</h3>
-            <p class="text-sm text-gray-600 mb-3">Brillo de diamante</p>
+            <p class="text-sm text-gray-600 mb-3">Brillo y destellos premium</p>
             
             <div class="flex items-center justify-between mb-3">
-              <span class="text-lg font-bold text-[#FE2C55]">$7.99</span>
+              <span class="text-lg font-bold text-[#FE2C55]">$15.99</span>
               <div class="flex items-center text-yellow-500 text-xs">
                 <span>⭐⭐⭐⭐⭐</span>
                 <span class="text-gray-500 ml-1">(4.7)</span>
               </div>
             </div>
             
-            <div class="text-xs text-gray-600 mb-3">
-              <div class="flex items-center mb-1">
-                <span class="mr-2">🚚</span>Entrega: Inmediata
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Lujo premium
               </div>
               <div class="flex items-center">
-                <span class="mr-2">💎</span>Calidad premium
+                <svg class="w-3 h-3 mr-2 text-cyan-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2l-1-2H8l-1 2H5V5z" clip-rule="evenodd"/>
+                </svg>
+                Destellos únicos
               </div>
             </div>
             
-            <button onclick="addToCart('diamond', 'Marco Diamante', 7.99, 0)" class="w-full bg-[#FE2C55] text-white py-2 rounded-lg text-sm font-medium">
+            <button onclick="addToCart('diamond', 'Marco Diamante', 15.99, 0)" class="w-full bg-[#FE2C55] text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">
               Añadir al carrito
             </button>
           </div>
+
+          <!-- Marco Neón -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-4 hover:border-green-300 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full neon-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-teal-400"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Neón</h3>
+            <p class="text-sm text-gray-600 mb-3">Brillo nocturno futurista</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$9.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(4.5)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                </svg>
+                Efecto neón
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
+                </svg>
+                Futurista
+              </div>
+            </div>
+            
+            <button onclick="addToCart('neon', 'Marco Neón', 9.99, 0)" class="w-full bg-[#FE2C55] text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">
+              Añadir al carrito
+            </button>
+          </div>
+
+          <!-- Marco Real -->
+          <div class="bg-white rounded-2xl shadow-lg border-2 border-yellow-200 p-4 hover:border-yellow-400 transition-all">
+            <div class="w-full aspect-square mb-3 rounded-full royal-frame flex items-center justify-center relative">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500"></div>
+            </div>
+            <h3 class="font-bold mb-1">Marco Real</h3>
+            <p class="text-sm text-gray-600 mb-3">Elegancia dorada exclusiva</p>
+            
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-[#FE2C55]">$24.99</span>
+              <div class="flex items-center text-yellow-500 text-xs">
+                <span>⭐⭐⭐⭐⭐</span>
+                <span class="text-gray-500 ml-1">(5.0)</span>
+              </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 mb-3 space-y-1">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Edición limitada
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-2 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                VIP exclusivo
+              </div>
+            </div>
+            
+            <button onclick="addToCart('royal', 'Marco Real', 24.99, 0)" class="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-white py-3 rounded-xl text-sm font-semibold hover:from-yellow-600 hover:to-amber-600 transition-colors">
+              Añadir al carrito
+            </button>
+          </div>
+
         </div>
       </div>
 
