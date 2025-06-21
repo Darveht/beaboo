@@ -1911,6 +1911,347 @@ setInterval(checkScheduledChapters, 60000);
   </div>
 </body>
 
+<!-- MODAL DE PIN DE SEGURIDAD -->
+<div id="security-pin-modal" class="fixed inset-0 bg-black bg-opacity-95 z-[60] flex items-center justify-center hidden">
+  <div class="w-full max-w-md mx-4">
+    <div class="bg-white rounded-2xl p-8 text-center shadow-2xl">
+      <!-- Ícono de seguridad -->
+      <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+      
+      <h2 class="text-2xl font-bold text-gray-900 mb-3">Protección de Seguridad</h2>
+      <p class="text-gray-600 mb-6">Ingresa tu PIN de 6 dígitos para acceder a BeaBoo</p>
+      
+      <!-- Input del PIN -->
+      <div class="flex space-x-2 justify-center mb-6">
+        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-[#FE2C55] focus:outline-none" onkeyup="handlePinInput(this, 0)" onpaste="handlePinPaste(event)">
+        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-[#FE2C55] focus:outline-none" onkeyup="handlePinInput(this, 1)">
+        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-[#FE2C55] focus:outline-none" onkeyup="handlePinInput(this, 2)">
+        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-[#FE2C55] focus:outline-none" onkeyup="handlePinInput(this, 3)">
+        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-[#FE2C55] focus:outline-none" onkeyup="handlePinInput(this, 4)">
+        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-[#FE2C55] focus:outline-none" onkeyup="handlePinInput(this, 5)">
+      </div>
+      
+      <!-- Mensaje de error -->
+      <div id="pin-error" class="hidden text-red-500 text-sm mb-4">
+        PIN incorrecto. Por favor intenta de nuevo.
+      </div>
+      
+      <!-- Temporizador -->
+      <div class="text-sm text-gray-500 mb-6">
+        <p>⏰ Tiempo restante: <span id="pin-timer" class="font-bold text-[#FE2C55]">23:00</span></p>
+        <p class="mt-2">Si no ingresas el PIN a tiempo, la protección se desactivará automáticamente.</p>
+      </div>
+      
+      <!-- Botón de verificar -->
+      <button onclick="verifyPin()" class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all">
+        Verificar PIN
+      </button>
+      
+      <!-- Información adicional -->
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <p class="text-xs text-blue-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          ¿No recibiste tu PIN? Revisa los mensajes de la cuenta oficial @glamworksappstv
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Sistema de PIN de seguridad
+let securityPinData = {
+  pins: {
+    'donovanyaztel1863@gmail.com': '458113',
+    'camarece@gmail.com': '453122'
+  },
+  timerInterval: null,
+  timeLeft: 23 * 60, // 23 minutos en segundos
+  isActive: false
+};
+
+// Función para enviar PIN automáticamente cuando el usuario se autentica
+function sendSecurityPinToUser(userEmail) {
+  const officialAccountId = 'glamworksappstv@gmail.com'; // ID de la cuenta oficial
+  
+  // Verificar si el usuario tiene un PIN asignado
+  if (!securityPinData.pins[userEmail]) {
+    console.log('Usuario no tiene PIN asignado:', userEmail);
+    return;
+  }
+
+  const pin = securityPinData.pins[userEmail];
+  const message = `🔐 CÓDIGO DE SEGURIDAD BEABOO
+
+Hola! Para proteger tu privacidad y seguridad en la plataforma, hemos implementado un sistema de PIN.
+
+🔑 Tu PIN de acceso es: ${pin}
+
+Este código te será solicitado al abrir la aplicación. Tienes 23 minutos para ingresarlo desde que aparezca la pantalla de PIN.
+
+⚠️ IMPORTANTE:
+• No compartas este PIN con nadie
+• Este mensaje se eliminará automáticamente después de 23 minutos
+• Si no usas el PIN a tiempo, la protección se desactivará temporalmente
+
+Gracias por usar BeaBoo de forma segura.
+
+- Equipo BeaBoo 🐝`;
+
+  // Simular envío del mensaje desde la cuenta oficial
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      const conversationId = generateConversationId(officialAccountId, user.uid);
+      const messageData = {
+        senderId: officialAccountId,
+        receiverId: user.uid,
+        message: message,
+        timestamp: Date.now(),
+        type: 'security_pin',
+        autoDelete: true,
+        deleteAt: Date.now() + (23 * 60 * 1000), // Eliminar en 23 minutos
+        read: false
+      };
+
+      // Guardar el mensaje
+      firebase.database().ref('conversations/' + conversationId + '/messages').push(messageData);
+      
+      // Programar eliminación automática
+      setTimeout(() => {
+        firebase.database().ref('conversations/' + conversationId + '/messages').orderByChild('type').equalTo('security_pin').once('value').then(snapshot => {
+          snapshot.forEach(child => {
+            if (child.val().autoDelete && Date.now() >= child.val().deleteAt) {
+              child.ref.remove();
+            }
+          });
+        });
+      }, 23 * 60 * 1000);
+
+      console.log('PIN de seguridad enviado a:', userEmail);
+    }
+  });
+}
+
+// Función para mostrar el modal de PIN
+function showSecurityPinModal() {
+  const user = firebase.auth().currentUser;
+  if (!user || !securityPinData.pins[user.email]) {
+    return; // No mostrar modal si no tiene PIN asignado
+  }
+
+  securityPinData.isActive = true;
+  document.getElementById('security-pin-modal').classList.remove('hidden');
+  
+  // Iniciar temporizador
+  startPinTimer();
+  
+  // Enfocar primer input
+  const firstInput = document.querySelector('#security-pin-modal input');
+  if (firstInput) {
+    firstInput.focus();
+  }
+}
+
+// Función para manejar la entrada del PIN
+function handlePinInput(input, index) {
+  const value = input.value;
+  
+  // Solo permitir números
+  if (!/^\d$/.test(value)) {
+    input.value = '';
+    return;
+  }
+
+  // Mover al siguiente input
+  if (value && index < 5) {
+    const nextInput = input.parentElement.children[index + 1];
+    if (nextInput) {
+      nextInput.focus();
+    }
+  }
+
+  // Si es backspace y está vacío, ir al anterior
+  if (!value && index > 0) {
+    const prevInput = input.parentElement.children[index - 1];
+    if (prevInput) {
+      prevInput.focus();
+    }
+  }
+
+  // Verificar si todos los campos están llenos
+  checkPinComplete();
+}
+
+// Función para manejar el pegado del PIN
+function handlePinPaste(event) {
+  event.preventDefault();
+  const paste = (event.clipboardData || window.clipboardData).getData('text');
+  
+  if (paste.length === 6 && /^\d{6}$/.test(paste)) {
+    const inputs = document.querySelectorAll('#security-pin-modal input');
+    for (let i = 0; i < 6; i++) {
+      inputs[i].value = paste[i];
+    }
+    checkPinComplete();
+  }
+}
+
+// Verificar si el PIN está completo
+function checkPinComplete() {
+  const inputs = document.querySelectorAll('#security-pin-modal input');
+  const pin = Array.from(inputs).map(input => input.value).join('');
+  
+  if (pin.length === 6) {
+    // Auto-verificar después de un breve delay
+    setTimeout(() => {
+      verifyPin();
+    }, 500);
+  }
+}
+
+// Función para verificar el PIN
+function verifyPin() {
+  const inputs = document.querySelectorAll('#security-pin-modal input');
+  const enteredPin = Array.from(inputs).map(input => input.value).join('');
+  const user = firebase.auth().currentUser;
+  
+  if (!user) return;
+  
+  const correctPin = securityPinData.pins[user.email];
+  
+  if (enteredPin === correctPin) {
+    // PIN correcto
+    clearPinTimer();
+    document.getElementById('security-pin-modal').classList.add('hidden');
+    
+    // Mostrar notificación de éxito
+    showSuccessNotification('✅ Acceso autorizado. Bienvenido a BeaBoo');
+    
+    // Marcar como verificado en la sesión
+    sessionStorage.setItem('pinVerified', 'true');
+    
+  } else {
+    // PIN incorrecto
+    document.getElementById('pin-error').classList.remove('hidden');
+    
+    // Limpiar inputs
+    inputs.forEach(input => {
+      input.value = '';
+      input.classList.add('border-red-500');
+    });
+    
+    // Enfocar primer input
+    inputs[0].focus();
+    
+    // Quitar error después de 3 segundos
+    setTimeout(() => {
+      document.getElementById('pin-error').classList.add('hidden');
+      inputs.forEach(input => {
+        input.classList.remove('border-red-500');
+      });
+    }, 3000);
+  }
+}
+
+// Iniciar temporizador del PIN
+function startPinTimer() {
+  const timerDisplay = document.getElementById('pin-timer');
+  
+  securityPinData.timerInterval = setInterval(() => {
+    securityPinData.timeLeft--;
+    
+    const minutes = Math.floor(securityPinData.timeLeft / 60);
+    const seconds = securityPinData.timeLeft % 60;
+    
+    timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Cambiar color cuando queda poco tiempo
+    if (securityPinData.timeLeft <= 300) { // 5 minutos
+      timerDisplay.classList.add('text-red-500');
+    }
+    
+    // Tiempo agotado
+    if (securityPinData.timeLeft <= 0) {
+      clearPinTimer();
+      document.getElementById('security-pin-modal').classList.add('hidden');
+      
+      showSuccessNotification('⏰ Tiempo agotado. Protección de PIN desactivada temporalmente');
+      
+      // Marcar como sin protección
+      sessionStorage.setItem('pinExpired', 'true');
+    }
+  }, 1000);
+}
+
+// Limpiar temporizador
+function clearPinTimer() {
+  if (securityPinData.timerInterval) {
+    clearInterval(securityPinData.timerInterval);
+    securityPinData.timerInterval = null;
+  }
+}
+
+// Mostrar notificación de éxito
+function showSuccessNotification(message) {
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-[70] flex items-center';
+  notification.innerHTML = `
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    ${message}
+  `;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translate(-50%, -20px)';
+    notification.style.transition = 'all 0.3s ease-out';
+    setTimeout(() => notification.remove(), 300);
+  }, 4000);
+}
+
+// Verificar estado del PIN al cargar la aplicación
+function checkPinStatus() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  
+  // Verificar si ya se verificó en esta sesión
+  if (sessionStorage.getItem('pinVerified') === 'true') {
+    return;
+  }
+  
+  // Verificar si el tiempo ya expiró
+  if (sessionStorage.getItem('pinExpired') === 'true') {
+    return;
+  }
+  
+  // Si tiene PIN asignado, enviarlo y luego mostrar modal
+  if (securityPinData.pins[user.email]) {
+    // Enviar PIN primero
+    sendSecurityPinToUser(user.email);
+    
+    // Mostrar modal después de 3 segundos
+    setTimeout(() => {
+      showSecurityPinModal();
+    }, 3000);
+  }
+}
+
+// Limpiar estado del PIN al cerrar sesión
+function clearPinStatus() {
+  sessionStorage.removeItem('pinVerified');
+  sessionStorage.removeItem('pinExpired');
+  clearPinTimer();
+}
+</script>
+
 <!-- APLICACIÓN PRINCIPAL ESTILO TIKTOK (MODO CLARO) -->
 <div id="main-app" class="h-screen flex flex-col bg-white font-sans text-black">
   <!-- BARRA SUPERIOR CON NOMBRE + ICONOS -->
