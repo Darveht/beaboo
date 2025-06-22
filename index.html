@@ -1204,6 +1204,15 @@ setInterval(checkScheduledChapters, 60000);
       if (window.innerWidth >= 1024) {
         document.body.classList.add('desktop');
       }
+      
+      // Inicializar detectores automáticos después de que se carga la página
+      setTimeout(() => {
+        const user = firebase.auth().currentUser;
+        if (user) {
+          setupAutoDetectors();
+          forceProfileUpdate();
+        }
+      }, 2000);
     });
 
     function organizeCarousels() {
@@ -2619,36 +2628,29 @@ firebase.auth().onAuthStateChanged(user => {
   <!-- NAVEGACIÓN INFERIOR ESTILO TIKTOK -->
   <div id="bottom-nav" class="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white transition-transform duration-300">
     <div class="grid grid-cols-5 gap-1 p-3">
-      <button onclick="openHome()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
+      <button onclick="openHome()" class="flex flex-col items-center justify-center text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 2L2 8v10a1 1 0 001 1h5v-5h4v5h5a1 1 0 001-1V8l-8-6z" />
         </svg>
-        <span class="text-xs">Inicio</span>
       </button>
-      <button onclick="openCommunity()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
+      <button onclick="openCommunity()" class="flex flex-col items-center justify-center text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
           <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
           <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
         </svg>
-        <span class="text-xs">Comunidad</span>
       </button>
-      <button onclick="openStore()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button onclick="openStore()" class="flex flex-col items-center justify-center text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
-        <span class="text-xs">Tienda</span>
       </button>
-      <button onclick="openCreatorHub()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button onclick="openCreatorHub()" class="flex flex-col items-center justify-center text-[#161823] hover:text-[#FE2C55] transition">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
-        <span class="text-xs">Crear</span>
       </button>
-      <button onclick="openProfile()" class="flex flex-col items-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 10a4 4 0 100-8 4 4 0 000 8zM2 18a8 8 0 1116 0H2z" clip-rule="evenodd" />
-        </svg>
-        <span class="text-xs">Perfil</span>
+      <button onclick="openProfile()" class="flex flex-col items-center justify-center">
+        <img id="bottom-nav-profile-pic" src="https://via.placeholder.com/150" alt="Perfil" class="w-8 h-8 rounded-full object-cover border-2 border-[#FE2C55] hover:border-red-600 transition-all">
       </button>
     </div>
   </div>
@@ -3590,9 +3592,436 @@ function handleProfileImageUploadDesktop(event) {
     const reader = new FileReader();
     reader.onload = e => {
       document.getElementById('profile-image').src = e.target.result;
+      // También actualizar la imagen en la navegación inferior
+      document.getElementById('bottom-nav-profile-pic').src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
+
+  // Función para actualizar la foto de perfil en la navegación inferior
+  function updateBottomNavProfilePic() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      // Cargar imagen inicial
+      firebase.database().ref('users/' + user.uid + '/profileImage').once('value').then(snapshot => {
+        const profileImage = snapshot.val();
+        updateAllProfileImages(profileImage);
+      });
+
+      // Escuchar cambios en tiempo real
+      firebase.database().ref('users/' + user.uid + '/profileImage').on('value', snapshot => {
+        const profileImage = snapshot.val();
+        updateAllProfileImages(profileImage);
+      });
+    }
+  }
+
+  // Detector automático de cambios en Firebase
+  function setupAutoDetectors() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    // Detector de cambios en foto de perfil
+    firebase.database().ref('users/' + user.uid).on('value', snapshot => {
+      const userData = snapshot.val();
+      if (userData) {
+        // Actualizar foto de perfil automáticamente
+        if (userData.profileImage) {
+          updateAllProfileImages(userData.profileImage);
+        }
+        
+        // Actualizar nombre de usuario
+        if (userData.username) {
+          updateAllUsernames(userData.username);
+        }
+        
+        // Actualizar datos del perfil
+        updateProfileData(userData);
+      }
+    });
+
+    // Detector de subida de imágenes
+    const imageInputs = document.querySelectorAll('input[type="file"][accept*="image"]');
+    imageInputs.forEach(input => {
+      input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+          // Auto-procesar y subir imagen
+          autoProcessAndUploadImage(file, input.id);
+        }
+      });
+    });
+
+    // Detector de cambios en elementos de imagen de perfil
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+          const target = mutation.target;
+          if (target.classList.contains('profile-image') || target.id.includes('profile')) {
+            // Sincronizar cambio a Firebase
+            syncImageToFirebase(target.src);
+          }
+        }
+      });
+    });
+
+    // Observar todos los elementos de imagen de perfil
+    const profileImages = document.querySelectorAll('[id*="profile-image"], [id*="profile"]');
+    profileImages.forEach(img => {
+      observer.observe(img, { attributes: true });
+    });
+  }
+
+  // Función para auto-procesar y subir imagen
+  function autoProcessAndUploadImage(file, inputId) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageDataUrl = e.target.result;
+      
+      // Mostrar imagen inmediatamente
+      updateAllProfileImages(imageDataUrl);
+      
+      // Guardar en Firebase automáticamente
+      saveProfileImageToFirebase(imageDataUrl);
+      
+      // Mostrar confirmación
+      showImageUploadSuccess();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Función para sincronizar imagen a Firebase
+  function syncImageToFirebase(imageSrc) {
+    if (imageSrc && imageSrc.startsWith('data:image/')) {
+      saveProfileImageToFirebase(imageSrc);
+    }
+  }
+
+  // Función para actualizar todos los nombres de usuario
+  function updateAllUsernames(username) {
+    const usernameElements = [
+      'profile-username',
+      'profile-username-desktop',
+      'edit-username',
+      'edit-username-desktop',
+      'author-profile-name'
+    ];
+    
+    usernameElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        if (element.tagName === 'INPUT') {
+          element.value = username;
+        } else {
+          element.textContent = '@' + username;
+        }
+      }
+    });
+  }
+
+  // Función para actualizar datos del perfil
+  function updateProfileData(userData) {
+    // Actualizar estadísticas
+    if (userData.followers) {
+      updateFollowersCount(Object.keys(userData.followers).length);
+    }
+    if (userData.following) {
+      updateFollowingCount(Object.keys(userData.following).length);
+    }
+    if (userData.coins) {
+      updateCoinsDisplay(userData.coins);
+    }
+  }
+
+  // Función para mostrar éxito de subida
+  function showImageUploadSuccess() {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center';
+    notification.innerHTML = `
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      Foto de perfil actualizada
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translate(-50%, -20px)';
+      notification.style.transition = 'all 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 2000);
+  }
+
+  // Función para actualizar todas las imágenes de perfil en la interfaz
+  function updateAllProfileImages(imageUrl) {
+    const defaultImage = 'https://via.placeholder.com/150';
+    const finalImageUrl = imageUrl || defaultImage;
+    
+    // Lista de todos los elementos de imagen de perfil
+    const profileElements = [
+      'bottom-nav-profile-pic',
+      'profile-image',
+      'profile-image-desktop', 
+      'edit-profile-image-mobile',
+      'edit-profile-image-desktop',
+      'current-user-avatar'
+    ];
+    
+    profileElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.src = finalImageUrl;
+      }
+    });
+  }
+
+  // Función mejorada para guardar imagen de perfil en Firebase
+  function saveProfileImageToFirebase(imageDataUrl) {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('users/' + user.uid).update({
+        profileImage: imageDataUrl
+      }).then(() => {
+        console.log('Imagen de perfil guardada y sincronizada');
+        // Forzar actualización inmediata
+        updateAllProfileImages(imageDataUrl);
+      }).catch(error => {
+        console.error('Error al guardar imagen:', error);
+      });
+    }
+  }
+
+  // Función para cargar perfil del usuario completo
+  function loadUserProfile() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+        const userData = snapshot.val();
+        if (userData && userData.profileImage) {
+          updateAllProfileImages(userData.profileImage);
+        }
+      });
+    }
+  }
+
+  // Función modificada para subida de imagen móvil
+  function handleProfileImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageDataUrl = e.target.result;
+      
+      // Actualizar inmediatamente en la interfaz
+      updateAllProfileImages(imageDataUrl);
+      
+      // Guardar en Firebase
+      saveProfileImageToFirebase(imageDataUrl);
+    }
+    
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Función modificada para subida de imagen desktop
+  function handleProfileImageUploadDesktop(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageDataUrl = e.target.result;
+      
+      // Actualizar inmediatamente en la interfaz
+      updateAllProfileImages(imageDataUrl);
+      
+      // Guardar en Firebase
+      saveProfileImageToFirebase(imageDataUrl);
+    }
+    
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Funciones auxiliares para actualizar estadísticas
+  function updateFollowersCount(count) {
+    const followersElements = [
+      'profile-followers',
+      'profile-followers-desktop',
+      'edit-followers',
+      'edit-followers-desktop'
+    ];
+    
+    followersElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = count;
+      }
+    });
+  }
+
+  function updateFollowingCount(count) {
+    const followingElements = [
+      'profile-following',
+      'profile-following-desktop',
+      'edit-following',
+      'edit-following-desktop'
+    ];
+    
+    followingElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = count;
+      }
+    });
+  }
+
+  function updateCoinsDisplay(coins) {
+    const coinsElements = [
+      'edit-coins',
+      'edit-coins-desktop',
+      'store-balance'
+    ];
+    
+    coinsElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        if (elementId === 'store-balance') {
+          element.textContent = '$' + coins.toFixed(2);
+        } else {
+          element.textContent = coins;
+        }
+      }
+    });
+  }
+
+  // Función para forzar actualización completa
+  function forceProfileUpdate() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+        const userData = snapshot.val();
+        if (userData) {
+          updateAllProfileImages(userData.profileImage);
+          updateAllUsernames(userData.username);
+          updateProfileData(userData);
+          showImageUploadSuccess();
+        }
+      });
+    }
+  }
+
+  // Función modificada para edición de perfil móvil
+  function handleEditProfileImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageDataUrl = e.target.result;
+      
+      // Actualizar inmediatamente en la interfaz
+      updateAllProfileImages(imageDataUrl);
+      
+      // Guardar en Firebase
+      saveProfileImageToFirebase(imageDataUrl);
+    }
+    
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Función modificada para edición de perfil desktop
+  function handleEditProfileImageUploadDesktop(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageDataUrl = e.target.result;
+      
+      // Actualizar inmediatamente en la interfaz
+      updateAllProfileImages(imageDataUrl);
+      
+      // Guardar en Firebase
+      saveProfileImageToFirebase(imageDataUrl);
+    }
+    
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Escuchar autenticación y cargar perfil
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      console.log('Usuario autenticado:', user.email);
+      
+      // Inicializar detectores automáticos
+      setTimeout(() => {
+        setupAutoDetectors();
+        updateBottomNavProfilePic();
+        loadUserProfile();
+        
+        // Cargar datos iniciales del usuario
+        loadInitialUserData(user);
+      }, 1000);
+    } else {
+      console.log('Usuario no autenticado');
+    }
+  });
+
+  // Función para cargar datos iniciales del usuario
+  function loadInitialUserData(user) {
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      if (userData) {
+        console.log('Datos del usuario cargados:', userData);
+        
+        // Actualizar interfaz con datos del usuario
+        if (userData.profileImage) {
+          updateAllProfileImages(userData.profileImage);
+        }
+        if (userData.username) {
+          updateAllUsernames(userData.username);
+        }
+        
+        // Crear usuario en Firebase si no existe
+      } else {
+        console.log('Creando perfil de usuario en Firebase...');
+        createUserProfile(user);
+      }
+    }).catch(error => {
+      console.error('Error al cargar datos del usuario:', error);
+    });
+  }
+
+  // Función para crear perfil de usuario en Firebase
+  function createUserProfile(user) {
+    const defaultUserData = {
+      email: user.email,
+      username: user.email.split('@')[0],
+      profileImage: 'https://via.placeholder.com/150',
+      createdAt: Date.now(),
+      coins: 0,
+      followers: {},
+      following: {}
+    };
+
+    firebase.database().ref('users/' + user.uid).set(defaultUserData).then(() => {
+      console.log('Perfil de usuario creado exitosamente');
+      updateAllProfileImages(defaultUserData.profileImage);
+      updateAllUsernames(defaultUserData.username);
+    }).catch(error => {
+      console.error('Error al crear perfil de usuario:', error);
+    });
+  }
+        
 </script>
 
 
