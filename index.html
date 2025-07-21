@@ -2997,6 +2997,267 @@ document.getElementById('note-content').addEventListener('input', function() {
         <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+
+<script>
+// Configuración de Firebase (asegúrate de tener tu configuración)
+const firebaseConfig = {
+  // Tu configuración de Firebase aquí
+  apiKey: "tu-api-key",
+  authDomain: "tu-proyecto.firebaseapp.com",
+  databaseURL: "tu-database-url",
+  projectId: "tu-project-id",
+  storageBucket: "tu-storage-bucket",
+  messagingSenderId: "tu-sender-id",
+  appId: "tu-app-id"
+};
+
+// Función para abrir detalle de historia con datos reales
+function openStoryDetail(story) {
+  if (!story || !story.id) {
+    console.error('ID de historia no válido');
+    return;
+  }
+
+  // Mostrar modal
+  document.getElementById('story-detail-modal').classList.remove('hidden');
+  document.getElementById('main-app').classList.add('hidden');
+
+  // Cargar datos de la historia desde Firebase
+  firebase.database().ref('stories/' + story.id).on('value', (snapshot) => {
+    const storyData = snapshot.val();
+    if (!storyData) {
+      console.error('Historia no encontrada');
+      return;
+    }
+
+    // Actualizar interfaz con datos reales
+    updateStoryDetailInterface(story.id, storyData);
+  });
+}
+
+// Actualizar interfaz del detalle de historia
+function updateStoryDetailInterface(storyId, storyData) {
+  // Actualizar título
+  const titleElement = document.getElementById('detail-title');
+  if (titleElement) {
+    titleElement.textContent = storyData.title || 'Título no disponible';
+  }
+
+  // Actualizar autor
+  const authorElement = document.getElementById('detail-author');
+  if (authorElement && storyData.userId) {
+    firebase.database().ref('users/' + storyData.userId).once('value').then((userSnapshot) => {
+      const userData = userSnapshot.val();
+      if (userData) {
+        authorElement.textContent = `Por ${userData.username || 'Autor desconocido'}`;
+        authorElement.dataset.userid = storyData.userId;
+      }
+    });
+  }
+
+  // Actualizar portada
+  const coverElement = document.getElementById('detail-cover');
+  if (coverElement) {
+    coverElement.src = storyData.coverImage || '/api/placeholder/400/600';
+    coverElement.alt = `Portada de ${storyData.title}`;
+  }
+
+  // Actualizar sinopsis
+  const synopsisElement = document.getElementById('detail-synopsis');
+  if (synopsisElement) {
+    synopsisElement.textContent = storyData.synopsis || 'Sin sinopsis disponible';
+  }
+
+  // Cargar capítulos reales
+  loadChaptersList(storyId, storyData.chapters);
+
+  // Actualizar métricas
+  updateStoryMetrics(storyId, storyData);
+}
+
+// Cargar lista de capítulos desde Firebase
+function loadChaptersList(storyId, chapters) {
+  const chaptersContainer = document.getElementById('detail-chapters');
+  if (!chaptersContainer) return;
+
+  chaptersContainer.innerHTML = '';
+
+  if (!chapters || Object.keys(chapters).length === 0) {
+    chaptersContainer.innerHTML = '<li class="text-gray-500 text-center py-4">No hay capítulos disponibles</li>';
+    return;
+  }
+
+  // Convertir objeto de capítulos a array y ordenar
+  const chaptersArray = Object.keys(chapters).map(key => ({
+    id: key,
+    ...chapters[key]
+  })).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // Crear elementos de capítulos
+  chaptersArray.forEach((chapter, index) => {
+    const li = document.createElement('li');
+    li.className = 'bg-white p-4 rounded-xl border border-pink-200 hover:border-[#FE2C55] transition-colors cursor-pointer hover:shadow-sm';
+    
+    li.innerHTML = `
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-800">${chapter.title || `Capítulo ${index + 1}`}</h4>
+          <p class="text-sm text-gray-600 mt-1">
+            ${chapter.wordCount ? `${chapter.wordCount} palabras` : 'Sin contar'}
+            ${chapter.createdAt ? ` • ${new Date(chapter.createdAt).toLocaleDateString()}` : ''}
+          </p>
+        </div>
+        <div class="ml-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#FE2C55]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    `;
+    
+    // Agregar event listener para abrir capítulo
+    li.addEventListener('click', () => {
+      openChapterReader(storyId, index);
+    });
+    
+    chaptersContainer.appendChild(li);
+  });
+}
+
+// Actualizar métricas de la historia
+function updateStoryMetrics(storyId, storyData) {
+  const metricsContainer = document.getElementById('detail-metrics');
+  if (!metricsContainer) return;
+
+  // Contar capítulos
+  const chaptersCount = storyData.chapters ? Object.keys(storyData.chapters).length : 0;
+  
+  // Calcular calificación promedio
+  const rating = storyData.ratingValue || 0;
+  
+  // Obtener vistas (puedes implementar un contador de vistas)
+  const views = storyData.views || 0;
+
+  metricsContainer.innerHTML = `
+    <div class="bg-white p-2 rounded-lg shadow-sm flex flex-col items-center w-20">
+      <span class="text-lg font-bold text-black">${views}</span>
+      <p class="text-xs text-[#FE2C55] mt-1">Visitas</p>
+    </div>
+    <div class="bg-white p-2 rounded-lg shadow-sm flex flex-col items-center w-20">
+      <span class="text-lg font-bold text-black">${rating.toFixed(1)}</span>
+      <p class="text-xs text-[#FE2C55] mt-1">Calificación</p>
+    </div>
+    <div class="bg-white p-2 rounded-lg shadow-sm flex flex-col items-center w-20">
+      <span class="text-lg font-bold text-black">${chaptersCount}</span>
+      <p class="text-xs text-[#FE2C55] mt-1">Capítulos</p>
+    </div>
+  `;
+}
+
+// Función para cerrar detalle de historia
+function closeStoryDetail() {
+  document.getElementById('story-detail-modal').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  
+  // Limpiar listeners de Firebase
+  // firebase.database().ref('stories').off(); // Solo si es necesario
+}
+
+// Cargar historias en tiempo real en la página principal
+function loadStoriesFromFirebase() {
+  // Cargar nuevos lanzamientos
+  firebase.database().ref('stories').orderByChild('createdAt').limitToLast(10).on('value', (snapshot) => {
+    const stories = [];
+    snapshot.forEach((child) => {
+      stories.unshift({
+        id: child.key,
+        ...child.val()
+      });
+    });
+    displayStoriesInSection('new-releases', stories);
+  });
+
+  // Cargar historias populares
+  firebase.database().ref('stories').orderByChild('views').limitToLast(10).on('value', (snapshot) => {
+    const stories = [];
+    snapshot.forEach((child) => {
+      stories.unshift({
+        id: child.key,
+        ...child.val()
+      });
+    });
+    displayStoriesInSection('popular', stories);
+  });
+
+  // Cargar top 10
+  firebase.database().ref('stories').orderByChild('ratingValue').limitToLast(10).on('value', (snapshot) => {
+    const stories = [];
+    snapshot.forEach((child) => {
+      stories.unshift({
+        id: child.key,
+        ...child.val()
+      });
+    });
+    displayStoriesInSection('top10', stories);
+  });
+}
+
+// Mostrar historias en una sección específica
+function displayStoriesInSection(sectionId, stories) {
+  const container = document.getElementById(sectionId);
+  if (!container || !stories || stories.length === 0) return;
+
+  container.innerHTML = '';
+
+  stories.forEach(story => {
+    const storyCard = document.createElement('div');
+    storyCard.className = 'story-card cursor-pointer flex-shrink-0 w-40';
+    
+    storyCard.innerHTML = `
+      <div class="story-cover-container relative">
+        <img src="${story.coverImage || '/api/placeholder/200/300'}" 
+             alt="${story.title}" 
+             class="story-cover-image">
+        <div class="rating-badge">
+          ${story.ratingValue ? story.ratingValue.toFixed(1) : '0.0'}
+        </div>
+      </div>
+      <div class="mt-2 px-1">
+        <h3 class="font-semibold text-sm text-gray-800 truncate">${story.title || 'Sin título'}</h3>
+        <p class="text-xs text-gray-600 truncate mt-1">
+          ${story.chapters ? Object.keys(story.chapters).length : 0} capítulos
+        </p>
+      </div>
+    `;
+
+    storyCard.addEventListener('click', () => openStoryDetail(story));
+    container.appendChild(storyCard);
+  });
+}
+
+// Inicializar cuando el usuario se autentique
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    console.log('Usuario autenticado, cargando historias desde Firebase...');
+    loadStoriesFromFirebase();
+  } else {
+    console.log('Usuario no autenticado');
+  }
+});
+
+// Función para actualizar información de historia en header del lector
+function updateStoryInfoInReader() {
+  if (currentStory) {
+    const storyTitleHeader = document.getElementById('story-title-header');
+    if (storyTitleHeader) {
+      storyTitleHeader.textContent = currentStory.title || 'Historia sin título';
+    }
+  }
+}
+</script>
+
+
         </svg>
       </div>
       <select id="category-filter" class="w-full p-3 rounded-full bg-gray-100 text-black border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FE2C55]">
@@ -6408,8 +6669,8 @@ function saveNote() {
 
 <!-- MODAL DE LECTURA DE CAPÍTULO - DISEÑO MODERNO ESTILO WEBTOON/WATTPAD -->
 <div id="chapter-read-modal" class="fixed inset-0 z-50 hidden">
-  <!-- Tema claro por defecto (como Webtoon) -->
-  <div class="w-full h-screen flex flex-col bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50" id="readerContainer">
+  <!-- Tema claro por defecto (como Webtoon) con rosa pastel -->
+  <div class="w-full h-screen flex flex-col bg-gradient-to-b from-pink-50 via-rose-50 to-pink-100" id="readerContainer">
     
     <!-- Header moderno flotante -->
     <div class="absolute top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-lg border-b border-orange-200/50 shadow-sm">
@@ -6424,8 +6685,8 @@ function saveNote() {
 
         <!-- Título del capítulo centrado -->
         <div class="flex-1 text-center mx-4">
-          <h1 id="read-chapter-number" class="text-xl font-bold text-gray-800 truncate">Capítulo 1</h1>
-          <p class="text-xs text-gray-500 mt-1">Historia Ejemplo</p>
+          <h1 id="read-chapter-number" class="text-xl font-bold text-gray-800 truncate">Cargando...</h1>
+          <p class="text-xs text-gray-500 mt-1" id="story-title-header">Cargando historia...</p>
         </div>
 
         <!-- Controles del lector -->
@@ -6492,29 +6753,29 @@ function saveNote() {
 
         <!-- Indicador de progreso de lectura -->
         <div class="mt-12 mb-8">
-          <div class="w-full bg-orange-200 rounded-full h-2">
-            <div id="reading-progress" class="bg-gradient-to-r from-orange-400 to-amber-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          <div class="w-full bg-pink-200 rounded-full h-2">
+            <div id="reading-progress" class="bg-gradient-to-r from-[#FE2C55] to-pink-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
           </div>
           <p class="text-center text-sm text-gray-500 mt-2">Progreso de lectura</p>
         </div>
 
         <!-- Sección de interacción (comentarios y calificación) -->
-        <div class="bg-white rounded-xl border border-orange-200 shadow-sm p-6 mb-8">
+        <div class="bg-white rounded-xl border border-pink-200 shadow-sm p-6 mb-8">
           <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <!-- Sistema de calificación moderno -->
             <div class="flex items-center space-x-4">
               <span class="text-gray-700 font-medium">¿Te gustó este capítulo?</span>
               <div id="star-rating" class="flex items-center space-x-1">
-                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="1" onclick="rateChapter(1)">⭐</button>
-                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="2" onclick="rateChapter(2)">⭐</button>
-                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="3" onclick="rateChapter(3)">⭐</button>
-                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="4" onclick="rateChapter(4)">⭐</button>
-                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="5" onclick="rateChapter(5)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-pink-400 transition-colors duration-200 transform hover:scale-110" data-value="1" onclick="rateChapter(1)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-pink-400 transition-colors duration-200 transform hover:scale-110" data-value="2" onclick="rateChapter(2)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-pink-400 transition-colors duration-200 transform hover:scale-110" data-value="3" onclick="rateChapter(3)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-pink-400 transition-colors duration-200 transform hover:scale-110" data-value="4" onclick="rateChapter(4)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-pink-400 transition-colors duration-200 transform hover:scale-110" data-value="5" onclick="rateChapter(5)">⭐</button>
               </div>
             </div>
 
             <!-- Botón de compartir -->
-            <button onclick="shareChapter()" class="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full hover:from-orange-600 hover:to-amber-600 transition-all duration-200 transform hover:scale-105">
+            <button onclick="shareChapter()" class="flex items-center space-x-2 bg-gradient-to-r from-[#FE2C55] to-pink-400 text-white px-4 py-2 rounded-full hover:from-pink-600 hover:to-pink-500 transition-all duration-200 transform hover:scale-105">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
               </svg>
@@ -6526,7 +6787,7 @@ function saveNote() {
     </div>
 
     <!-- Footer moderno con navegación -->
-    <div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-orange-200/50">
+    <div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-pink-200/50">
       <div class="max-w-4xl mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
           <!-- Botón capítulo anterior -->
@@ -6539,13 +6800,13 @@ function saveNote() {
 
           <!-- Indicador de capítulo actual -->
           <div class="flex items-center space-x-4 text-center">
-            <div class="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full">
+            <div class="bg-gradient-to-r from-[#FE2C55] to-pink-400 text-white px-4 py-2 rounded-full">
               <span class="font-bold text-sm" id="chapter-indicator">Cap. 1 de 10</span>
             </div>
           </div>
 
           <!-- Botón capítulo siguiente -->
-          <button id="next-chapter-btn" onclick="nextChapter()" class="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-3 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button id="next-chapter-btn" onclick="nextChapter()" class="flex items-center space-x-2 bg-gradient-to-r from-[#FE2C55] to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white px-4 py-3 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
             <span class="font-medium text-sm">Siguiente</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -6562,7 +6823,152 @@ function saveNote() {
 let currentReaderTheme = 'light';
 let currentFontSize = 16;
 
-// Cambiar tema del lector (claro/oscuro)
+// Variables globales para Firebase
+let currentStoryId = null;
+let currentChapterIndex = 0;
+let storyChapters = [];
+let currentStory = null;
+
+// Conectar Firebase en tiempo real para cargar capítulos
+function loadChapterFromFirebase(storyId, chapterIndex) {
+  if (!storyId) {
+    console.error('No se proporcionó ID de historia');
+    return;
+  }
+
+  currentStoryId = storyId;
+  currentChapterIndex = chapterIndex || 0;
+
+  // Cargar datos de la historia desde Firebase
+  firebase.database().ref('stories/' + storyId).on('value', (snapshot) => {
+    currentStory = snapshot.val();
+    if (!currentStory) {
+      console.error('Historia no encontrada');
+      return;
+    }
+
+    // Obtener capítulos ordenados
+    if (currentStory.chapters) {
+      storyChapters = Object.keys(currentStory.chapters).map(key => ({
+        id: key,
+        ...currentStory.chapters[key]
+      })).sort((a, b) => a.order - b.order);
+    }
+
+    // Cargar capítulo específico
+    if (storyChapters[currentChapterIndex]) {
+      displayChapter(storyChapters[currentChapterIndex]);
+      updateChapterNavigation();
+    }
+
+    // Actualizar información de la historia
+    updateStoryInfo();
+  });
+}
+
+// Mostrar el capítulo en el lector
+function displayChapter(chapter) {
+  const chapterText = document.getElementById('read-chapter-text');
+  const chapterNumber = document.getElementById('read-chapter-number');
+  
+  if (chapterText && chapterNumber && chapter) {
+    // Cargar contenido real desde Firebase
+    chapterText.innerHTML = chapter.content || 'Contenido no disponible';
+    chapterNumber.textContent = chapter.title || `Capítulo ${currentChapterIndex + 1}`;
+    
+    // Resetear progreso de lectura
+    document.getElementById('reading-progress').style.width = '0%';
+  }
+}
+
+// Actualizar información de la historia
+function updateStoryInfo() {
+  if (currentStory) {
+    // Actualizar indicador de capítulos
+    const indicator = document.getElementById('chapter-indicator');
+    if (indicator) {
+      indicator.textContent = `Cap. ${currentChapterIndex + 1} de ${storyChapters.length}`;
+    }
+
+    // Actualizar título en el header si existe
+    const storyTitle = document.querySelector('#chapter-read-modal .text-xs.text-gray-500');
+    if (storyTitle) {
+      storyTitle.textContent = currentStory.title || 'Historia sin título';
+    }
+  }
+}
+
+// Actualizar navegación entre capítulos
+function updateChapterNavigation() {
+  const prevBtn = document.getElementById('prev-chapter-btn');
+  const nextBtn = document.getElementById('next-chapter-btn');
+  
+  if (prevBtn) {
+    prevBtn.disabled = currentChapterIndex <= 0;
+    if (currentChapterIndex <= 0) {
+      prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+  
+  if (nextBtn) {
+    nextBtn.disabled = currentChapterIndex >= storyChapters.length - 1;
+    if (currentChapterIndex >= storyChapters.length - 1) {
+      nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+}
+
+// Navegar al capítulo anterior
+function prevChapter() {
+  if (currentChapterIndex > 0) {
+    currentChapterIndex--;
+    if (storyChapters[currentChapterIndex]) {
+      displayChapter(storyChapters[currentChapterIndex]);
+      updateChapterNavigation();
+      updateStoryInfo();
+    }
+  }
+}
+
+// Navegar al capítulo siguiente
+function nextChapter() {
+  if (currentChapterIndex < storyChapters.length - 1) {
+    currentChapterIndex++;
+    if (storyChapters[currentChapterIndex]) {
+      displayChapter(storyChapters[currentChapterIndex]);
+      updateChapterNavigation();
+      updateStoryInfo();
+    }
+  }
+}
+
+// Función para abrir capítulo desde otra parte de la aplicación
+function openChapterReader(storyId, chapterIndex = 0) {
+  document.getElementById('chapter-read-modal').classList.remove('hidden');
+  loadChapterFromFirebase(storyId, chapterIndex);
+}
+
+// Cerrar modal del lector
+function closeChapterReadModal() {
+  document.getElementById('chapter-read-modal').classList.add('hidden');
+  
+  // Limpiar listeners de Firebase
+  if (currentStoryId) {
+    firebase.database().ref('stories/' + currentStoryId).off();
+  }
+  
+  // Resetear variables
+  currentStoryId = null;
+  currentChapterIndex = 0;
+  storyChapters = [];
+  currentStory = null;
+}
+
+// Cambiar tema del lector (claro/oscuro) con colores rosa pastel
 function toggleReaderTheme() {
   const container = document.getElementById('readerContainer');
   const textArea = document.getElementById('read-chapter-text');
@@ -6573,11 +6979,60 @@ function toggleReaderTheme() {
     textArea.style.color = '#f3f4f6';
     currentReaderTheme = 'dark';
   } else {
-    // Cambiar a tema claro (estilo Webtoon)
-    container.className = 'w-full h-screen flex flex-col bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50';
+    // Cambiar a tema claro (estilo Webtoon con rosa pastel)
+    container.className = 'w-full h-screen flex flex-col bg-gradient-to-b from-pink-50 via-rose-50 to-pink-100';
     textArea.style.color = '#1f2937';
     currentReaderTheme = 'light';
   }
+}
+
+// Calificar capítulo con conexión a Firebase
+function rateChapter(rating) {
+  const stars = document.querySelectorAll('.star');
+  stars.forEach((star, index) => {
+    if (index < rating) {
+      star.style.color = '#FE2C55'; // Rosa pastel
+      star.classList.add('selected');
+    } else {
+      star.style.color = '#d1d5db'; // gray-300
+      star.classList.remove('selected');
+    }
+  });
+  
+  // Guardar calificación en Firebase
+  if (currentStoryId && storyChapters[currentChapterIndex]) {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const chapterId = storyChapters[currentChapterIndex].id;
+      firebase.database().ref(`chapterRatings/${currentStoryId}/${chapterId}/${user.uid}`).set({
+        rating: rating,
+        timestamp: Date.now()
+      });
+      
+      // Mostrar confirmación
+      showRatingConfirmation(rating);
+    }
+  }
+}
+
+// Mostrar confirmación de calificación
+function showRatingConfirmation(rating) {
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#FE2C55] text-white px-4 py-2 rounded-lg shadow-lg z-[70] flex items-center';
+  notification.innerHTML = `
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    ¡Calificaste con ${rating} estrella${rating > 1 ? 's' : ''}!
+  `;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translate(-50%, -20px)';
+    notification.style.transition = 'all 0.3s ease-out';
+    setTimeout(() => notification.remove(), 300);
+  }, 2000);
 }
 
 // Mostrar/ocultar panel de configuración
@@ -6766,7 +7221,7 @@ button {
     <div class="w-full mb-8">
       <h3 class="text-lg font-bold mb-4 text-[#FE2C55]">Capítulos</h3>
       <ul id="detail-chapters" class="space-y-3">
-        <!-- Aquí insertar cada <li> de capítulo -->
+        <!-- Los capítulos se cargarán desde Firebase -->
       </ul>
     </div>
 
