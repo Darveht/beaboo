@@ -6406,220 +6406,320 @@ function saveNote() {
   </div>
 </div>
 
-<!-- MODAL DE LECTURA DE CAPÍTULO -->
-<div id="chapter-read-modal" class="fixed inset-0 bg-[#0a0f1a] bg-opacity-95 flex flex-col z-50 hidden">
-  <div class="bg-[#101730] dark:bg-[#0a0f1a] w-full h-screen flex flex-col">
-    <button onclick="closeChapterReadModal()" class="absolute top-6 left-6 text-gray-400 dark:text-gray-300 hover:text-teal-400 dark:hover:text-teal-400 text-3xl z-10 transition-colors duration-200">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-      </svg>
-    </button>
-    <div class="flex-1 overflow-y-auto p-8 md:p-12 max-w-3xl mx-auto w-full">
+<!-- MODAL DE LECTURA DE CAPÍTULO - DISEÑO MODERNO ESTILO WEBTOON/WATTPAD -->
+<div id="chapter-read-modal" class="fixed inset-0 z-50 hidden">
+  <!-- Tema claro por defecto (como Webtoon) -->
+  <div class="w-full h-screen flex flex-col bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50" id="readerContainer">
+    
+    <!-- Header moderno flotante -->
+    <div class="absolute top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-lg border-b border-orange-200/50 shadow-sm">
+      <div class="flex items-center justify-between p-4 max-w-4xl mx-auto">
+        <!-- Botón volver con estilo moderno -->
+        <button onclick="closeChapterReadModal()" class="flex items-center space-x-2 text-gray-700 hover:text-orange-600 transition-all duration-200 bg-white/60 hover:bg-white/80 px-4 py-2 rounded-full shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="font-medium text-sm">Volver</span>
+        </button>
 
-<script>
-function openBibeeAI() {
-  document.getElementById('main-app').classList.add('hidden');
-  document.getElementById('bibee-ai-view').classList.remove('hidden');
-}
+        <!-- Título del capítulo centrado -->
+        <div class="flex-1 text-center mx-4">
+          <h1 id="read-chapter-number" class="text-xl font-bold text-gray-800 truncate">Capítulo 1</h1>
+          <p class="text-xs text-gray-500 mt-1">Historia Ejemplo</p>
+        </div>
 
-function closeBibeeAI() {
-  document.getElementById('bibee-ai-view').classList.add('hidden');
-  document.getElementById('main-app').classList.remove('hidden');
-}
+        <!-- Controles del lector -->
+        <div class="flex items-center space-x-2">
+          <!-- Botón de configuración de tema -->
+          <button onclick="toggleReaderTheme()" class="p-2 text-gray-700 hover:text-orange-600 bg-white/60 hover:bg-white/80 rounded-full shadow-sm transition-all duration-200" title="Cambiar tema">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
 
-async function getInformation(query) {
-  // Simula una búsqueda de información con un retraso
-  await new Promise(resolve => setTimeout(resolve, 3000));
-
-  const responses = {
-    "quien eres": "Soy BIbeeAI, un asistente virtual diseñado para ayudarte con información sobre diversos temas.",
-    "que puedes hacer": "Puedo responder preguntas sobre diversos temas, ayudarte a encontrar información y mantener una conversación interactiva.",
-    "como estas": "¡Estoy muy bien, gracias por preguntar! ¿En qué puedo ayudarte hoy?",
-    "hola": "¡Hola! Soy BIbeeAI, ¿en qué puedo ayudarte hoy?",
-    "adios": "¡Hasta luego! Ha sido un placer ayudarte.",
-    "gracias": "¡De nada! Estoy aquí para ayudarte cuando lo necesites."
-  };
-
-  query = query.toLowerCase();
-
-  // Buscar coincidencias exactas primero
-  for (let key in responses) {
-    if (query.includes(key)) {
-      return responses[key];
-    }
-  }
-
-  // Si no hay coincidencias exactas, generar una respuesta basada en el tema
-  let topics = query.match(/(?:qué|quien|como|cuando|donde|por que|cual|cuanto|cuanta)\s+(?:es|son|está|esta|hay|tiene|hace|paso|ocurrio|sucedio)\s+(.+)/i);
-  
-  if (topics) {
-    let topic = topics[1].trim();
-    return `Permíteme buscar información sobre "${topic}"... \n\nBasado en mi conocimiento, puedo decirte que ${topic} es un tema interesante. ¿Te gustaría saber algo más específico al respecto?`;
-  }
-
-  // Respuesta por defecto si no se detecta una pregunta específica
-  return "¿Podrías reformular tu pregunta? Estoy aquí para ayudarte con cualquier tema que te interese.";
-}
-
-async function sendAIMessage() {
-  const input = document.getElementById('ai-message-input');
-  const message = input.value.trim();
-  if (!message) return;
-
-  // Add user message
-  addMessageToChat('user', message);
-  input.value = '';
-
-  // Show typing indicator with animated dots
-  const typingIndicator = addMessageToChat('ai', 'Pensando<span class="typing-dots">...</span>', true);
-  
-  // Search Wikipedia if the message contains a question
-  let response = "";
-  try {
-    response = await getInformation(message);
-  } catch (error) {
-    response = "Lo siento, ha ocurrido un error. ¿Podrías intentarlo de nuevo?";
-  }
-
-  // Remove typing indicator and add AI response
-  typingIndicator.remove();
-  addMessageToChat('ai', response);
-}
-
-// Agregar estilos para los puntos animados
-const style = document.createElement('style');
-style.textContent = `
-@keyframes blink {
-  0% { opacity: .2; }
-  20% { opacity: 1; }
-  100% { opacity: .2; }
-}
-
-.typing-dots span {
-  animation-name: blink;
-  animation-duration: 1.4s;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
-}
-
-.typing-dots span:nth-child(2) { animation-delay: .2s; }
-.typing-dots span:nth-child(3) { animation-delay: .4s; }
-`;
-document.head.appendChild(style);
-
-async function sendAIMessage() {
-  const input = document.getElementById('ai-message-input');
-  const message = input.value.trim();
-  if (!message) return;
-
-  // Add user message
-  addMessageToChat('user', message);
-  input.value = '';
-
-  // Show typing indicator
-  const typingIndicator = addMessageToChat('ai', 'Pensando...', true);
-  
-  // Search Wikipedia if the message contains a question
-  let response = "";
-  response = await getInformation(message);
-
-  // Remove typing indicator and add AI response
-  typingIndicator.remove();
-  addMessageToChat('ai', response);
-}
-
-function addMessageToChat(type, message, isTyping = false) {
-  const chatContainer = document.getElementById('ai-chat-messages');
-  const messageDiv = document.createElement('div');
-  messageDiv.className = `flex items-start space-x-2 animate-fade-in ${type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`;
-  
-  const avatar = type === 'user' ? 
-    `<div class="w-8 h-8 rounded-full bg-[#FE2C55] flex items-center justify-center text-white">
-       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-       </svg>
-     </div>` :
-    `<img src="https://cdn-icons-png.flaticon.com/512/4712/4712009.png" alt="AI" class="w-8 h-8">`;
-
-  let messageContent = message;
-  if (isTyping) {
-    messageContent = message.replace('...', '<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>');
-  }
-
-  messageDiv.innerHTML = `
-    <div class="flex-shrink-0">
-      ${avatar}
-    </div>
-    <div class="${type === 'user' ? 'bg-[#FE2C55] text-white' : 'bg-white'} p-4 rounded-2xl shadow-sm max-w-[80%] animate-message ${isTyping ? 'message-typing' : ''}">
-      <p>${messageContent}</p>
-    </div>
-  `;
-  
-  chatContainer.appendChild(messageDiv);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-  return messageDiv;
-}
-
-let isRecording = false;
-function toggleVoiceInput() {
-  if (!isRecording && 'webkitSpeechRecognition' in window) {
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = 'es-ES';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      isRecording = true;
-      document.querySelector('button[onclick="toggleVoiceInput()"]').classList.add('text-[#FE2C55]');
-    };
-
-    recognition.onend = () => {
-      isRecording = false;
-      document.querySelector('button[onclick="toggleVoiceInput()"]').classList.remove('text-[#FE2C55]');
-    };
-
-    recognition.onresult = (event) => {
-      const message = event.results[0][0].transcript;
-      document.getElementById('ai-message-input').value = message;
-      sendAIMessage();
-    };
-
-    recognition.start();
-  } else if (isRecording) {
-    recognition.stop();
-  }
-}
-</script>
-
-      <h2 id="read-chapter-number" class="text-2xl md:text-3xl font-bold mb-8 mt-16 text-gray-100 dark:text-gray-100"></h2>
-      <div id="read-chapter-text" class="text-lg leading-relaxed text-gray-300 dark:text-gray-200 font-serif"></div>
-    </div>
-    <div class="bg-[#132040] dark:bg-[#0d1220] border-t border-[#1e2c4a] dark:border-[#1e2c4a] p-4 flex justify-between items-center shadow-lg">
-      <button id="prev-chapter-btn" class="bg-[#1e2c4a] dark:bg-[#1e2c4a] text-gray-300 dark:text-gray-200 px-5 py-3 rounded-lg shadow hover:shadow-md transition-shadow duration-200 focus:outline-none flex items-center gap-2 font-medium" onclick="prevChapter()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-        Anterior
-      </button>
-      <div id="rating-container" class="flex items-center space-x-3">
-        <span class="text-gray-300 dark:text-gray-300 font-medium">Califica:</span>
-        <div id="star-rating" class="flex">
-          <span class="star cursor-pointer text-2xl text-gray-600 dark:text-gray-600 hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-150" data-value="1">★</span>
-          <span class="star cursor-pointer text-2xl text-gray-600 dark:text-gray-600 hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-150" data-value="2">★</span>
-          <span class="star cursor-pointer text-2xl text-gray-600 dark:text-gray-600 hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-150" data-value="3">★</span>
-          <span class="star cursor-pointer text-2xl text-gray-600 dark:text-gray-600 hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-150" data-value="4">★</span>
-          <span class="star cursor-pointer text-2xl text-gray-600 dark:text-gray-600 hover:text-teal-400 dark:hover:text-teal-400 transition-colors duration-150" data-value="5">★</span>
+          <!-- Botón de configuración de fuente -->
+          <button onclick="toggleFontSettings()" class="p-2 text-gray-700 hover:text-orange-600 bg-white/60 hover:bg-white/80 rounded-full shadow-sm transition-all duration-200" title="Configurar fuente">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+            </svg>
+          </button>
         </div>
       </div>
-      <button id="next-chapter-btn" class="bg-teal-500 text-white px-5 py-3 rounded-lg shadow hover:shadow-md transition-shadow duration-200 focus:outline-none flex items-center gap-2 font-medium" onclick="nextChapter()">
-        Siguiente
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
+    </div>
+
+    <!-- Panel de configuración de fuente (oculto por defecto) -->
+    <div id="font-settings-panel" class="absolute top-16 right-4 z-30 bg-white rounded-xl shadow-xl p-4 hidden max-w-xs border border-orange-200">
+      <h3 class="font-semibold text-gray-800 mb-3">Configuración de lectura</h3>
+      
+      <!-- Tamaño de fuente -->
+      <div class="mb-4">
+        <label class="text-sm text-gray-600 block mb-2">Tamaño de fuente</label>
+        <div class="flex items-center space-x-2">
+          <button onclick="adjustFontSize(-1)" class="w-8 h-8 bg-orange-100 hover:bg-orange-200 rounded-full text-orange-600 flex items-center justify-center text-sm font-bold transition-colors">-</button>
+          <span id="font-size-display" class="text-sm text-gray-700 min-w-[40px] text-center">16px</span>
+          <button onclick="adjustFontSize(1)" class="w-8 h-8 bg-orange-100 hover:bg-orange-200 rounded-full text-orange-600 flex items-center justify-center text-sm font-bold transition-colors">+</button>
+        </div>
+      </div>
+
+      <!-- Espaciado de líneas -->
+      <div class="mb-4">
+        <label class="text-sm text-gray-600 block mb-2">Espaciado</label>
+        <input type="range" id="line-height-slider" min="1.2" max="2.5" step="0.1" value="1.6" class="w-full accent-orange-500" oninput="adjustLineHeight(this.value)">
+      </div>
+
+      <!-- Familia de fuente -->
+      <div>
+        <label class="text-sm text-gray-600 block mb-2">Fuente</label>
+        <select id="font-family-select" onchange="changeFontFamily(this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500">
+          <option value="Georgia, serif">Georgia (Serif)</option>
+          <option value="Arial, sans-serif">Arial (Sans-serif)</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+          <option value="'Courier New', monospace">Courier New</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Contenido principal del capítulo -->
+    <div class="flex-1 pt-20 pb-20 overflow-y-auto">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Área de texto principal -->
+        <article class="prose prose-lg max-w-none">
+          <div id="read-chapter-text" class="text-gray-800 leading-relaxed text-base sm:text-lg" style="font-family: Georgia, serif; line-height: 1.6;">
+            <!-- El contenido del capítulo se cargará aquí -->
+          </div>
+        </article>
+
+        <!-- Indicador de progreso de lectura -->
+        <div class="mt-12 mb-8">
+          <div class="w-full bg-orange-200 rounded-full h-2">
+            <div id="reading-progress" class="bg-gradient-to-r from-orange-400 to-amber-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p class="text-center text-sm text-gray-500 mt-2">Progreso de lectura</p>
+        </div>
+
+        <!-- Sección de interacción (comentarios y calificación) -->
+        <div class="bg-white rounded-xl border border-orange-200 shadow-sm p-6 mb-8">
+          <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+            <!-- Sistema de calificación moderno -->
+            <div class="flex items-center space-x-4">
+              <span class="text-gray-700 font-medium">¿Te gustó este capítulo?</span>
+              <div id="star-rating" class="flex items-center space-x-1">
+                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="1" onclick="rateChapter(1)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="2" onclick="rateChapter(2)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="3" onclick="rateChapter(3)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="4" onclick="rateChapter(4)">⭐</button>
+                <button class="star text-2xl text-gray-300 hover:text-amber-400 transition-colors duration-200 transform hover:scale-110" data-value="5" onclick="rateChapter(5)">⭐</button>
+              </div>
+            </div>
+
+            <!-- Botón de compartir -->
+            <button onclick="shareChapter()" class="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full hover:from-orange-600 hover:to-amber-600 transition-all duration-200 transform hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              </svg>
+              <span>Compartir</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer moderno con navegación -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-orange-200/50">
+      <div class="max-w-4xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Botón capítulo anterior -->
+          <button id="prev-chapter-btn" onclick="prevChapter()" class="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span class="font-medium text-sm">Anterior</span>
+          </button>
+
+          <!-- Indicador de capítulo actual -->
+          <div class="flex items-center space-x-4 text-center">
+            <div class="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full">
+              <span class="font-bold text-sm" id="chapter-indicator">Cap. 1 de 10</span>
+            </div>
+          </div>
+
+          <!-- Botón capítulo siguiente -->
+          <button id="next-chapter-btn" onclick="nextChapter()" class="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-3 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span class="font-medium text-sm">Siguiente</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Scripts para funcionalidades del lector moderno -->
+<script>
+let currentReaderTheme = 'light';
+let currentFontSize = 16;
+
+// Cambiar tema del lector (claro/oscuro)
+function toggleReaderTheme() {
+  const container = document.getElementById('readerContainer');
+  const textArea = document.getElementById('read-chapter-text');
+  
+  if (currentReaderTheme === 'light') {
+    // Cambiar a tema oscuro (estilo Wattpad)
+    container.className = 'w-full h-screen flex flex-col bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900';
+    textArea.style.color = '#f3f4f6';
+    currentReaderTheme = 'dark';
+  } else {
+    // Cambiar a tema claro (estilo Webtoon)
+    container.className = 'w-full h-screen flex flex-col bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50';
+    textArea.style.color = '#1f2937';
+    currentReaderTheme = 'light';
+  }
+}
+
+// Mostrar/ocultar panel de configuración
+function toggleFontSettings() {
+  const panel = document.getElementById('font-settings-panel');
+  panel.classList.toggle('hidden');
+}
+
+// Ajustar tamaño de fuente
+function adjustFontSize(change) {
+  currentFontSize += change * 2;
+  if (currentFontSize < 12) currentFontSize = 12;
+  if (currentFontSize > 24) currentFontSize = 24;
+  
+  const textArea = document.getElementById('read-chapter-text');
+  textArea.style.fontSize = currentFontSize + 'px';
+  document.getElementById('font-size-display').textContent = currentFontSize + 'px';
+}
+
+// Ajustar espaciado de líneas
+function adjustLineHeight(value) {
+  const textArea = document.getElementById('read-chapter-text');
+  textArea.style.lineHeight = value;
+}
+
+// Cambiar familia de fuente
+function changeFontFamily(fontFamily) {
+  const textArea = document.getElementById('read-chapter-text');
+  textArea.style.fontFamily = fontFamily;
+}
+
+// Actualizar progreso de lectura
+function updateReadingProgress() {
+  const container = document.getElementById('readerContainer').children[1]; // El contenedor scrolleable
+  const scrolled = container.scrollTop;
+  const maxScroll = container.scrollHeight - container.clientHeight;
+  const progress = (scrolled / maxScroll) * 100;
+  
+  document.getElementById('reading-progress').style.width = Math.min(progress, 100) + '%';
+}
+
+// Calificar capítulo
+function rateChapter(rating) {
+  const stars = document.querySelectorAll('.star');
+  stars.forEach((star, index) => {
+    if (index < rating) {
+      star.style.color = '#f59e0b'; // amber-500
+      star.classList.add('selected');
+    } else {
+      star.style.color = '#d1d5db'; // gray-300
+      star.classList.remove('selected');
+    }
+  });
+  
+  // Aquí puedes agregar la lógica para enviar la calificación a tu backend
+  console.log('Capítulo calificado con', rating, 'estrellas');
+}
+
+// Compartir capítulo
+function shareChapter() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Mira este capítulo increíble',
+      text: 'Te recomiendo leer este capítulo en BeaBoo',
+      url: window.location.href
+    });
+  } else {
+    // Fallback para navegadores que no soportan Web Share API
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('¡Enlace copiado al portapapeles!');
+    });
+  }
+}
+
+// Event listener para el progreso de lectura
+document.addEventListener('DOMContentLoaded', function() {
+  const scrollContainer = document.querySelector('#chapter-read-modal .overflow-y-auto');
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', updateReadingProgress);
+  }
+});
+</script>
+
+<!-- Estilos adicionales para el lector moderno -->
+<style>
+/* Animaciones suaves para el lector */
+#chapter-read-modal .prose {
+  transition: all 0.3s ease;
+}
+
+/* Hover effects para las estrellas */
+.star:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+}
+
+/* Animación para el progreso de lectura */
+#reading-progress {
+  transition: width 0.3s ease;
+}
+
+/* Efectos de hover para botones */
+button {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar personalizado para tema claro */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #f59e0b, #f97316);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #d97706, #ea580c);
+}
+
+/* Animación de entrada para el panel de configuración */
+#font-settings-panel {
+  animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
 
 <!-- MODAL DE DETALLE DE HISTORIA -->
 <div id="story-detail-modal" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
