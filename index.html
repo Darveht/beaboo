@@ -2474,7 +2474,48 @@ function clearPinStatus() {
       <p id="tagline" class="mt-2 text-lg text-gray-700">Tu portal de historias inolvidables</p>
     </div>
 
-    
+    <!-- NUEVAS FUNCIONES: LEÍDO RECIENTEMENTE Y MIEMBRO -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+      <!-- Función Leído Recientemente -->
+      <div onclick="openRecentlyRead()" class="cursor-pointer group">
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+          </div>
+          <h3 class="text-white font-bold text-lg mb-2">📖 Leído Recientemente</h3>
+          <p class="text-white/80 text-sm">Continúa donde lo dejaste</p>
+          <div class="mt-3 flex items-center text-white/60 text-xs">
+            <span class="mr-2">⏱️</span>
+            <span id="recent-count">0 historias en progreso</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Función Miembro -->
+      <div onclick="openMembership()" class="cursor-pointer group">
+        <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+          </div>
+          <h3 class="text-white font-bold text-lg mb-2">👑 Miembro</h3>
+          <p class="text-white/80 text-sm">Desbloquea beneficios premium</p>
+          <div class="mt-3 flex items-center text-white/60 text-xs">
+            <span class="mr-2">✨</span>
+            <span>Sin anuncios y más</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- SECCIONES DE CONTENIDO -->
     <!-- Carrusel de historias de autores seguidos -->
@@ -4013,6 +4054,213 @@ function handleProfileImageUploadDesktop(event) {
       notification.style.transform = 'translate(-50%, -20px)';
       notification.style.transition = 'all 0.3s ease-out';
       setTimeout(() => notification.remove(), 300);
+    }, 2000);
+  }
+
+  // FUNCIONES PARA LEÍDO RECIENTEMENTE
+  function openRecentlyRead() {
+    document.getElementById('recently-read-modal').classList.remove('hidden');
+    document.getElementById('main-app').classList.add('hidden');
+    loadRecentlyReadStories();
+  }
+
+  function closeRecentlyRead() {
+    document.getElementById('recently-read-modal').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+  }
+
+  function loadRecentlyReadStories() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    firebase.database().ref('recentlyRead/' + user.uid).orderByChild('lastRead').limitToLast(20).once('value').then(snapshot => {
+      const recentList = document.getElementById('recently-read-list');
+      const emptyState = document.getElementById('recently-read-empty');
+      
+      recentList.innerHTML = '';
+      
+      if (!snapshot.exists()) {
+        recentList.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        updateRecentCount(0);
+        return;
+      }
+
+      recentList.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+
+      const recentStories = [];
+      snapshot.forEach(child => {
+        recentStories.unshift({
+          id: child.key,
+          ...child.val()
+        });
+      });
+
+      updateRecentCount(recentStories.length);
+
+      recentStories.forEach(recent => {
+        firebase.database().ref('stories/' + recent.storyId).once('value').then(storySnap => {
+          const story = storySnap.val();
+          if (story) {
+            const recentItem = document.createElement('div');
+            recentItem.className = 'bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer';
+            recentItem.onclick = () => continueReading(recent.storyId, recent.chapterIndex);
+            
+            recentItem.innerHTML = `
+              <div class="flex space-x-4">
+                <img src="${story.coverImage || '/api/placeholder/60/80'}" alt="${story.title}" class="w-15 h-20 object-cover rounded-lg">
+                <div class="flex-1">
+                  <h3 class="font-bold text-lg mb-1 text-gray-800">${story.title}</h3>
+                  <p class="text-gray-600 text-sm mb-2">Capítulo ${(recent.chapterIndex || 0) + 1}</p>
+                  <p class="text-gray-500 text-xs mb-3">Leído hace ${getTimeAgo(recent.lastRead)}</p>
+                  <div class="flex items-center justify-between">
+                    <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">
+                      ${Math.round(recent.progress || 0)}% completado
+                    </div>
+                    <button class="text-[#FE2C55] text-sm font-medium hover:text-red-600 transition-colors">
+                      Continuar leyendo →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            recentList.appendChild(recentItem);
+          }
+        });
+      });
+    });
+  }
+
+  function continueReading(storyId, chapterIndex) {
+    // Cerrar modal de leído recientemente
+    closeRecentlyRead();
+    // Abrir el lector de capítulos
+    openChapterReader(storyId, chapterIndex || 0);
+  }
+
+  function updateRecentCount(count) {
+    const counter = document.getElementById('recent-count');
+    if (counter) {
+      counter.textContent = `${count} historias en progreso`;
+    }
+  }
+
+  function getTimeAgo(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (days > 0) return `${days} día${days > 1 ? 's' : ''}`;
+    if (hours > 0) return `${hours} hora${hours > 1 ? 's' : ''}`;
+    if (minutes > 0) return `${minutes} minuto${minutes > 1 ? 's' : ''}`;
+    return 'Ahora mismo';
+  }
+
+  // Función para guardar progreso de lectura
+  function saveReadingProgress(storyId, chapterIndex, progress = 0) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const progressData = {
+      storyId: storyId,
+      chapterIndex: chapterIndex,
+      progress: progress,
+      lastRead: Date.now()
+    };
+
+    firebase.database().ref('recentlyRead/' + user.uid + '/' + storyId).set(progressData);
+  }
+
+  // FUNCIONES PARA MEMBRESÍA
+  function openMembership() {
+    document.getElementById('membership-modal').classList.remove('hidden');
+    document.getElementById('main-app').classList.add('hidden');
+  }
+
+  function closeMembership() {
+    document.getElementById('membership-modal').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+  }
+
+  function subscribeToPlan(planType) {
+    // Mostrar modal de confirmación
+    const confirmModal = document.createElement('div');
+    confirmModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-60';
+    
+    const planNames = {
+      'premium': 'Premium ($4.99/mes)',
+      'vip': 'VIP ($9.99/mes)'
+    };
+    
+    confirmModal.innerHTML = `
+      <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
+        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold mb-2">¡Confirmar Suscripción!</h2>
+        <p class="text-gray-600 mb-6">¿Deseas suscribirte al plan ${planNames[planType]}?</p>
+        <div class="flex space-x-3">
+          <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
+            Cancelar
+          </button>
+          <button onclick="processSubscription('${planType}'); this.closest('.fixed').remove();" class="flex-1 bg-[#FE2C55] text-white py-3 rounded-lg">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(confirmModal);
+  }
+
+  function processSubscription(planType) {
+    // Simular procesamiento de suscripción
+    const loadingModal = document.createElement('div');
+    loadingModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-60';
+    loadingModal.innerHTML = `
+      <div class="bg-white rounded-xl p-6 text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-[#FE2C55] mx-auto mb-4"></div>
+        <p class="font-medium">Procesando suscripción...</p>
+      </div>
+    `;
+    document.body.appendChild(loadingModal);
+    
+    setTimeout(() => {
+      loadingModal.remove();
+      
+      // Mostrar éxito
+      const successModal = document.createElement('div');
+      successModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-60';
+      successModal.innerHTML = `
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold mb-2">¡Bienvenido a ${planType.toUpperCase()}!</h2>
+          <p class="text-gray-600 mb-6">Tu suscripción está activa. Disfruta de todos los beneficios premium.</p>
+          <button onclick="this.closest('.fixed').remove(); closeMembership();" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-medium">
+            Continuar
+          </button>
+        </div>
+      `;
+      document.body.appendChild(successModal);
+      
+      // Actualizar estado del usuario en Firebase
+      const user = firebase.auth().currentUser;
+      if (user) {
+        firebase.database().ref('users/' + user.uid + '/membership').set({
+          plan: planType,
+          subscribedAt: Date.now(),
+          active: true
+        });
+      }
     }, 2000);
   }
 
@@ -6289,6 +6537,208 @@ function saveNote() {
   </div>
 </div>
 
+<!-- MODAL DE LEÍDO RECIENTEMENTE -->
+<div id="recently-read-modal" class="fixed inset-0 bg-white text-black overflow-y-auto hidden z-50">
+  <div class="p-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <button onclick="closeRecentlyRead()" class="text-[#FE2C55] flex items-center hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Volver</span>
+      </button>
+      <h1 class="text-2xl font-bold text-center flex-1">📖 Leído Recientemente</h1>
+      <div class="w-20"></div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6">
+      <p class="text-purple-800 text-center">
+        <span class="text-lg">⏱️</span> Aquí encontrarás todas las historias que has estado leyendo. 
+        Continúa desde donde lo dejaste.
+      </p>
+    </div>
+
+    <!-- Lista de historias recientes -->
+    <div id="recently-read-list" class="space-y-4">
+      <!-- Las historias se cargarán aquí dinámicamente -->
+    </div>
+
+    <!-- Estado vacío -->
+    <div id="recently-read-empty" class="text-center py-12 hidden">
+      <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-600 mb-2">Aún no has leído nada</h3>
+      <p class="text-gray-500 mb-6">Comienza a leer historias y aparecerán aquí automáticamente</p>
+      <button onclick="closeRecentlyRead(); openHome();" class="bg-[#FE2C55] text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors">
+        Explorar Historias
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE MEMBRESÍA -->
+<div id="membership-modal" class="fixed inset-0 bg-white text-black overflow-y-auto hidden z-50">
+  <div class="p-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <button onclick="closeMembership()" class="text-[#FE2C55] flex items-center hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Volver</span>
+      </button>
+      <h1 class="text-2xl font-bold text-center flex-1">👑 BeaBoo Premium</h1>
+      <div class="w-20"></div>
+    </div>
+
+    <!-- Descripción premium -->
+    <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl p-6 mb-8 text-center">
+      <h2 class="text-2xl font-bold mb-3">✨ Desbloquea la experiencia completa</h2>
+      <p class="opacity-90">Disfruta de BeaBoo sin límites con nuestra suscripción premium</p>
+    </div>
+
+    <!-- Planes de suscripción -->
+    <div class="space-y-4 mb-8">
+      <!-- Plan Básico -->
+      <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-[#FE2C55] transition-colors">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-xl font-bold text-gray-800">Básico</h3>
+            <p class="text-gray-600">Para lectores ocasionales</p>
+          </div>
+          <div class="text-right">
+            <span class="text-sm text-gray-500">GRATIS</span>
+          </div>
+        </div>
+        <ul class="space-y-2 mb-6">
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Acceso a historias públicas
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Comentarios básicos
+          </li>
+          <li class="flex items-center text-sm text-gray-400">
+            <svg class="w-4 h-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+            Incluye anuncios
+          </li>
+        </ul>
+        <button class="w-full bg-gray-200 text-gray-600 py-3 rounded-lg font-medium cursor-not-allowed">
+          Plan Actual
+        </button>
+      </div>
+
+      <!-- Plan Premium -->
+      <div class="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-xl p-6 relative">
+        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <span class="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-bold">MÁS POPULAR</span>
+        </div>
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-xl font-bold text-gray-800">Premium</h3>
+            <p class="text-gray-600">Para lectores activos</p>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl font-bold text-[#FE2C55]">$4.99</span>
+            <span class="text-sm text-gray-500">/mes</span>
+          </div>
+        </div>
+        <ul class="space-y-2 mb-6">
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            ✨ Sin anuncios
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Acceso a contenido exclusivo
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Lectura offline
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Marco de perfil especial
+          </li>
+        </ul>
+        <button onclick="subscribeToPlan('premium')" class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-colors">
+          Suscribirse a Premium
+        </button>
+      </div>
+
+      <!-- Plan VIP -->
+      <div class="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-xl p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-xl font-bold text-gray-800">VIP</h3>
+            <p class="text-gray-600">Para super fans</p>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl font-bold text-[#FE2C55]">$9.99</span>
+            <span class="text-sm text-gray-500">/mes</span>
+          </div>
+        </div>
+        <ul class="space-y-2 mb-6">
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Todo lo de Premium +
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            👑 Badge VIP dorado
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Acceso anticipado a nuevas funciones
+          </li>
+          <li class="flex items-center text-sm">
+            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Soporte prioritario
+          </li>
+        </ul>
+        <button onclick="subscribeToPlan('vip')" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-colors">
+          Suscribirse a VIP
+        </button>
+      </div>
+    </div>
+
+    <!-- Garantía -->
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+      <p class="text-green-800">
+        <span class="text-lg">🛡️</span> Garantía de 7 días. Cancela cuando quieras sin preguntas.
+      </p>
+    </div>
+  </div>
+</div>
+
 <!-- VISTA DE CREACIÓN DE HISTORIAS (Paso 1) - PANTALLA COMPLETA -->
 <div id="story-creation-view" class="fixed inset-0 overflow-y-auto z-50 hidden bg-gradient-to-b from-white to-[#f9f9f9] text-black">
   <div class="min-h-screen w-full">
@@ -6878,6 +7328,11 @@ function displayChapter(chapter) {
     
     // Resetear progreso de lectura
     document.getElementById('reading-progress').style.width = '0%';
+    
+    // Guardar automáticamente en historial de lectura
+    if (currentStoryId) {
+      saveReadingProgress(currentStoryId, currentChapterIndex, 0);
+    }
   }
 }
 
@@ -7070,8 +7525,14 @@ function updateReadingProgress() {
   const scrolled = container.scrollTop;
   const maxScroll = container.scrollHeight - container.clientHeight;
   const progress = (scrolled / maxScroll) * 100;
+  const finalProgress = Math.min(progress, 100);
   
-  document.getElementById('reading-progress').style.width = Math.min(progress, 100) + '%';
+  document.getElementById('reading-progress').style.width = finalProgress + '%';
+  
+  // Guardar progreso automáticamente cada 10% de avance
+  if (currentStoryId && finalProgress > 0 && finalProgress % 10 < 1) {
+    saveReadingProgress(currentStoryId, currentChapterIndex, finalProgress);
+  }
 }
 
 // Calificar capítulo
