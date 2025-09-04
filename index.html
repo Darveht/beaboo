@@ -3110,7 +3110,7 @@ function loadChaptersList(storyId, chapters) {
     li.innerHTML = `
       <div class="flex items-center justify-between">
         <div class="flex-1">
-          <h4 class="font-semibold text-gray-800">${chapter.title || `Capítulo ${index + 1}`}</h4>
+          <h4 class="font-semibold text-gray-800">${chapter.title || ('Capítulo ' + (index + 1))}</h4>
           <p class="text-sm text-gray-600 mt-1">
             ${chapter.wordCount ? `${chapter.wordCount} palabras` : 'Sin contar'}
             ${chapter.createdAt ? ` • ${new Date(chapter.createdAt).toLocaleDateString()}` : ''}
