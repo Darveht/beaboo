@@ -363,34 +363,6 @@ body {
     box-shadow: 0 0 0 10px rgba(254, 44, 85, 0);
   }
   100% {
-
-function saveScheduledChapter(chapterId, publishDate) {
-  firebase.database().ref('scheduledChapters/' + chapterId).set({
-    publishDate: publishDate,
-    status: 'pending'
-  });
-}
-
-function checkScheduledChapters() {
-  const now = new Date().getTime();
-  firebase.database().ref('scheduledChapters').once('value', snapshot => {
-    snapshot.forEach(child => {
-      const scheduled = child.val();
-      if (scheduled.status === 'pending' && new Date(scheduled.publishDate).getTime() <= now) {
-        // Publicar el capítulo
-        firebase.database().ref('stories/' + currentEditingStory.id + '/chapters/' + child.key).update({
-          status: 'published'
-        });
-        // Actualizar estado del capítulo programado
-        child.ref.update({ status: 'published' });
-      }
-    });
-  });
-}
-
-// Verificar capítulos programados cada minuto
-setInterval(checkScheduledChapters, 60000);
-
     box-shadow: 0 0 0 0 rgba(254, 44, 85, 0);
   }
 }
@@ -2413,12 +2385,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 3000);
     }
   });
-});e 3 segundos
-    setTimeout(() => {
-      showSecurityPinModal();
-    }, 3000);
-  }
-}
+});
 
 // Limpiar estado del PIN al cerrar sesión
 function clearPinStatus() {
