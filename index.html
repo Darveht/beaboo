@@ -719,6 +719,126 @@ body {
       50% { transform: translateX(-50%) translateY(-5px); }
     }
 
+    /* ============ ANIMACIONES SECRETAS DE MENSAJES ============ */
+    
+    /* Overlay de animación secreta */
+    #secret-animation-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(45deg, rgba(255, 182, 193, 0.9), rgba(255, 105, 180, 0.9));
+      z-index: 99999;
+      display: none;
+      pointer-events: none;
+    }
+
+    /* Corazón gigante central */
+    .big-heart {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 8rem;
+      color: #ff1744;
+      text-shadow: 0 0 20px rgba(255, 23, 68, 0.8);
+      animation: heartPulse 2s ease-in-out;
+    }
+
+    @keyframes heartPulse {
+      0% { 
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+      }
+      50% { 
+        transform: translate(-50%, -50%) scale(1.5) rotate(5deg);
+        opacity: 1;
+      }
+      100% { 
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    /* Lluvia de corazones */
+    .heart-rain {
+      position: absolute;
+      font-size: 2rem;
+      color: #ff1744;
+      animation: heartFall linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes heartFall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Mensaje de amor flotante */
+    .love-message {
+      position: absolute;
+      top: 70%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      animation: loveMessageFloat 3s ease-in-out;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    @keyframes loveMessageFloat {
+      0% { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(50px);
+      }
+      20% { 
+        opacity: 1;
+        transform: translateX(-50%) translateY(0px);
+      }
+      80% { 
+        opacity: 1;
+        transform: translateX(-50%) translateY(0px);
+      }
+      100% { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px);
+      }
+    }
+
+    /* Efectos de partículas */
+    .love-particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: radial-gradient(circle, #ff1744, #ff6b9d);
+      border-radius: 50%;
+      animation: particleFloat 3s ease-out forwards;
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: scale(0) translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1) translateY(-200px);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(0) translateY(-400px);
+        opacity: 0;
+      }
+    }
+
     /* Aplicar nuevos marcos al perfil */
     #profile-frame.neon { 
       border: 4px solid #00ff88;
@@ -14386,6 +14506,9 @@ document.getElementById('category-filter').addEventListener('change', performRea
     const user = firebase.auth().currentUser;
     if (!user) return;
 
+    // ✨ DETECTAR MENSAJES SECRETOS ✨
+    checkForSecretMessage(messageText);
+
     const conversationId = [user.uid, currentChatUserId].sort().join('_');
     const messageData = {
       senderId: user.uid,
@@ -15632,6 +15755,144 @@ function closeBeabooStudio() {
       }
     });
   }
+
+  // ============ FUNCIONES PARA ANIMACIONES SECRETAS ============
+  
+  function checkForSecretMessage(messageText) {
+    const text = messageText.toLowerCase();
+    const secretTriggers = [
+      'i love you',
+      'te amo',
+      'te quiero',
+      'i love u',
+      'love you',
+      'te adoro',
+      'eres mi vida',
+      'eres mi mundo',
+      'mi amor',
+      'mi corazón',
+      'my heart',
+      'my love',
+      'be mine',
+      'sé mío',
+      'sé mía',
+      'forever',
+      'para siempre',
+      '❤️',
+      '💕',
+      '💖',
+      '💗',
+      '💘',
+      '💝',
+      '💞'
+    ];
+
+    // Verificar si el mensaje contiene algún trigger secreto
+    const hasSecretMessage = secretTriggers.some(trigger => text.includes(trigger));
+    
+    if (hasSecretMessage) {
+      setTimeout(() => {
+        triggerLoveAnimation(messageText);
+      }, 500); // Pequeño delay para que se envíe el mensaje primero
+    }
+  }
+
+  function triggerLoveAnimation(originalMessage) {
+    const overlay = document.getElementById('secret-animation-overlay');
+    overlay.style.display = 'block';
+    overlay.innerHTML = '';
+
+    // Crear corazón gigante central
+    const bigHeart = document.createElement('div');
+    bigHeart.className = 'big-heart';
+    bigHeart.innerHTML = '💖';
+    overlay.appendChild(bigHeart);
+
+    // Crear mensaje de amor flotante
+    const loveMessage = document.createElement('div');
+    loveMessage.className = 'love-message';
+    loveMessage.innerHTML = getRandomLoveMessage();
+    overlay.appendChild(loveMessage);
+
+    // Crear lluvia de corazones
+    createHeartRain(overlay);
+
+    // Crear partículas de amor
+    createLoveParticles(overlay);
+
+    // Vibración si está disponible
+    if (navigator.vibrate) {
+      navigator.vibrate([200, 100, 200, 100, 200]);
+    }
+
+    // Ocultar la animación después de 4 segundos
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 4000);
+  }
+
+  function createHeartRain(container) {
+    const heartEmojis = ['💖', '💕', '💗', '💘', '💝', '💞', '❤️', '🧡', '💛', '💚', '💙', '💜'];
+    
+    for (let i = 0; i < 20; i++) {
+      setTimeout(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart-rain';
+        heart.innerHTML = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        heart.style.animationDelay = Math.random() * 2 + 's';
+        container.appendChild(heart);
+
+        // Remover el corazón después de la animación
+        setTimeout(() => {
+          if (heart.parentNode) {
+            heart.parentNode.removeChild(heart);
+          }
+        }, 5000);
+      }, i * 200);
+    }
+  }
+
+  function createLoveParticles(container) {
+    for (let i = 0; i < 15; i++) {
+      setTimeout(() => {
+        const particle = document.createElement('div');
+        particle.className = 'love-particle';
+        particle.style.left = (Math.random() * 80 + 10) + '%';
+        particle.style.top = (Math.random() * 80 + 10) + '%';
+        particle.style.animationDelay = Math.random() * 1 + 's';
+        container.appendChild(particle);
+
+        // Remover partícula después de la animación
+        setTimeout(() => {
+          if (particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+          }
+        }, 3000);
+      }, i * 100);
+    }
+  }
+
+  function getRandomLoveMessage() {
+    const messages = [
+      '💖 ¡Qué dulce! 💖',
+      '✨ El amor está en el aire ✨',
+      '💕 Mensaje de amor detectado 💕',
+      '🌹 Que romántico 🌹',
+      '💘 Love is everywhere 💘',
+      '🥰 ¡Awww! 🥰',
+      '💗 Sweet love message 💗',
+      '🌸 Amor verdadero 🌸',
+      '💖 So cute! 💖',
+      '✨ Magical love ✨'
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  }
+
 </script>
+
+<!-- Overlay para animaciones secretas de mensajes -->
+<div id="secret-animation-overlay"></div>
 
 </body>
