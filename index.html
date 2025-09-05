@@ -1204,7 +1204,10 @@ body {
         currentLanguage = savedLang;
         updateTranslations();
       } else {
-        document.getElementById("language-modal").style.display = "flex";
+        const languageModal = document.getElementById("language-modal");
+        if (languageModal) {
+          languageModal.style.display = "flex";
+        }
       }
     });
 
@@ -3165,13 +3168,25 @@ document.getElementById('note-content').addEventListener('input', function() {
   });
 
   // Simulación de apertura del micrófono
-  document.getElementById('voice-search-btn').addEventListener('click', () => {
-    document.getElementById('voice-animation-container').classList.remove('hidden');
-  });
+  const voiceSearchBtn = document.getElementById('voice-search-btn');
+  if (voiceSearchBtn) {
+    voiceSearchBtn.addEventListener('click', () => {
+      const voiceContainer = document.getElementById('voice-animation-container');
+      if (voiceContainer) {
+        voiceContainer.classList.remove('hidden');
+      }
+    });
+  }
 
-  document.getElementById('cancel-voice').addEventListener('click', () => {
-    document.getElementById('voice-animation-container').classList.add('hidden');
-  });
+  const cancelVoiceBtn = document.getElementById('cancel-voice');
+  if (cancelVoiceBtn) {
+    cancelVoiceBtn.addEventListener('click', () => {
+      const voiceContainer = document.getElementById('voice-animation-container');
+      if (voiceContainer) {
+        voiceContainer.classList.add('hidden');
+      }
+    });
+  }
 
   // Lógica de seguir autores (simulación)
   function toggleFollow(authorId) {
@@ -10569,16 +10584,21 @@ function saveNote() {
     setTimeout(() => {
       updateTranslations();
       langOverlay.style.display = "none";
-      document.getElementById('language-modal').style.display = "none";
+      const languageModal = document.getElementById('language-modal');
+      if (languageModal) {
+        languageModal.style.display = "none";
+      }
     }, 1000);
   }
   window.addEventListener('load', () => {
     setTimeout(() => {
       const splash = document.getElementById('splash-screen');
-      splash.style.opacity = '0';
-      setTimeout(() => {
-        splash.style.display = 'none';
-      }, 1000);
+      if (splash) {
+        splash.style.opacity = '0';
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 1000);
+      }
     }, 3000);
   });
   /*********************** NOTIFICACIONES **************************/
@@ -15453,11 +15473,13 @@ function closeBeabooStudio() {
       likeCountLive.textContent = likesLive;
     }
   }
-  heartButton.addEventListener('click', () => {
-    const rect = heartButton.getBoundingClientRect();
-    createHeart(rect.left + rect.width / 2, rect.top + rect.height / 2);
-    updateLikeCountLive();
-  });
+  if (heartButton) {
+    heartButton.addEventListener('click', () => {
+      const rect = heartButton.getBoundingClientRect();
+      createHeart(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      updateLikeCountLive();
+    });
+  }
 </script>
 
 <!-- (El modal de compra de monedas ha sido removido) -->
