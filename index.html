@@ -1312,13 +1312,32 @@ body {
 </head>
 
 <!-- MODAL DE NOTIFICACIONES -->
-<div id="notifications-modal" class="fixed inset-0 z-50 hidden">
-  <div class="w-full h-full p-6 overflow-y-auto">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Bandeja de Entrada</h2>
-      <button onclick="closeNotifications()" class="text-gray-500 text-2xl">&times;</button>
+<div id="notifications-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center" onclick="closeNotifications()">
+  <div class="bg-white w-full max-w-md mx-4 rounded-2xl shadow-xl max-h-[80vh] overflow-hidden" onclick="event.stopPropagation()">
+    <!-- Header con botón de volver -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+      <button onclick="closeNotifications()" class="flex items-center text-[#FE2C55] hover:text-[#d1244a] transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span class="font-medium">Volver</span>
+      </button>
+      <h2 class="text-xl font-bold text-gray-800">Notificaciones</h2>
+      <div class="w-16"></div> <!-- Espaciador para centrar el título -->
     </div>
-    <div id="notifications-list" class="space-y-4"></div>
+    
+    <!-- Contenido scrolleable -->
+    <div class="p-4 overflow-y-auto max-h-[60vh]">
+      <div id="notifications-list" class="space-y-3"></div>
+      
+      <!-- Mensaje cuando no hay notificaciones -->
+      <div id="no-notifications" class="text-center py-8 text-gray-500 hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-8a2 2 0 112 0v8z" />
+        </svg>
+        <p class="text-sm">No tienes notificaciones</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -10623,9 +10642,6 @@ function saveNote() {
 }
 
   function openNotifications() {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    }
     const currentUser = firebase.auth().currentUser;
     if (!currentUser) return;
     
@@ -10638,28 +10654,34 @@ function saveNote() {
     const notificationsRef = firebase.database().ref('notifications/' + currentUser.uid);
     notificationsRef.on('value', snapshot => {
       const notificationsList = document.getElementById('notifications-list');
+      const noNotifications = document.getElementById('no-notifications');
       notificationsList.innerHTML = "";
+      
+      let hasNotifications = false;
+      
       snapshot.forEach(child => {
+        hasNotifications = true;
         const notification = child.val();
         const div = document.createElement('div');
-        div.className = `notification-item ${notification.type || 'info'}`;
+        div.className = 'bg-gray-50 rounded-xl p-3 border border-gray-100 hover:bg-gray-100 transition-colors cursor-pointer';
         
         // Icon based on notification type
         const iconMap = {
-          follow: 'user-plus',
-          like: 'heart',
-          comment: 'comment',
-          info: 'info-circle'
+          follow: '👤',
+          like: '❤️',
+          comment: '💬',
+          info: 'ℹ️',
+          chapter_published: '📚'
         };
         
         div.innerHTML = `
-          <div class="flex items-center gap-2">
-            <i class="fas fa-${iconMap[notification.type || 'info']} ${notification.type}-icon"></i>
-            <div class="flex-1">
-              <div class="notification-message">${notification.message}</div>
-              <div class="notification-time">${new Date(notification.timestamp).toLocaleString()}</div>
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">${iconMap[notification.type] || 'ℹ️'}</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm text-gray-800">${notification.message}</div>
+              <div class="text-xs text-[#FE2C55] mt-1">${new Date(notification.timestamp).toLocaleString()}</div>
             </div>
-            ${!notification.read ? '<span class="unread-dot"></span>' : ''}
+            ${!notification.read ? '<div class="w-2 h-2 bg-[#FE2C55] rounded-full flex-shrink-0 mt-2"></div>' : ''}
           </div>
         `;
         
@@ -10674,6 +10696,13 @@ function saveNote() {
         
         notificationsList.appendChild(div);
       });
+      
+      // Show/hide empty state
+      if (hasNotifications) {
+        noNotifications.classList.add('hidden');
+      } else {
+        noNotifications.classList.remove('hidden');
+      }
     });
   }
 
