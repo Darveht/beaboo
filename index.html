@@ -862,6 +862,160 @@ body {
       animation: crown-bounce 2s ease-in-out infinite;
     }
 
+    /* ============ ANIMACIONES DE CARGA ESTILO TIKTOK ============ */
+    
+    /* Loader principal con dos bolitas que chocan */
+    .tiktok-loader {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tiktok-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: absolute;
+      animation: tiktokCollision 1.5s ease-in-out infinite;
+    }
+
+    .tiktok-dot:nth-child(1) {
+      background: linear-gradient(45deg, #FE2C55, #ff6b7a);
+      left: 0;
+      animation-delay: 0s;
+    }
+
+    .tiktok-dot:nth-child(2) {
+      background: linear-gradient(45deg, #25F4EE, #00d4db);
+      right: 0;
+      animation-delay: 0.75s;
+    }
+
+    @keyframes tiktokCollision {
+      0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+      40% {
+        transform: translateX(15px) scale(1.2);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateX(19px) scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 20px currentColor;
+      }
+      60% {
+        transform: translateX(15px) scale(1.2);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Animación para el botón de iniciar sesión */
+    .login-loading {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-loading::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Efectos de pulsación para campos activos */
+    .field-active {
+      animation: fieldPulse 0.6s ease-out;
+    }
+
+    @keyframes fieldPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(254, 44, 85, 0.7);
+      }
+      50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 10px rgba(254, 44, 85, 0.2);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(254, 44, 85, 0);
+      }
+    }
+
+    /* Animación de éxito tipo TikTok */
+    .success-bounce {
+      animation: successBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes successBounce {
+      0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2) rotate(-90deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    /* Animación de error con vibración */
+    .error-shake {
+      animation: errorShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    @keyframes errorShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    /* Efectos de entrada para modales de pantalla completa */
+    .fullscreen-enter {
+      animation: fullscreenEnter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes fullscreenEnter {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(100px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Animación de loading para botones específicos */
+    .btn-loading .tiktok-loader .tiktok-dot:nth-child(1) {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .btn-loading .tiktok-loader .tiktok-dot:nth-child(2) {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
     #gift-animation.show {
       opacity: 1;
       animation: slideUpGift 0.8s ease-out;
@@ -2085,180 +2239,158 @@ body {
   </div>
 </div>
 
-<!-- MODAL DE RECUPERACIÓN DE CONTRASEÑA - EXPERIENCIA COMPLETA -->
-<div id="password-reset-modal" class="fixed inset-0 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] z-[70] flex items-center justify-center hidden">
-  <div class="w-full h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden">
-      
-      <!-- PASO 1: Ingreso de correo -->
-      <div id="reset-step-1" class="p-8">
-        <!-- Header -->
-        <div class="text-center mb-8 relative">
-          <button onclick="closePasswordResetModal()" class="absolute -top-4 -left-4 text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-          
-          <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3a1 1 0 011-1h2.586l6.243-6.243C11.394 9.349 10.92 9 10.414 9H10a4 4 0 00-4 4v1a1 1 0 01-2 0v-1a6 6 0 016-6z"/>
-            </svg>
-          </div>
-          
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">¿Olvidaste tu contraseña?</h2>
-          <p class="text-gray-600 text-sm">No te preocupes, te ayudamos a recuperar el acceso a tu cuenta</p>
+<!-- PANTALLA COMPLETA DE RECUPERACIÓN DE CONTRASEÑA -->
+<div id="password-reset-modal" class="fixed inset-0 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] z-[70] hidden">
+  <div class="w-full h-full flex flex-col justify-center items-center relative">
+    
+    <!-- Botón de cerrar estilo X -->
+    <button onclick="closePasswordResetModal()" class="absolute top-6 right-6 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- PASO 1: Ingreso de correo -->
+    <div id="reset-step-1" class="w-full max-w-md px-8">
+      <!-- Logo de BeaBoo -->
+      <div class="text-center mb-12">
+        <img src="https://i.ibb.co/RTS0yszd/IMG-3883.png" alt="BeaBoo" class="h-20 w-auto mx-auto mb-8" id="reset-logo">
+        <h1 class="text-3xl font-bold text-white mb-2">¿Olvidaste tu contraseña?</h1>
+        <p class="text-white/80 text-lg">No te preocupes, te ayudamos a recuperar tu cuenta</p>
+      </div>
+
+      <!-- Formulario -->
+      <div class="space-y-6">
+        <div class="relative">
+          <input 
+            type="email" 
+            id="reset-email-input"
+            placeholder="Correo electrónico"
+            class="w-full p-4 border-0 rounded-full bg-white/90 focus:bg-white focus:outline-none focus:ring-4 focus:ring-white/30 transition-all text-lg placeholder-gray-500"
+            onkeypress="if(event.key==='Enter') sendPasswordResetEmail()"
+          >
         </div>
 
-        <!-- Formulario -->
-        <div class="space-y-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
-            <div class="relative">
-              <input 
-                type="email" 
-                id="reset-email-input"
-                placeholder="ejemplo@correo.com"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FE2C55] focus:border-transparent transition-all"
-                onkeypress="if(event.key==='Enter') sendPasswordResetEmail()"
-              >
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                </svg>
+        <!-- Mensaje de error -->
+        <div id="reset-error" class="hidden bg-white/90 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span id="reset-error-text"></span>
+          </div>
+        </div>
+
+        <!-- Botón principal con animación TikTok -->
+        <button 
+          id="reset-submit-btn"
+          onclick="sendPasswordResetEmail()"
+          class="w-full bg-white text-[#FE2C55] py-4 px-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-all transform hover:scale-105 active:scale-95 relative overflow-hidden"
+        >
+          <span id="reset-btn-text">Enviar enlace de recuperación</span>
+          <div id="reset-loading" class="hidden absolute inset-0 flex items-center justify-center">
+            <div class="tiktok-loader">
+              <div class="tiktok-dot"></div>
+              <div class="tiktok-dot"></div>
+            </div>
+          </div>
+        </button>
+
+        <!-- Enlace para regresar -->
+        <div class="text-center mt-8">
+          <button onclick="closePasswordResetModal()" class="text-white/80 hover:text-white transition-colors text-lg">
+            ← Regresar al inicio de sesión
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2: Confirmación de envío -->
+    <div id="reset-step-2" class="w-full max-w-md px-8 hidden">
+      <div class="text-center">
+        <!-- Icono de éxito -->
+        <div class="w-24 h-24 mx-auto mb-8 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+
+        <h2 class="text-3xl font-bold text-white mb-4">¡Correo enviado!</h2>
+        <p class="text-white/80 text-lg mb-8">
+          Hemos enviado un enlace de recuperación a:<br>
+          <span id="reset-email-display" class="font-bold text-white text-xl"></span>
+        </p>
+
+        <!-- Mensaje de éxito temporal -->
+        <div id="reset-success" class="hidden bg-white/20 text-white p-4 rounded-lg text-lg mb-6 animate-bounce">
+          ¡Correo reenviado exitosamente!
+        </div>
+
+        <!-- Timer de reenvío -->
+        <div id="resend-timer" class="text-white/80 text-lg mb-6 hidden"></div>
+
+        <!-- Botones de acción -->
+        <div class="space-y-4">
+          <button 
+            id="resend-email-btn"
+            onclick="resendPasswordResetEmail()"
+            class="w-full bg-white/20 text-white py-3 px-4 rounded-full font-semibold text-lg hover:bg-white/30 transition-all relative overflow-hidden"
+          >
+            <span id="resend-btn-text">Reenviar correo</span>
+            <div id="resend-loading" class="hidden absolute inset-0 flex items-center justify-center">
+              <div class="tiktok-loader">
+                <div class="tiktok-dot"></div>
+                <div class="tiktok-dot"></div>
               </div>
             </div>
-          </div>
-
-          <!-- Mensaje de error -->
-          <div id="reset-error" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">
-            <div class="flex items-center">
-              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-              </svg>
-              <span id="reset-error-text"></span>
-            </div>
-          </div>
-
-          <!-- Botón principal -->
-          <button 
-            id="reset-submit-btn"
-            onclick="sendPasswordResetEmail()"
-            class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-3 px-4 rounded-xl font-semibold hover:from-[#e02347] hover:to-[#e05a6b] transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Enviar enlace de recuperación
           </button>
-
-          <!-- Enlace para regresar -->
-          <div class="text-center">
-            <button onclick="closePasswordResetModal()" class="text-sm text-gray-600 hover:text-[#FE2C55] transition-colors">
-              ← Regresar al inicio de sesión
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PASO 2: Confirmación de envío -->
-      <div id="reset-step-2" class="p-8 hidden">
-        <div class="text-center">
-          <!-- Icono de éxito -->
-          <div class="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
-            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-          </div>
-
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">¡Correo enviado!</h2>
-          <p class="text-gray-600 mb-6">
-            Hemos enviado un enlace de recuperación a:<br>
-            <span id="reset-email-display" class="font-semibold text-[#FE2C55]"></span>
-          </p>
-
-          <!-- Mensaje de éxito (se muestra al reenviar) -->
-          <div id="reset-success" class="hidden bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg text-sm mb-4">
-            <div class="flex items-center justify-center">
-              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <span></span>
-            </div>
-          </div>
-
-          <!-- Instrucciones -->
-          <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-            <h3 class="font-semibold text-blue-900 mb-2">¿Qué hacer ahora?</h3>
-            <ol class="text-sm text-blue-800 space-y-1 text-left">
-              <li>1. Revisa tu bandeja de entrada</li>
-              <li>2. Busca un correo de BeaBoo</li>
-              <li>3. Haz clic en el enlace del correo</li>
-              <li>4. Crea tu nueva contraseña</li>
-            </ol>
-          </div>
-
-          <!-- Timer de reenvío -->
-          <div id="resend-timer" class="text-sm text-gray-500 mb-4 hidden"></div>
-
-          <!-- Botones de acción -->
-          <div class="space-y-3">
-            <button 
-              id="resend-email-btn"
-              onclick="resendPasswordResetEmail()"
-              class="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-            >
-              Reenviar correo
-            </button>
-            
-            <button 
-              onclick="goToFinalStep()"
-              class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-3 px-4 rounded-xl font-semibold hover:from-[#e02347] hover:to-[#e05a6b] transition-all"
-            >
-              Ya cambié mi contraseña
-            </button>
-
-            <button onclick="closePasswordResetModal()" class="w-full text-sm text-gray-600 hover:text-[#FE2C55] transition-colors py-2">
-              ← Regresar al inicio de sesión
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PASO 3: Finalización exitosa -->
-      <div id="reset-step-3" class="p-8 hidden">
-        <div class="text-center">
-          <!-- Icono de éxito final -->
-          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">¡Listo!</h2>
-          <p class="text-gray-600 mb-8">
-            Tu contraseña ha sido actualizada exitosamente.<br>
-            Ahora puedes iniciar sesión con tu nueva contraseña.
-          </p>
-
-          <!-- Botón final -->
+          
           <button 
-            onclick="goBackToLogin()"
-            class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-4 px-4 rounded-xl font-bold hover:from-[#e02347] hover:to-[#e05a6b] transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+            onclick="goToFinalStep()"
+            class="w-full bg-white text-[#FE2C55] py-3 px-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-all transform hover:scale-105"
           >
-            Iniciar sesión ahora
+            Ya cambié mi contraseña
           </button>
-
-          <!-- Tips de seguridad -->
-          <div class="mt-6 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-            <h4 class="font-semibold text-yellow-800 mb-2">💡 Consejos de seguridad</h4>
-            <ul class="text-sm text-yellow-700 space-y-1 text-left">
-              <li>• Usa una contraseña única y segura</li>
-              <li>• No compartas tu contraseña con nadie</li>
-              <li>• Mantén tu correo seguro</li>
-            </ul>
-          </div>
         </div>
       </div>
-
     </div>
+
+    <!-- PASO 3: Finalización exitosa -->
+    <div id="reset-step-3" class="w-full max-w-md px-8 hidden">
+      <div class="text-center">
+        <!-- Icono de éxito final con animación -->
+        <div class="w-32 h-32 mx-auto mb-8 bg-white/20 rounded-full flex items-center justify-center animate-bounce">
+          <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+
+        <h2 class="text-4xl font-bold text-white mb-4">¡Listo!</h2>
+        <p class="text-white/80 text-lg mb-8">
+          Tu contraseña ha sido actualizada exitosamente.<br>
+          Ahora puedes iniciar sesión con tu nueva contraseña.
+        </p>
+
+        <!-- Botón final -->
+        <button 
+          onclick="goBackToLogin()"
+          class="w-full bg-white text-[#FE2C55] py-4 px-4 rounded-full font-bold text-xl hover:bg-gray-50 transition-all transform hover:scale-105 active:scale-95 mb-8"
+        >
+          Iniciar sesión ahora
+        </button>
+
+        <!-- Tips de seguridad en pantalla completa -->
+        <div class="bg-white/10 p-6 rounded-2xl">
+          <h4 class="font-bold text-white text-lg mb-4">💡 Consejos de seguridad</h4>
+          <ul class="text-white/80 space-y-2 text-left">
+            <li>• Usa una contraseña única y segura</li>
+            <li>• No compartas tu contraseña con nadie</li>
+            <li>• Mantén tu correo seguro</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -11628,22 +11760,92 @@ function saveNote() {
   authForm.addEventListener('submit', e => {
     e.preventDefault();
     authError.classList.add('hidden');
+    
     const email = emailInput.value;
     const password = passwordInput.value;
+    
+    // Validar campos
+    if (!email || !password) {
+      authError.textContent = "Por favor, completa todos los campos";
+      authError.classList.remove('hidden');
+      authError.classList.add('error-shake');
+      setTimeout(() => authError.classList.remove('error-shake'), 500);
+      return;
+    }
+
+    // Animaciones de campo activo
+    emailInput.classList.add('field-active');
+    passwordInput.classList.add('field-active');
+    setTimeout(() => {
+      emailInput.classList.remove('field-active');
+      passwordInput.classList.remove('field-active');
+    }, 600);
+
+    // Convertir botón a loading con animación TikTok
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.classList.add('login-loading');
+    submitButton.innerHTML = `
+      <div class="flex items-center justify-center">
+        <div class="tiktok-loader mr-3">
+          <div class="tiktok-dot"></div>
+          <div class="tiktok-dot"></div>
+        </div>
+        <span>${isLogin ? 'Iniciando sesión...' : 'Creando cuenta...'}</span>
+      </div>
+    `;
+
     if (isLogin) {
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then(userCredential => {
           console.log("Usuario autenticado:", userCredential.user);
+          
+          // Animación de éxito
+          submitButton.classList.remove('login-loading');
+          submitButton.classList.add('success-bounce');
+          submitButton.innerHTML = `
+            <div class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              ¡Bienvenido!
+            </div>
+          `;
         })
         .catch(error => {
           console.error(error);
-          authError.textContent = error.message;
+          authError.textContent = getAuthErrorMessage(error.code);
           authError.classList.remove('hidden');
+          authError.classList.add('error-shake');
+          
+          // Animación de error en el botón
+          submitButton.classList.remove('login-loading');
+          submitButton.classList.add('error-shake');
+          submitButton.textContent = originalText;
+          
+          setTimeout(() => {
+            authError.classList.remove('error-shake');
+            submitButton.classList.remove('error-shake');
+            submitButton.disabled = false;
+          }, 500);
         });
     } else {
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
           const user = userCredential.user;
+          
+          // Animación de éxito
+          submitButton.classList.remove('login-loading');
+          submitButton.classList.add('success-bounce');
+          submitButton.innerHTML = `
+            <div class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              ¡Cuenta creada!
+            </div>
+          `;
+          
           const userCountRef = firebase.database().ref('userCount');
           userCountRef.transaction(count => (count || 0) + 1).then(result => {
             const newCount = result.snapshot.val();
@@ -11673,11 +11875,43 @@ function saveNote() {
         })
         .catch(error => {
           console.error(error);
-          authError.textContent = error.message;
+          authError.textContent = getAuthErrorMessage(error.code);
           authError.classList.remove('hidden');
+          authError.classList.add('error-shake');
+          
+          // Animación de error en el botón
+          submitButton.classList.remove('login-loading');
+          submitButton.classList.add('error-shake');
+          submitButton.textContent = originalText;
+          
+          setTimeout(() => {
+            authError.classList.remove('error-shake');
+            submitButton.classList.remove('error-shake');
+            submitButton.disabled = false;
+          }, 500);
         });
     }
   });
+
+  // Función para mensajes de error más amigables
+  function getAuthErrorMessage(errorCode) {
+    switch(errorCode) {
+      case 'auth/user-not-found':
+        return 'No se encontró una cuenta con este correo electrónico';
+      case 'auth/wrong-password':
+        return 'Contraseña incorrecta';
+      case 'auth/invalid-email':
+        return 'El formato del correo electrónico no es válido';
+      case 'auth/weak-password':
+        return 'La contraseña debe tener al menos 6 caracteres';
+      case 'auth/email-already-in-use':
+        return 'Ya existe una cuenta con este correo electrónico';
+      case 'auth/too-many-requests':
+        return 'Demasiados intentos fallidos. Intenta de nuevo más tarde';
+      default:
+        return 'Error de autenticación. Intenta de nuevo';
+    }
+  }
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       if (authorizedEmails.includes(user.email)) {
@@ -11790,12 +12024,20 @@ function saveNote() {
   }
   /*********************** OLVIDÉ MI CONTRASEÑA - EXPERIENCIA COMPLETA **************************/
   function resetPassword() {
-    // Mostrar el modal de recuperación de contraseña
-    document.getElementById('password-reset-modal').classList.remove('hidden');
+    // Mostrar el modal de recuperación de contraseña con animación
+    const modal = document.getElementById('password-reset-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('fullscreen-enter');
     document.body.style.overflow = 'hidden';
     
     // Resetear el estado del modal
     resetPasswordModal();
+    
+    // Pre-llenar el email si está disponible
+    const currentEmail = emailInput.value;
+    if (currentEmail) {
+      document.getElementById('reset-email-input').value = currentEmail;
+    }
   }
 
   function resetPasswordModal() {
@@ -11824,35 +12066,55 @@ function saveNote() {
     const email = document.getElementById('reset-email-input').value.trim();
     const errorDiv = document.getElementById('reset-error');
     const submitBtn = document.getElementById('reset-submit-btn');
+    const btnText = document.getElementById('reset-btn-text');
+    const loading = document.getElementById('reset-loading');
     
     // Validaciones
     if (!email) {
       showResetError("Por favor, ingresa tu correo electrónico.");
+      // Agregar animación de error al campo
+      document.getElementById('reset-email-input').classList.add('error-shake');
+      setTimeout(() => {
+        document.getElementById('reset-email-input').classList.remove('error-shake');
+      }, 500);
       return;
     }
     
     if (!validateEmail(email)) {
       showResetError("Por favor, ingresa un correo electrónico válido.");
+      document.getElementById('reset-email-input').classList.add('error-shake');
+      setTimeout(() => {
+        document.getElementById('reset-email-input').classList.remove('error-shake');
+      }, 500);
       return;
     }
 
-    // Mostrar loading
+    // Agregar animación de campo activo
+    document.getElementById('reset-email-input').classList.add('field-active');
+    setTimeout(() => {
+      document.getElementById('reset-email-input').classList.remove('field-active');
+    }, 600);
+
+    // Mostrar loading con animación TikTok
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `
-      <div class="flex items-center justify-center">
-        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-        Enviando...
-      </div>
-    `;
+    submitBtn.classList.add('btn-loading');
+    btnText.classList.add('hidden');
+    loading.classList.remove('hidden');
 
     // Enviar email de reset
     firebase.auth().sendPasswordResetEmail(email)
       .then(() => {
-        // Ir al paso 2 - Confirmación de envío
-        document.getElementById('reset-step-1').classList.add('hidden');
-        document.getElementById('reset-step-2').classList.remove('hidden');
-        document.getElementById('reset-email-display').textContent = email;
-        startResendTimer();
+        // Animación de éxito
+        submitBtn.classList.add('success-bounce');
+        
+        setTimeout(() => {
+          // Ir al paso 2 - Confirmación de envío
+          document.getElementById('reset-step-1').classList.add('hidden');
+          document.getElementById('reset-step-2').classList.remove('hidden');
+          document.getElementById('reset-step-2').classList.add('fullscreen-enter');
+          document.getElementById('reset-email-display').textContent = email;
+          startResendTimer();
+        }, 800);
       })
       .catch(error => {
         console.error("Error al enviar correo de reset:", error);
@@ -11867,11 +12129,17 @@ function saveNote() {
         }
         
         showResetError(errorMessage);
+        submitBtn.classList.add('error-shake');
+        setTimeout(() => {
+          submitBtn.classList.remove('error-shake');
+        }, 500);
       })
       .finally(() => {
         // Restaurar botón
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Enviar enlace de recuperación';
+        submitBtn.classList.remove('btn-loading', 'success-bounce');
+        btnText.classList.remove('hidden');
+        loading.classList.add('hidden');
       });
   }
 
@@ -11921,28 +12189,70 @@ function saveNote() {
   function resendPasswordResetEmail() {
     const email = document.getElementById('reset-email-display').textContent;
     const resendBtn = document.getElementById('resend-email-btn');
+    const resendText = document.getElementById('resend-btn-text');
+    const resendLoading = document.getElementById('resend-loading');
     
     resendBtn.disabled = true;
-    resendBtn.innerHTML = `
-      <div class="flex items-center justify-center">
-        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-        Reenviando...
-      </div>
-    `;
+    resendBtn.classList.add('btn-loading');
+    resendText.classList.add('hidden');
+    resendLoading.classList.remove('hidden');
 
     firebase.auth().sendPasswordResetEmail(email)
       .then(() => {
+        // Mostrar mensaje de éxito con animación
         document.getElementById('reset-success').classList.remove('hidden');
-        document.getElementById('reset-success').textContent = '¡Correo reenviado exitosamente!';
+        document.getElementById('reset-success').classList.add('animate-bounce');
         startResendTimer();
+        
+        // Animación de éxito en el botón
+        resendBtn.classList.add('success-bounce');
+        setTimeout(() => {
+          resendBtn.classList.remove('success-bounce');
+        }, 800);
       })
       .catch(error => {
         console.error("Error al reenviar correo:", error);
-        alert("Error al reenviar el correo. Intenta de nuevo.");
+        // Mostrar error con animación
+        resendBtn.classList.add('error-shake');
+        setTimeout(() => {
+          resendBtn.classList.remove('error-shake');
+        }, 500);
+        
+        // Crear alerta personalizada en lugar de alert nativo
+        showCustomAlert("Error al reenviar el correo. Intenta de nuevo.", "error");
       })
       .finally(() => {
-        resendBtn.innerHTML = 'Reenviar correo';
+        resendBtn.disabled = false;
+        resendBtn.classList.remove('btn-loading');
+        resendText.classList.remove('hidden');
+        resendLoading.classList.add('hidden');
       });
+  }
+
+  // Función para mostrar alertas personalizadas
+  function showCustomAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `fixed top-4 right-4 z-[80] p-4 rounded-lg text-white font-semibold transform translate-x-full transition-transform duration-300 ${
+      type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+    }`;
+    alertDiv.textContent = message;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Animación de entrada
+    setTimeout(() => {
+      alertDiv.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto-remover después de 3 segundos
+    setTimeout(() => {
+      alertDiv.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (alertDiv.parentNode) {
+          alertDiv.parentNode.removeChild(alertDiv);
+        }
+      }, 300);
+    }, 3000);
   }
 
   function goToFinalStep() {
