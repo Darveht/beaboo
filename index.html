@@ -2085,6 +2085,183 @@ body {
   </div>
 </div>
 
+<!-- MODAL DE RECUPERACIÓN DE CONTRASEÑA - EXPERIENCIA COMPLETA -->
+<div id="password-reset-modal" class="fixed inset-0 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] z-[70] flex items-center justify-center hidden">
+  <div class="w-full h-full flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden">
+      
+      <!-- PASO 1: Ingreso de correo -->
+      <div id="reset-step-1" class="p-8">
+        <!-- Header -->
+        <div class="text-center mb-8 relative">
+          <button onclick="closePasswordResetModal()" class="absolute -top-4 -left-4 text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+          
+          <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-[#FE2C55] to-[#ff6b7a] rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3a1 1 0 011-1h2.586l6.243-6.243C11.394 9.349 10.92 9 10.414 9H10a4 4 0 00-4 4v1a1 1 0 01-2 0v-1a6 6 0 016-6z"/>
+            </svg>
+          </div>
+          
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">¿Olvidaste tu contraseña?</h2>
+          <p class="text-gray-600 text-sm">No te preocupes, te ayudamos a recuperar el acceso a tu cuenta</p>
+        </div>
+
+        <!-- Formulario -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
+            <div class="relative">
+              <input 
+                type="email" 
+                id="reset-email-input"
+                placeholder="ejemplo@correo.com"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FE2C55] focus:border-transparent transition-all"
+                onkeypress="if(event.key==='Enter') sendPasswordResetEmail()"
+              >
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje de error -->
+          <div id="reset-error" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">
+            <div class="flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span id="reset-error-text"></span>
+            </div>
+          </div>
+
+          <!-- Botón principal -->
+          <button 
+            id="reset-submit-btn"
+            onclick="sendPasswordResetEmail()"
+            class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-3 px-4 rounded-xl font-semibold hover:from-[#e02347] hover:to-[#e05a6b] transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Enviar enlace de recuperación
+          </button>
+
+          <!-- Enlace para regresar -->
+          <div class="text-center">
+            <button onclick="closePasswordResetModal()" class="text-sm text-gray-600 hover:text-[#FE2C55] transition-colors">
+              ← Regresar al inicio de sesión
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: Confirmación de envío -->
+      <div id="reset-step-2" class="p-8 hidden">
+        <div class="text-center">
+          <!-- Icono de éxito -->
+          <div class="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">¡Correo enviado!</h2>
+          <p class="text-gray-600 mb-6">
+            Hemos enviado un enlace de recuperación a:<br>
+            <span id="reset-email-display" class="font-semibold text-[#FE2C55]"></span>
+          </p>
+
+          <!-- Mensaje de éxito (se muestra al reenviar) -->
+          <div id="reset-success" class="hidden bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg text-sm mb-4">
+            <div class="flex items-center justify-center">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span></span>
+            </div>
+          </div>
+
+          <!-- Instrucciones -->
+          <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-blue-900 mb-2">¿Qué hacer ahora?</h3>
+            <ol class="text-sm text-blue-800 space-y-1 text-left">
+              <li>1. Revisa tu bandeja de entrada</li>
+              <li>2. Busca un correo de BeaBoo</li>
+              <li>3. Haz clic en el enlace del correo</li>
+              <li>4. Crea tu nueva contraseña</li>
+            </ol>
+          </div>
+
+          <!-- Timer de reenvío -->
+          <div id="resend-timer" class="text-sm text-gray-500 mb-4 hidden"></div>
+
+          <!-- Botones de acción -->
+          <div class="space-y-3">
+            <button 
+              id="resend-email-btn"
+              onclick="resendPasswordResetEmail()"
+              class="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+            >
+              Reenviar correo
+            </button>
+            
+            <button 
+              onclick="goToFinalStep()"
+              class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-3 px-4 rounded-xl font-semibold hover:from-[#e02347] hover:to-[#e05a6b] transition-all"
+            >
+              Ya cambié mi contraseña
+            </button>
+
+            <button onclick="closePasswordResetModal()" class="w-full text-sm text-gray-600 hover:text-[#FE2C55] transition-colors py-2">
+              ← Regresar al inicio de sesión
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 3: Finalización exitosa -->
+      <div id="reset-step-3" class="p-8 hidden">
+        <div class="text-center">
+          <!-- Icono de éxito final -->
+          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">¡Listo!</h2>
+          <p class="text-gray-600 mb-8">
+            Tu contraseña ha sido actualizada exitosamente.<br>
+            Ahora puedes iniciar sesión con tu nueva contraseña.
+          </p>
+
+          <!-- Botón final -->
+          <button 
+            onclick="goBackToLogin()"
+            class="w-full bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] text-white py-4 px-4 rounded-xl font-bold hover:from-[#e02347] hover:to-[#e05a6b] transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Iniciar sesión ahora
+          </button>
+
+          <!-- Tips de seguridad -->
+          <div class="mt-6 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+            <h4 class="font-semibold text-yellow-800 mb-2">💡 Consejos de seguridad</h4>
+            <ul class="text-sm text-yellow-700 space-y-1 text-left">
+              <li>• Usa una contraseña única y segura</li>
+              <li>• No compartas tu contraseña con nadie</li>
+              <li>• Mantén tu correo seguro</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 // Sistema de PIN de seguridad
 let securityPinData = {
@@ -11611,20 +11788,170 @@ function saveNote() {
         });
     }, 3000);
   }
-  /*********************** OLVIDÉ MI CONTRASEÑA **************************/
+  /*********************** OLVIDÉ MI CONTRASEÑA - EXPERIENCIA COMPLETA **************************/
   function resetPassword() {
-    const email = emailInput.value;
+    // Mostrar el modal de recuperación de contraseña
+    document.getElementById('password-reset-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Resetear el estado del modal
+    resetPasswordModal();
+  }
+
+  function resetPasswordModal() {
+    // Mostrar solo el primer paso
+    document.getElementById('reset-step-1').classList.remove('hidden');
+    document.getElementById('reset-step-2').classList.add('hidden');
+    document.getElementById('reset-step-3').classList.add('hidden');
+    
+    // Limpiar campos
+    document.getElementById('reset-email-input').value = '';
+    document.getElementById('reset-error').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+    
+    // Resetear contador de tiempo
+    clearInterval(window.resetTimerInterval);
+    document.getElementById('resend-timer').classList.add('hidden');
+  }
+
+  function closePasswordResetModal() {
+    document.getElementById('password-reset-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    clearInterval(window.resetTimerInterval);
+  }
+
+  function sendPasswordResetEmail() {
+    const email = document.getElementById('reset-email-input').value.trim();
+    const errorDiv = document.getElementById('reset-error');
+    const submitBtn = document.getElementById('reset-submit-btn');
+    
+    // Validaciones
     if (!email) {
-      alert("Por favor, ingresa tu correo electrónico para restablecer la contraseña.");
+      showResetError("Por favor, ingresa tu correo electrónico.");
       return;
     }
+    
+    if (!validateEmail(email)) {
+      showResetError("Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+
+    // Mostrar loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <div class="flex items-center justify-center">
+        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+        Enviando...
+      </div>
+    `;
+
+    // Enviar email de reset
     firebase.auth().sendPasswordResetEmail(email)
       .then(() => {
-        alert("Se ha enviado un correo para restablecer tu contraseña.");
+        // Ir al paso 2 - Confirmación de envío
+        document.getElementById('reset-step-1').classList.add('hidden');
+        document.getElementById('reset-step-2').classList.remove('hidden');
+        document.getElementById('reset-email-display').textContent = email;
+        startResendTimer();
       })
       .catch(error => {
-        alert("Error al enviar el correo: " + error.message);
+        console.error("Error al enviar correo de reset:", error);
+        let errorMessage = "Error al enviar el correo de recuperación.";
+        
+        if (error.code === 'auth/user-not-found') {
+          errorMessage = "No se encontró una cuenta con este correo electrónico.";
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = "El formato del correo electrónico no es válido.";
+        } else if (error.code === 'auth/too-many-requests') {
+          errorMessage = "Demasiados intentos. Intenta de nuevo más tarde.";
+        }
+        
+        showResetError(errorMessage);
+      })
+      .finally(() => {
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Enviar enlace de recuperación';
       });
+  }
+
+  function showResetError(message) {
+    const errorDiv = document.getElementById('reset-error');
+    const errorText = document.getElementById('reset-error-text');
+    
+    if (errorText) {
+      errorText.textContent = message;
+    } else {
+      errorDiv.textContent = message;
+    }
+    errorDiv.classList.remove('hidden');
+    
+    // Hacer vibrar el modal en dispositivos móviles
+    if (navigator.vibrate) {
+      navigator.vibrate(200);
+    }
+  }
+
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function startResendTimer() {
+    let timeLeft = 60; // 60 segundos
+    const timerDiv = document.getElementById('resend-timer');
+    const resendBtn = document.getElementById('resend-email-btn');
+    
+    timerDiv.classList.remove('hidden');
+    resendBtn.disabled = true;
+    
+    window.resetTimerInterval = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(window.resetTimerInterval);
+        timerDiv.classList.add('hidden');
+        resendBtn.disabled = false;
+        resendBtn.textContent = 'Reenviar correo';
+      } else {
+        timerDiv.textContent = `Podrás reenviar el correo en ${timeLeft} segundos`;
+        timeLeft--;
+      }
+    }, 1000);
+  }
+
+  function resendPasswordResetEmail() {
+    const email = document.getElementById('reset-email-display').textContent;
+    const resendBtn = document.getElementById('resend-email-btn');
+    
+    resendBtn.disabled = true;
+    resendBtn.innerHTML = `
+      <div class="flex items-center justify-center">
+        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+        Reenviando...
+      </div>
+    `;
+
+    firebase.auth().sendPasswordResetEmail(email)
+      .then(() => {
+        document.getElementById('reset-success').classList.remove('hidden');
+        document.getElementById('reset-success').textContent = '¡Correo reenviado exitosamente!';
+        startResendTimer();
+      })
+      .catch(error => {
+        console.error("Error al reenviar correo:", error);
+        alert("Error al reenviar el correo. Intenta de nuevo.");
+      })
+      .finally(() => {
+        resendBtn.innerHTML = 'Reenviar correo';
+      });
+  }
+
+  function goToFinalStep() {
+    document.getElementById('reset-step-2').classList.add('hidden');
+    document.getElementById('reset-step-3').classList.remove('hidden');
+  }
+
+  function goBackToLogin() {
+    closePasswordResetModal();
   }
   /*********************** SOPORTE **************************/
   function openSupportModal() {
