@@ -1495,7 +1495,7 @@ body {
           card.innerHTML = `
               <div class="rounded-2xl overflow-hidden shadow-md">
                 <div class="story-cover-container">
-                  <img src="${story.coverImage || '/api/placeholder/200/300'}" alt="${story.title}" class="story-cover-image">
+                  <img src="${story.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${story.title}" class="story-cover-image">
                 </div>
               </div>
               <div class="mt-2">
@@ -4249,7 +4249,7 @@ function handleProfileImageUploadDesktop(event) {
             
             recentItem.innerHTML = `
               <div class="flex space-x-4">
-                <img src="${story.coverImage || '/api/placeholder/60/80'}" alt="${story.title}" class="w-15 h-20 object-cover rounded-lg">
+                <img src="${story.coverImage || 'https://via.placeholder.com/60x80/cccccc/666666?text=Book'}" alt="${story.title}" class="w-15 h-20 object-cover rounded-lg">
                 <div class="flex-1">
                   <h3 class="font-bold text-lg mb-1 text-gray-800">${story.title}</h3>
                   <p class="text-gray-600 text-sm mb-2">Capítulo ${(recent.chapterIndex || 0) + 1}</p>
@@ -6266,7 +6266,7 @@ function saveNote() {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="bg-white rounded-xl shadow-sm border p-4">
             <div class="flex space-x-4">
-              <img src="/api/placeholder/80/120" alt="Libro" class="w-20 h-30 object-cover rounded-lg">
+              <img src="https://via.placeholder.com/80x120/cccccc/666666?text=Book" alt="Libro" class="w-20 h-30 object-cover rounded-lg">
               <div class="flex-1">
                 <h3 class="font-bold mb-1">Romance en París</h3>
                 <p class="text-sm text-gray-600 mb-2">Por María González</p>
@@ -7802,7 +7802,7 @@ button {
     <!-- Sección principal: portada + título/autor -->
     <div class="flex items-start space-x-6 mb-8">
       <!-- Portada estilo Inkitt/Wattpad -->
-      <img id="detail-cover" src="/api/placeholder/400/600" alt="Portada de la historia"
+      <img id="detail-cover" src="https://via.placeholder.com/400x600/cccccc/666666?text=Story+Cover" alt="Portada de la historia"
            class="w-40 sm:w-48 md:w-56 aspect-[2/3] object-cover rounded-2xl border-2 border-[#FE2C55] shadow-lg">
       
       <!-- Detalles de historia -->
@@ -9047,7 +9047,7 @@ button {
         bookCard.innerHTML = `
           <div class="flex space-x-4">
             <div class="relative">
-              <img src="${book.coverImage || '/api/placeholder/300/400'}" alt="${book.title}" class="w-16 h-24 object-cover rounded-lg">
+              <img src="${book.coverImage || 'https://via.placeholder.com/300x400/cccccc/666666?text=Book+Cover'}" alt="${book.title}" class="w-16 h-24 object-cover rounded-lg">
               <div class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                 EXCLUSIVO
               </div>
@@ -9075,7 +9075,7 @@ button {
     currentBookDetail = book;
     
     document.getElementById('book-detail-title').textContent = book.title;
-    document.getElementById('book-detail-cover').src = book.coverImage || '/api/placeholder/300/400';
+    document.getElementById('book-detail-cover').src = book.coverImage || 'https://via.placeholder.com/300x400/cccccc/666666?text=Book+Cover';
     document.getElementById('book-detail-author').textContent = `Por ${book.authorName || 'Autor desconocido'}`;
     document.getElementById('book-detail-synopsis').textContent = book.synopsis || 'Sin descripción disponible';
     document.getElementById('book-detail-views').textContent = `${formatNumber(book.views)} lecturas`;
@@ -9857,7 +9857,7 @@ button {
     
     card.innerHTML = `
       <div class="aspect-[3/4] relative">
-        <img src="${story.coverImage || '/api/placeholder/300/400'}" 
+        <img src="${story.coverImage || 'https://via.placeholder.com/300x400/cccccc/666666?text=Book+Cover'}" 
              alt="${story.title}" 
              class="w-full h-full object-cover rounded-t-xl">
         <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
@@ -11121,59 +11121,12 @@ function saveNote() {
   function closeNotifications() {
     document.getElementById('notifications-modal').classList.add('hidden');
   }
-  /*********************** SISTEMA DE LÍMITES Y MONITOREO **************************/
+  /*********************** SISTEMA SIMPLIFICADO **************************/
   
-  // Configuración de límites mensuales
-  const FIREBASE_LIMITS = {
-    reads: 50000,      // Límite de lecturas por mes
-    writes: 20000,     // Límite de escrituras por mes
-    storage: 1000,     // Límite de almacenamiento en MB
-    bandwidth: 10000   // Límite de ancho de banda en MB
-  };
-  
-  const WARNING_THRESHOLD = 0.85; // Advertir al 85% del límite
-  const BLOCK_THRESHOLD = 0.95;   // Bloquear al 95% del límite
-  
-  // Función para obtener el mes actual como clave
-  function getCurrentMonth() {
-    const now = new Date();
-    return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-  }
-  
-  // Función para verificar límites
-  function checkFirebaseLimits() {
-    const currentMonth = getCurrentMonth();
-    
-    firebase.database().ref(`usage/${currentMonth}`).once('value').then(snapshot => {
-      const usage = snapshot.val() || { reads: 0, writes: 0, storage: 0, bandwidth: 0 };
-      
-      // Verificar cada tipo de límite
-      for (const [type, limit] of Object.entries(FIREBASE_LIMITS)) {
-        const currentUsage = usage[type] || 0;
-        const percentage = currentUsage / limit;
-        
-        if (percentage >= BLOCK_THRESHOLD) {
-          // Bloquear funcionalidad
-          showLimitExceededModal(type, percentage);
-          return false;
-        } else if (percentage >= WARNING_THRESHOLD) {
-          // Mostrar advertencia
-          showLimitWarning(type, percentage);
-        }
-      }
-      
-      return true;
-    });
-  }
-  
-  // Función para incrementar el uso
+  // Función stub para incrementUsage (previene errores)
   function incrementUsage(type, amount = 1) {
-    const currentMonth = getCurrentMonth();
-    const usageRef = firebase.database().ref(`usage/${currentMonth}/${type}`);
-    
-    usageRef.transaction((currentValue) => {
-      return (currentValue || 0) + amount;
-    });
+    // Función deshabilitada para evitar errores de permisos
+    // console.log(`Usage tracking disabled: ${type} +${amount}`);
   }
   
   // Modal de límite excedido
@@ -12281,7 +12234,7 @@ function saveNote() {
     });
     
     // Actualizar contenido del modal
-    document.getElementById('detail-cover').src = story.coverImage || '/api/placeholder/800/400';
+    document.getElementById('detail-cover').src = story.coverImage || 'https://via.placeholder.com/800x400/cccccc/666666?text=Story+Banner';
     document.getElementById('detail-title').textContent = story.title;
     let authorDisplay = (story.username || "Autor Desconocido") + getVerificationIcon(story.email || "");
     document.getElementById('detail-author').innerHTML = "Por " + authorDisplay;
@@ -12515,7 +12468,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       card.className = 'flex-shrink-0 w-48 cursor-pointer';
       card.innerHTML = `
           <div class="rounded-2xl overflow-hidden shadow-md">
-            <img src="${book.coverImage || '/api/placeholder/200/300'}" alt="${book.title}" class="w-full h-56 object-cover">
+            <img src="${book.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${book.title}" class="w-full h-56 object-cover">
           </div>
           <p class="mt-2 text-sm font-semibold">${book.title}</p>
         `;
@@ -13683,7 +13636,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       storyCard.innerHTML = `
           <div class="rounded-2xl overflow-hidden shadow-md transform transition-transform hover:scale-105">
             <div class="story-cover-container">
-              <img src="${story.coverImage || '/api/placeholder/200/300'}" alt="${story.title}" class="story-cover-image">
+              <img src="${story.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${story.title}" class="story-cover-image">
             </div>
           </div>
           <div class="mt-2">
@@ -13714,7 +13667,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
         card.onclick = () => openStoryEdit(story);
         card.innerHTML = `
             <div class="rounded-2xl overflow-hidden shadow-md transform transition-transform hover:scale-105">
-              <img src="${story.coverImage || '/api/placeholder/200/300'}" alt="${story.title}" class="w-full h-40 object-cover">
+              <img src="${story.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${story.title}" class="w-full h-40 object-cover">
             </div>
             <div class="mt-2">
               <h3 class="font-semibold text-sm">${story.title}</h3>
@@ -13751,7 +13704,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
         card.innerHTML = `
               <div class="rounded-2xl overflow-hidden shadow-md">
                 <div class="story-cover-container">
-                  <img src="${story.coverImage || '/api/placeholder/200/300'}" alt="${story.title}" class="story-cover-image">
+                  <img src="${story.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${story.title}" class="story-cover-image">
                 </div>
               </div>
               <div class="mt-2">
@@ -13817,7 +13770,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
         card.onclick = () => openStoryDetail(story);
         card.innerHTML = `
             <div class="rounded-2xl overflow-hidden shadow-md transform transition-transform hover:scale-105">
-              <img src="${story.coverImage || '/api/placeholder/200/300'}" alt="${story.title}" class="w-full h-40 object-cover">
+              <img src="${story.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${story.title}" class="w-full h-40 object-cover">
             </div>
             <div class="mt-2">
               <h3 class="font-semibold text-sm">${story.title}</h3>
@@ -14516,7 +14469,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
         card.innerHTML = `
               <div class="rounded-2xl overflow-hidden shadow-md">
                 <div class="story-cover-container">
-                  <img src="${story.coverImage || '/api/placeholder/200/300'}" alt="${story.title}" class="story-cover-image">
+                  <img src="${story.coverImage || 'https://via.placeholder.com/200x300/cccccc/666666?text=No+Image'}" alt="${story.title}" class="story-cover-image">
                 </div>
               </div>
               <div class="mt-2">
@@ -15685,7 +15638,7 @@ function openCalendar() {
         div.className = 'bg-gray-100 p-4 rounded-lg';
         div.innerHTML = `
           <div class="flex items-center space-x-4">
-            <img src="${story.coverImage || '/api/placeholder/100/150'}" alt="${story.title}" class="w-20 h-30 object-cover rounded">
+            <img src="${story.coverImage || 'https://via.placeholder.com/100x150/cccccc/666666?text=Story'}" alt="${story.title}" class="w-20 h-30 object-cover rounded">
             <div class="flex-1">
               <div class="flex items-center">
                 <h3 class="font-bold">${story.title}</h3>
@@ -15909,7 +15862,7 @@ function updateStoriesTable(story) {
   row.innerHTML = `
     <td class="p-4">
       <div class="flex items-center space-x-3">
-        <img src="${story.coverImage || '/api/placeholder/50/75'}" class="w-12 h-16 object-cover rounded" alt="${story.title}">
+        <img src="${story.coverImage || 'https://via.placeholder.com/50x75/cccccc/666666?text=Cover'}" class="w-12 h-16 object-cover rounded" alt="${story.title}">
         <div>
           <h4 class="font-bold">${story.title}</h4>
           <p class="text-sm text-gray-600">${new Date(story.createdAt).toLocaleDateString()}</p>
