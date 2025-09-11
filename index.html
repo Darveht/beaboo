@@ -3583,17 +3583,15 @@ document.getElementById('note-content').addEventListener('input', function() {
     });
   }
 
-  // Lógica de seguir autores mejorada
+  // Lógica de seguir autores (simulación)
   function toggleFollow(authorId) {
     const followButton = document.getElementById('follow-' + authorId);
-    const isCurrentlyFollowing = followButton.textContent.trim() === 'Dejar de seguir';
-    
-    if (isCurrentlyFollowing) {
+    if (followButton.classList.contains('bg-[#FE2C55]')) {
       followButton.classList.remove('bg-[#FE2C55]');
-      followButton.classList.add('bg-gray-500');
+      followButton.classList.add('bg-gray-200');
       followButton.textContent = 'Seguir';
     } else {
-      followButton.classList.remove('bg-gray-500');
+      followButton.classList.remove('bg-gray-200');
       followButton.classList.add('bg-[#FE2C55]');
       followButton.textContent = 'Dejar de seguir';
     }
@@ -3610,7 +3608,7 @@ document.getElementById('note-content').addEventListener('input', function() {
           <img src="${author.photoUrl}" alt="${author.name}" class="h-12 w-12 rounded-full mr-4">
           <span class="font-semibold text-black">${author.name}</span>
         </div>
-        <button id="follow-${author.id}" class="px-4 py-2 bg-gray-500 text-white rounded-full font-medium hover:bg-[#FE2C55] transition-all" onclick="toggleFollow('${author.id}')">
+        <button id="follow-${author.id}" class="px-4 py-2 bg-gray-200 text-black rounded-full font-medium hover:bg-[#FE2C55] transition-all" onclick="toggleFollow('${author.id}')">
           Seguir
         </button>
       `;
@@ -5647,7 +5645,7 @@ function saveNote() {
 
       <!-- Botones de acción: Seguir, Bloquear y Reportar -->
       <div class="flex items-center justify-center w-full mt-4 space-x-2">
-        <button id="follow-button" onclick="followAuthor()" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors" title="Seguir/Dejar de seguir">
+        <button id="follow-button" onclick="followAuthor()" class="bg-[#FE2C55] text-white px-4 py-2 rounded-lg hover:bg-red-600" title="Seguir/Dejar de seguir">
           <span id="follow-button-text">Seguir</span>
         </button>
         <button id="block-button" onclick="blockAuthor()" class="bg-[#f9f9f9] text-[#FE2C55] px-4 py-2 rounded-lg border border-[#FE2C55] hover:bg-gray-100" title="Bloquear/Desbloquear">
@@ -5683,26 +5681,13 @@ function saveNote() {
     menu.classList.toggle('hidden');
   });
 
-  // Función mejorada para seguir/dejar de seguir autor
+  // Toggling de texto en botón de seguir
   function followAuthor() {
     const btn = document.getElementById('follow-button');
     const text = document.getElementById('follow-button-text');
-    const isCurrentlyFollowing = text.textContent === 'Dejar de seguir';
-    
-    if (isCurrentlyFollowing) {
-      // Cambiar a "Seguir"
-      text.textContent = 'Seguir';
-      btn.classList.remove('bg-gray-500');
-      btn.classList.add('bg-[#FE2C55]');
-    } else {
-      // Cambiar a "Dejar de seguir"
-      text.textContent = 'Dejar de seguir';
-      btn.classList.remove('bg-[#FE2C55]');
-      btn.classList.add('bg-gray-500');
-    }
-    
-    // Aquí iría la lógica real de seguimiento con Firebase
-    // Por ejemplo: actualizar en la base de datos el estado de seguimiento
+    const isFollowing = text.textContent === 'Seguir';
+    text.textContent = isFollowing ? 'Dejar de seguir' : 'Seguir';
+    // Aquí iría lógica real de seguimiento.
   }
 </script>
 
