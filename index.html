@@ -1468,8 +1468,10 @@ body {
 
     function selectStoryType(type) {
       storyTypeSelected = type;
-      document.getElementById('story-creation-view').classList.add('hidden');
-      document.getElementById('story-details-view').classList.remove('hidden');
+      const storyCreationView = document.getElementById('story-creation-view');
+      const storyDetailsView = document.getElementById('story-details-view');
+      if (storyCreationView) storyCreationView.classList.add('hidden');
+      if (storyDetailsView) storyDetailsView.classList.remove('hidden');
       updateChapterUI();
     }
     /*************** FUNCIONES PARA COMPRA DE MONEDAS (ELIMINADAS) ***************/
@@ -2589,7 +2591,8 @@ function showSecurityPinModal() {
   }
 
   securityPinData.isActive = true;
-  document.getElementById('security-pin-modal').classList.remove('hidden');
+  const securityPinModal = document.getElementById('security-pin-modal');
+  if (securityPinModal) securityPinModal.classList.remove('hidden');
   
   // Iniciar temporizador
   startPinTimer();
@@ -10068,9 +10071,7 @@ button {
     }
     
     // Verificar límites antes de publicar
-    if (!isOperationAllowed()) {
-      return;
-    }
+    // Verificación de límites deshabilitada
     
     incrementUsage('writes', 1);
     firebase.database().ref('communityNotes').push(note).then((ref) => {
@@ -11230,19 +11231,13 @@ function saveNote() {
   
   // Función para verificar si una operación está permitida
   function isOperationAllowed() {
-    if (window.limitExceeded) {
-      showLimitExceededModal('general', 0.95);
-      return false;
-    }
+    // Siempre permitir operaciones (sistema de límites deshabilitado)
     return true;
   }
   
   // Verificar límites al cargar la página
   document.addEventListener('DOMContentLoaded', () => {
-    checkFirebaseLimits();
-    
-    // Verificar límites cada 5 minutos
-    setInterval(checkFirebaseLimits, 5 * 60 * 1000);
+    // Verificación de límites deshabilitada para evitar errores de permisos
   });
   
   // Interceptar operaciones de Firebase para contar uso
@@ -11250,12 +11245,12 @@ function saveNote() {
   const originalOn = firebase.database.Reference.prototype.on;
   
   firebase.database.Reference.prototype.once = function(...args) {
-    incrementUsage('reads', 1);
+    // incrementUsage('reads', 1); // Deshabilitado
     return originalOnce.apply(this, args);
   };
   
   firebase.database.Reference.prototype.on = function(...args) {
-    incrementUsage('reads', 1);
+    // incrementUsage('reads', 1); // Deshabilitado
     return originalOn.apply(this, args);
   };
 
@@ -11266,9 +11261,7 @@ function saveNote() {
 
   function addCoins(userId, amount, reason) {
     // Verificar límites antes de realizar operaciones
-    if (!isOperationAllowed()) {
-      return;
-    }
+    // Verificación de límites deshabilitada
     
     const userCoinsRef = firebase.database().ref('users/' + userId + '/coins');
     return userCoinsRef.transaction(currentCoins => {
@@ -13071,9 +13064,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
     }
     
     // Verificar límites antes de seguir
-    if (!isOperationAllowed()) {
-      return;
-    }
+    // Verificación de límites deshabilitada
     
     incrementUsage('writes', 2); // Dos escrituras: seguidor y seguido
     const followRef = firebase.database().ref('followers/' + userId + '/' + currentUser.uid);
@@ -16120,8 +16111,10 @@ function closeBeabooStudio() {
   document.getElementById('beaboo-studio-modal').classList.add('hidden');
   document.getElementById('story-stats').innerHTML = '';
 }
+</script>
 
 <!-- Script para la vista de Live (Duolingo Live Style) -->
+<script>
   const liveContainer = document.getElementById('liveContainer');
   const heartButton = document.getElementById('heartButton');
   const heartButtonViewer = document.getElementById('heartButtonViewer');
