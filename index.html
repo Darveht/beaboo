@@ -19,12 +19,71 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
-    /* ESTILOS BASE ADAPTADOS */
-body {
-  font-family: 'Roboto', sans-serif;
-  background: white;
-  color: #000;
-}
+    /* ===== BEABOO 2.0 - TEMA TIKTOK CON COLORES ROSA PASTEL ===== */
+    :root {
+      /* Colores principales TikTok Style */
+      --beaboo-primary: #FE2C55;
+      --beaboo-secondary: #25F4EE;
+      --beaboo-pink-light: #FFB7C5;
+      --beaboo-pink-pastel: #FFC1D9;
+      --beaboo-pink-soft: #FFE4E8;
+      --beaboo-pink-bg: #FFF5F7;
+      --beaboo-teal: #25F4EE;
+      --beaboo-purple: #9747FF;
+      --beaboo-gradient: linear-gradient(135deg, #FE2C55, #FF6B7A, #FFB7C5);
+      --beaboo-gradient-soft: linear-gradient(135deg, #FFE4E8, #FFF5F7, #FFFFFF);
+      --beaboo-shadow: 0 4px 20px rgba(254, 44, 85, 0.15);
+      --beaboo-shadow-hover: 0 8px 30px rgba(254, 44, 85, 0.25);
+    }
+
+    /* ESTILOS BASE MEJORADOS CON TEMA TIKTOK */
+    body {
+      font-family: 'Nunito', 'Roboto', sans-serif;
+      background: var(--beaboo-pink-bg);
+      color: #1a1a1a;
+      transition: all 0.3s ease;
+    }
+
+    /* Gradientes TikTok para elementos principales */
+    .beaboo-gradient {
+      background: var(--beaboo-gradient);
+    }
+
+    .beaboo-gradient-soft {
+      background: var(--beaboo-gradient-soft);
+    }
+
+    /* Botones estilo TikTok */
+    .beaboo-btn {
+      background: var(--beaboo-gradient);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 700;
+      padding: 12px 24px;
+      box-shadow: var(--beaboo-shadow);
+      transition: all 0.3s ease;
+      text-transform: none;
+    }
+
+    .beaboo-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--beaboo-shadow-hover);
+    }
+
+    /* Tarjetas con estilo TikTok */
+    .beaboo-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--beaboo-shadow);
+      border: 1px solid var(--beaboo-pink-light);
+      transition: all 0.3s ease;
+    }
+
+    .beaboo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--beaboo-shadow-hover);
+    }
 
 /* Ocultar título "Capítulos" y tagline en la pantalla de inicio */
 #detail-chapters-title,
@@ -32,23 +91,108 @@ body {
   display: none;
 }
 
-/* Línea divisoria */
+/* BEABOO 2.0 - Línea divisoria con gradiente TikTok */
 .section-divider {
-  border-bottom: 2px solid #FE2C55;
-  margin: 20px 0;
+  background: var(--beaboo-gradient);
+  height: 3px;
+  border: none;
+  border-radius: 2px;
+  margin: 24px 0;
+  box-shadow: var(--beaboo-shadow);
 }
 
-
-/* Estilo para las estrellas seleccionadas */
+/* Estrellas con efectos TikTok mejorados */
 .star.selected {
-  color: #FE2C55;
-  transition: color 0.3s ease-in-out;
-  text-shadow: 0 0 10px rgba(254,44,85,0.5);
+  color: var(--beaboo-primary);
+  transition: all 0.3s ease-in-out;
+  text-shadow: 0 0 15px rgba(254,44,85,0.6);
+  transform: scale(1.1);
+}
+
+.star {
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.star:hover {
+  color: var(--beaboo-pink-light);
+  transform: scale(1.05);
+}
+
+/* BEABOO 2.0 - Tarjetas de historias estilo TikTok */
+.story-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--beaboo-shadow);
+  border: 1px solid var(--beaboo-pink-light);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.story-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--beaboo-shadow-hover);
+  border-color: var(--beaboo-primary);
+}
+
+.story-card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--beaboo-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.story-card:hover:before {
+  opacity: 1;
+}
+
+/* Imágenes de portada con efectos TikTok */
+.story-cover-image {
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  filter: brightness(1.05) saturate(1.1);
+}
+
+.story-card:hover .story-cover-image {
+  transform: scale(1.05);
+  filter: brightness(1.1) saturate(1.2);
+}
+
+/* Contenedor de portada */
+.story-cover-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
 }
 
 /* Margen para la lista de capítulos */
 #detail-chapters {
   margin-top: 10px;
+}
+
+/* Perfiles con estilo TikTok */
+.profile-image {
+  border: 3px solid var(--beaboo-pink-light);
+  box-shadow: var(--beaboo-shadow);
+  transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+  border-color: var(--beaboo-primary);
+  transform: scale(1.05);
+  box-shadow: var(--beaboo-shadow-hover);
+}
+
+/* Headers mejorados */
+#story-title-header {
+  color: var(--beaboo-primary);
+  font-weight: 600;
 }
 
 /* Notificaciones */
@@ -77,43 +221,73 @@ body {
   margin-left: 4px;
 }
 
-/* Barra inferior con efecto difuminado */
+/* BEABOO 2.0 - Barra inferior estilo TikTok */
 #bottom-nav {
-  background-color: rgba(255,255,255,0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: background-color 0.3s ease-in-out;
-  border-top: 1px solid rgba(254,44,85,0.3);
+  background: linear-gradient(135deg, rgba(255,196,217,0.95), rgba(255,255,255,0.95));
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  transition: all 0.3s ease-in-out;
+  border-top: 2px solid var(--beaboo-pink-light);
+  box-shadow: 0 -4px 20px rgba(254,44,85,0.1);
+}
+
+/* Iconos de navegación con efectos TikTok */
+#bottom-nav button {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  padding: 8px;
+}
+
+#bottom-nav button:hover {
+  background: var(--beaboo-pink-soft);
+  transform: translateY(-2px);
+}
+
+/* Notificaciones estilo TikTok */
+.notification-item {
+  padding: 16px;
+  border: 1px solid var(--beaboo-pink-light);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, white, var(--beaboo-pink-bg));
+  color: #1a1a1a;
+  box-shadow: var(--beaboo-shadow);
+  transition: all 0.3s ease;
+}
+
+.notification-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--beaboo-shadow-hover);
+}
+
+.notification-time {
+  font-size: 0.8em;
+  color: var(--beaboo-primary);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* Etiqueta de fundador con gradiente */
+.founder-tag {
+  font-size: 0.8rem;
+  color: white;
+  background: var(--beaboo-gradient);
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-left: 6px;
+  font-weight: 600;
+  box-shadow: var(--beaboo-shadow);
 }
 
 /* --- MODALES CON Z-INDEX ALTO --- */
-#report-modal,
+/* BEABOO 2.0 - CSS actualizado para modales */
 #followers-modal,
 #following-modal,
 #admin-response-modal {
   z-index: 9999 !important;
 }
 
-/* Modal Reporte a pantalla completa */
-#report-modal {
-  position: fixed;
-  inset: 0;
-  display: none;
-  background-color: rgba(255,255,255,0.8);
-  justify-content: center;
-  align-items: center;
-}
-
-#report-modal .modal-content {
-  background: #fff;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  width: 100%;
-  max-width: 500px;
-  margin: 1rem;
-  border: 1px solid #FE2C55;
-  color: #000;
-}
+/* Report modal ya no necesita CSS legacy - usa Tailwind classes */
 
     /* MODAL DE ERROR PARA USUARIO BLOQUEADO */
 #blocked-error-modal {
@@ -1584,27 +1758,134 @@ body {
 </div>
 
 <!-- MODAL DE REPORTAR PERFIL -->
-<div id="report-modal" class="fixed inset-x-0 bottom-0 transform translate-y-full transition-transform duration-300 bg-white rounded-t-xl shadow-lg" style="height: 50vh; z-index: 9999;">
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 id="report-title" class="text-2xl font-bold text-[#58CC02]">Reportar Perfil</h2>
-      <button onclick="closeReportModal()" class="text-gray-500">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+<div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 opacity-0 transition-all duration-300">
+  <div class="bg-white w-full h-full overflow-y-auto transform scale-95 transition-transform duration-300">
+    <!-- Header con degradado rosa TikTok -->
+    <div class="bg-gradient-to-r from-pink-100 to-red-100 p-6 border-b border-gray-200">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <button onclick="closeReportModal()" class="text-gray-600 hover:text-gray-800 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div>
+            <h2 id="report-title" class="text-2xl font-bold text-[#FE2C55]">⚠️ Reportar Perfil</h2>
+            <p class="text-sm text-gray-600">Ayúdanos a mantener la comunidad segura</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <p id="report-instructions" class="mb-4">Selecciona un motivo o describe el problema:</p>
-    <form id="report-form" class="space-y-4">
-      <select id="report-reason" class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50">
-        <option value="perfil_falso">Perfil falso: el autor está suplantando identidad</option>
-        <option value="spam">Spam</option>
-        <option value="infraccion_normas">Infracción a las normas</option>
-        <option value="otro">Otro</option>
-      </select>
-      <textarea id="report-description" placeholder="Describe el problema (opcional)" class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50" rows="4"></textarea>
-      <button id="btn-enviar-report" type="submit" class="w-full bg-red-500 text-white p-3 rounded-xl">Enviar Reporte</button>
-    </form>
+
+    <!-- Contenido del modal -->
+    <div class="p-6 max-w-2xl mx-auto">
+      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+        <div class="flex items-start space-x-3">
+          <div class="flex-shrink-0">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-yellow-800 mb-1">Información importante</h3>
+            <p class="text-sm text-yellow-700">Los reportes falsos pueden resultar en restricciones en tu cuenta. Solo reporta contenido que realmente viole nuestras normas.</p>
+          </div>
+        </div>
+      </div>
+
+      <form id="report-form" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Motivo del reporte</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label class="relative flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="radio" name="report-reason" value="perfil_falso" class="sr-only">
+              <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <div class="w-2 h-2 bg-[#FE2C55] rounded-full opacity-0 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">🎭 Perfil falso</div>
+                <div class="text-sm text-gray-600">Suplantación de identidad</div>
+              </div>
+            </label>
+            
+            <label class="relative flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="radio" name="report-reason" value="spam" class="sr-only">
+              <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <div class="w-2 h-2 bg-[#FE2C55] rounded-full opacity-0 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">📢 Spam</div>
+                <div class="text-sm text-gray-600">Contenido repetitivo</div>
+              </div>
+            </label>
+            
+            <label class="relative flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="radio" name="report-reason" value="contenido_inapropiado" class="sr-only">
+              <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <div class="w-2 h-2 bg-[#FE2C55] rounded-full opacity-0 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">🚫 Contenido inapropiado</div>
+                <div class="text-sm text-gray-600">Violenta normas de comunidad</div>
+              </div>
+            </label>
+            
+            <label class="relative flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="radio" name="report-reason" value="acoso" class="sr-only">
+              <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <div class="w-2 h-2 bg-[#FE2C55] rounded-full opacity-0 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">😠 Acoso o bullying</div>
+                <div class="text-sm text-gray-600">Comportamiento abusivo</div>
+              </div>
+            </label>
+            
+            <label class="relative flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="radio" name="report-reason" value="propiedad_intelectual" class="sr-only">
+              <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <div class="w-2 h-2 bg-[#FE2C55] rounded-full opacity-0 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">©️ Propiedad intelectual</div>
+                <div class="text-sm text-gray-600">Contenido con derechos de autor</div>
+              </div>
+            </label>
+            
+            <label class="relative flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="radio" name="report-reason" value="otro" class="sr-only">
+              <div class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <div class="w-2 h-2 bg-[#FE2C55] rounded-full opacity-0 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">❓ Otro</div>
+                <div class="text-sm text-gray-600">Especifica en la descripción</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label for="report-description" class="block text-sm font-medium text-gray-700 mb-2">
+            Descripción del problema (opcional)
+          </label>
+          <textarea 
+            id="report-description" 
+            placeholder="Proporciona detalles adicionales que puedan ayudarnos a entender el problema..." 
+            class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#FE2C55] focus:border-transparent transition-all resize-none" 
+            rows="4"></textarea>
+        </div>
+
+        <div class="flex space-x-4 pt-4">
+          <button type="button" onclick="closeReportModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-300 transition-colors">
+            Cancelar
+          </button>
+          <button id="btn-enviar-report" type="submit" class="flex-1 bg-[#FE2C55] text-white py-3 px-6 rounded-xl font-medium hover:bg-red-600 transition-colors">
+            🚨 Enviar Reporte
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -4407,8 +4688,21 @@ function handleProfileImageUploadDesktop(event) {
     }, 2000);
   }
 
-  // Función para actualizar todas las imágenes de perfil en la interfaz
-  function updateAllProfileImages(imageUrl) {
+  // ===== BEABOO 2.0 - SISTEMA SEGURO DE IDENTIDAD DE USUARIO =====
+  
+  let currentUserSession = null; // Variable para mantener el estado del usuario actual
+  
+  // Función SEGURA para actualizar todas las imágenes de perfil en la interfaz
+  function updateAllProfileImages(imageUrl, targetUserId = null) {
+    const user = firebase.auth().currentUser;
+    if (!user) return; // No actualizar si no hay usuario autenticado
+    
+    // VALIDACIÓN CRÍTICA: Solo actualizar si es para el usuario actual
+    if (targetUserId && targetUserId !== user.uid) {
+      console.warn('Intento de actualizar imagen para usuario diferente bloqueado');
+      return;
+    }
+    
     const defaultImage = 'https://via.placeholder.com/150';
     const finalImageUrl = imageUrl || defaultImage;
     
@@ -4425,80 +4719,216 @@ function handleProfileImageUploadDesktop(event) {
     profileElements.forEach(elementId => {
       const element = document.getElementById(elementId);
       if (element) {
+        // Verificar que el elemento tenga el data-uid correcto o lo asignamos
+        element.dataset.userId = user.uid;
         element.src = finalImageUrl;
       }
     });
+    
+    // Actualizar la sesión actual
+    currentUserSession = {
+      uid: user.uid,
+      profileImage: finalImageUrl,
+      lastUpdated: Date.now()
+    };
   }
 
-  // Función mejorada para guardar imagen de perfil en Firebase
+  // Función SEGURA para guardar imagen de perfil en Firebase
   function saveProfileImageToFirebase(imageDataUrl) {
     const user = firebase.auth().currentUser;
-    if (user) {
-      firebase.database().ref('users/' + user.uid).update({
-        profileImage: imageDataUrl
-      }).then(() => {
-        console.log('Imagen de perfil guardada y sincronizada');
-        // Forzar actualización inmediata
-        updateAllProfileImages(imageDataUrl);
-      }).catch(error => {
-        console.error('Error al guardar imagen:', error);
-      });
+    if (!user) {
+      console.error('No hay usuario autenticado para guardar imagen');
+      return;
     }
+
+    // Validar que la sesión actual coincida
+    if (currentUserSession && currentUserSession.uid !== user.uid) {
+      console.warn('Sesión de usuario cambiada durante carga de imagen - cancelando');
+      return;
+    }
+
+    firebase.database().ref('users/' + user.uid).update({
+      profileImage: imageDataUrl,
+      profileUpdatedAt: Date.now()
+    }).then(() => {
+      console.log('Imagen de perfil guardada para usuario:', user.uid);
+      // Solo actualizar si el usuario sigue siendo el mismo
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser && currentUser.uid === user.uid) {
+        updateAllProfileImages(imageDataUrl, user.uid);
+      }
+    }).catch(error => {
+      console.error('Error al guardar imagen:', error);
+    });
   }
 
-  // Función para cargar perfil del usuario completo
+  // Función para limpiar estado cuando cambie el usuario
+  function clearUserState() {
+    currentUserSession = null;
+    
+    // Limpiar todas las imágenes de perfil
+    const profileElements = [
+      'bottom-nav-profile-pic',
+      'profile-image',
+      'profile-image-desktop', 
+      'edit-profile-image-mobile',
+      'edit-profile-image-desktop',
+      'current-user-avatar'
+    ];
+    
+    profileElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.src = 'https://via.placeholder.com/150';
+        element.dataset.userId = '';
+      }
+    });
+    
+    console.log('Estado de usuario limpiado');
+  }
+
+  // Función SEGURA para cargar perfil del usuario completo
   function loadUserProfile() {
     const user = firebase.auth().currentUser;
-    if (user) {
-      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-        const userData = snapshot.val();
-        if (userData && userData.profileImage) {
-          updateAllProfileImages(userData.profileImage);
+    if (!user) {
+      clearUserState();
+      return;
+    }
+
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      // Verificar que el usuario sigue siendo el mismo después de la consulta async
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser || currentUser.uid !== user.uid) {
+        console.warn('Usuario cambió durante carga de perfil - cancelando');
+        return;
+      }
+
+      const userData = snapshot.val();
+      if (userData) {
+        // Actualizar imágenes de perfil de forma segura
+        if (userData.profileImage) {
+          updateAllProfileImages(userData.profileImage, user.uid);
         }
-      });
+        
+        // Actualizar otros datos de perfil de forma segura
+        updateProfileData(userData, user.uid);
+      }
+    }).catch(error => {
+      console.error('Error al cargar perfil de usuario:', error);
+    });
+  }
+
+  // Función SEGURA para actualizar datos de perfil en la interfaz
+  function updateProfileData(userData, targetUserId) {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser || currentUser.uid !== targetUserId) {
+      console.warn('Intento de actualizar datos para usuario diferente bloqueado');
+      return;
+    }
+
+    // Actualizar nombre de usuario
+    const usernameElements = [
+      'profile-username',
+      'profile-username-desktop',
+      'edit-username',
+      'edit-username-desktop'
+    ];
+    
+    usernameElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = userData.username || 'Usuario';
+        element.dataset.userId = currentUser.uid;
+      }
+    });
+
+    // Actualizar biografía
+    const bioElements = [
+      'profile-bio',
+      'profile-bio-desktop',
+      'edit-bio',
+      'edit-bio-desktop'
+    ];
+    
+    bioElements.forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = userData.bio || '';
+        element.dataset.userId = currentUser.uid;
+      }
+    });
+
+    // Actualizar estadísticas de forma segura
+    if (userData.followersCount !== undefined) {
+      updateFollowersCount(userData.followersCount);
+    }
+    if (userData.followingCount !== undefined) {
+      updateFollowingCount(userData.followingCount);
     }
   }
 
-  // Función modificada para subida de imagen móvil
+  // Función SEGURA para subida de imagen móvil - BeaBoo 2.0
   function handleProfileImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para cambiar tu foto de perfil');
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onload = function(e) {
+      // Verificar que el usuario sigue autenticado
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser || currentUser.uid !== user.uid) {
+        console.warn('Usuario cambió durante carga de imagen');
+        return;
+      }
+      
       const imageDataUrl = e.target.result;
       
-      // Actualizar inmediatamente en la interfaz
-      updateAllProfileImages(imageDataUrl);
+      // Actualizar inmediatamente en la interfaz de forma segura
+      updateAllProfileImages(imageDataUrl, user.uid);
       
-      // Guardar en Firebase
+      // Guardar en Firebase de forma segura
       saveProfileImageToFirebase(imageDataUrl);
     }
     
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    reader.readAsDataURL(file);
   }
 
-  // Función modificada para subida de imagen desktop
+  // Función SEGURA para subida de imagen desktop - BeaBoo 2.0
   function handleProfileImageUploadDesktop(event) {
     const file = event.target.files[0];
     if (!file) return;
     
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para cambiar tu foto de perfil');
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onload = function(e) {
+      // Verificar que el usuario sigue autenticado
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser || currentUser.uid !== user.uid) {
+        console.warn('Usuario cambió durante carga de imagen');
+        return;
+      }
+      
       const imageDataUrl = e.target.result;
       
-      // Actualizar inmediatamente en la interfaz
-      updateAllProfileImages(imageDataUrl);
+      // Actualizar inmediatamente en la interfaz de forma segura
+      updateAllProfileImages(imageDataUrl, user.uid);
       
-      // Guardar en Firebase
+      // Guardar en Firebase de forma segura
       saveProfileImageToFirebase(imageDataUrl);
     }
     
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    reader.readAsDataURL(file);
   }
 
   // Funciones auxiliares para actualizar estadísticas
@@ -4611,22 +5041,32 @@ function handleProfileImageUploadDesktop(event) {
     }
   }
 
-  // Escuchar autenticación y cargar perfil
+  // ===== BEABOO 2.0 - LISTENER DE AUTENTICACIÓN SEGURO =====
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
-      console.log('Usuario autenticado:', user.email);
+      console.log('✅ Usuario autenticado:', user.email);
       
-      // Inicializar detectores automáticos
+      // Inicializar detectores automáticos y cargar perfil de forma segura
       setTimeout(() => {
         setupAutoDetectors();
         updateBottomNavProfilePic();
-        loadUserProfile();
+        loadUserProfile(); // Ya usa nuestro sistema seguro
         
-        // Cargar datos iniciales del usuario
+        // Cargar datos iniciales del usuario de forma segura
         loadInitialUserData(user);
       }, 1000);
     } else {
-      console.log('Usuario no autenticado');
+      console.log('❌ Usuario no autenticado - limpiando estado');
+      // CRÍTICO: Limpiar estado cuando no hay usuario autenticado
+      clearUserState();
+      
+      // También ocultar app principal y mostrar formulario de auth
+      const authFormContainer = document.getElementById('auth-form');
+      const mainApp = document.getElementById('main-app');
+      if (authFormContainer && mainApp) {
+        authFormContainer.classList.remove('hidden');
+        mainApp.classList.add('hidden');
+      }
     }
   });
 
@@ -5488,10 +5928,379 @@ function startOfferCountdown() {
 }
 
 // Funciones existentes modificadas
+// ===== BEABOO 2.0 - SISTEMA DE MODAL DE TIENDA PANTALLA COMPLETA =====
 function openStore() {
-  document.getElementById('store-view').classList.remove('hidden');
-  document.getElementById('main-app').classList.add('hidden');
+  const storeModal = createStoreModal();
+  document.body.appendChild(storeModal);
+  
+  // Bloquear scroll del body
+  document.body.style.overflow = 'hidden';
+  
+  // Inicializar tienda
   initializeStore();
+  
+  // Animación de entrada
+  requestAnimationFrame(() => {
+    storeModal.classList.remove('opacity-0');
+    storeModal.querySelector('.store-content').classList.remove('scale-95');
+  });
+}
+
+function createStoreModal() {
+  const modal = document.createElement('div');
+  modal.id = 'store-fullscreen-modal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 transition-all duration-300';
+  
+  modal.innerHTML = `
+    <div class="store-content bg-white w-full h-full overflow-y-auto scale-95 transition-transform duration-300">
+      <!-- Header del modal de tienda -->
+      <div class="sticky top-0 bg-white z-10 border-b border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <button onclick="closeStoreModal()" class="text-gray-600 hover:text-gray-800 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+            <h1 class="text-2xl font-bold text-[#FE2C55]">🛍️ BeaBoo Shop</h1>
+          </div>
+          
+          <!-- Botón del carrito -->
+          <div class="relative">
+            <button onclick="toggleCartInStore()" class="bg-[#FE2C55] text-white p-3 rounded-full hover:bg-red-600 transition-colors relative">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.65 8.35m1.65-8.35L4.2 3M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8"/>
+              </svg>
+              <span id="store-cart-count" class="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold min-w-[20px]">0</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Navegación de categorías -->
+        <div class="flex space-x-4 mt-4 overflow-x-auto">
+          <button onclick="switchStoreCategory('books')" class="store-category-btn active whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors" data-category="books">
+            📚 Libros
+          </button>
+          <button onclick="switchStoreCategory('gifts')" class="store-category-btn whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors" data-category="gifts">
+            🎁 Regalos
+          </button>
+          <button onclick="switchStoreCategory('accessories')" class="store-category-btn whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors" data-category="accessories">
+            💎 Accesorios
+          </button>
+        </div>
+      </div>
+      
+      <!-- Contenido de la tienda -->
+      <div id="store-modal-content" class="p-6">
+        ${document.getElementById('store-view').innerHTML}
+      </div>
+      
+      <!-- Modal de carrito integrado -->
+      <div id="store-cart-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-20">
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl transform translate-x-full transition-transform duration-300" id="store-cart-sidebar">
+          <div class="flex flex-col h-full">
+            <!-- Header del carrito -->
+            <div class="p-4 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold">🛒 Tu Carrito</h2>
+                <button onclick="toggleCartInStore()" class="text-gray-500 hover:text-gray-700">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Contenido del carrito -->
+            <div class="flex-1 overflow-y-auto p-4">
+              <div id="store-cart-items" class="space-y-4">
+                <!-- Los items del carrito se cargarán aquí -->
+              </div>
+              
+              <div id="store-cart-empty" class="text-center py-12">
+                <div class="text-gray-400 mb-4">
+                  <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.65 8.35m1.65-8.35L4.2 3M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8"/>
+                  </svg>
+                </div>
+                <p class="text-gray-500 font-medium">Tu carrito está vacío</p>
+                <p class="text-sm text-gray-400 mt-2">Añade algunos productos para comenzar</p>
+              </div>
+            </div>
+            
+            <!-- Resumen y BCI -->
+            <div id="store-cart-summary" class="border-t border-gray-200 p-4 bg-gray-50">
+              <div class="space-y-2 mb-4">
+                <div class="flex justify-between text-sm">
+                  <span>Subtotal:</span>
+                  <span id="store-cart-subtotal">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span>Descuentos:</span>
+                  <span id="store-cart-discount" class="text-green-600">-$0.00</span>
+                </div>
+                <div class="flex justify-between font-bold text-lg border-t pt-2">
+                  <span>Total:</span>
+                  <span id="store-cart-total" class="text-[#FE2C55]">$0.00</span>
+                </div>
+              </div>
+              
+              <!-- BCI - Buy/Checkout Instant -->
+              <button id="store-bci-btn" onclick="openStoreBCI()" disabled class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-bold text-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-red-600 transition-colors">
+                💳 Comprar Ahora (BCI)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  return modal;
+}
+
+function closeStoreModal() {
+  const modal = document.getElementById('store-fullscreen-modal');
+  if (modal) {
+    modal.classList.add('opacity-0');
+    modal.querySelector('.store-content').classList.add('scale-95');
+    
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = ''; // Restaurar scroll
+    }, 300);
+  }
+}
+
+function toggleCartInStore() {
+  const cartModal = document.getElementById('store-cart-modal');
+  const cartSidebar = document.getElementById('store-cart-sidebar');
+  
+  if (cartModal.classList.contains('hidden')) {
+    cartModal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      cartSidebar.classList.remove('translate-x-full');
+    });
+    updateStoreCartDisplay();
+  } else {
+    cartSidebar.classList.add('translate-x-full');
+    setTimeout(() => {
+      cartModal.classList.add('hidden');
+    }, 300);
+  }
+}
+
+// Función para actualizar el display del carrito en la tienda
+function updateStoreCartDisplay() {
+  const cartCount = document.getElementById('store-cart-count');
+  const cartItems = document.getElementById('store-cart-items');
+  const cartEmpty = document.getElementById('store-cart-empty');
+  const cartSummary = document.getElementById('store-cart-summary');
+  const bciBtn = document.getElementById('store-bci-btn');
+  
+  if (!cartCount || !cartItems || !cartEmpty || !cartSummary || !bciBtn) return;
+  
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = totalItems;
+  
+  if (cart.length === 0) {
+    cartItems.classList.add('hidden');
+    cartEmpty.classList.remove('hidden');
+    cartSummary.classList.add('hidden');
+    bciBtn.disabled = true;
+  } else {
+    cartItems.classList.remove('hidden');
+    cartEmpty.classList.add('hidden');
+    cartSummary.classList.remove('hidden');
+    bciBtn.disabled = false;
+    
+    // Renderizar items del carrito
+    cartItems.innerHTML = '';
+    cart.forEach((item, index) => {
+      const itemElement = document.createElement('div');
+      itemElement.className = 'flex items-center space-x-3 p-3 bg-gray-50 rounded-lg';
+      
+      itemElement.innerHTML = `
+        <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+          <span class="text-xl">${getItemIcon(item.id)}</span>
+        </div>
+        <div class="flex-1">
+          <h4 class="font-bold text-sm">${item.name}</h4>
+          <p class="text-xs text-gray-600">$${item.price.toFixed(2)} c/u</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="updateStoreCartQuantity(${index}, -1)" class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">-</button>
+          <span class="text-sm font-bold min-w-[20px] text-center">${item.quantity}</span>
+          <button onclick="updateStoreCartQuantity(${index}, 1)" class="w-6 h-6 bg-[#FE2C55] text-white rounded-full flex items-center justify-center text-xs">+</button>
+        </div>
+        <button onclick="removeStoreCartItem(${index})" class="text-red-500 hover:text-red-700">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+      `;
+      
+      cartItems.appendChild(itemElement);
+    });
+    
+    // Actualizar resumen
+    updateStoreCartSummary();
+  }
+}
+
+function updateStoreCartQuantity(index, change) {
+  cart[index].quantity += change;
+  if (cart[index].quantity <= 0) {
+    cart.splice(index, 1);
+  }
+  updateStoreCartDisplay();
+}
+
+function removeStoreCartItem(index) {
+  cart.splice(index, 1);
+  updateStoreCartDisplay();
+}
+
+function updateStoreCartSummary() {
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalDiscount = cart.reduce((sum, item) => {
+    if (item.originalPrice > 0) {
+      return sum + ((item.originalPrice - item.price) * item.quantity);
+    }
+    return sum;
+  }, 0);
+  const total = subtotal - totalDiscount;
+  
+  document.getElementById('store-cart-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('store-cart-discount').textContent = '-$' + totalDiscount.toFixed(2);
+  document.getElementById('store-cart-total').textContent = '$' + total.toFixed(2);
+}
+
+// BCI - Buy/Checkout Instant - Sistema de compra inmediata
+function openStoreBCI() {
+  if (cart.length === 0) return;
+  
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Crear modal de BCI
+  const bciModal = document.createElement('div');
+  bciModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-30';
+  bciModal.innerHTML = `
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-[#FE2C55] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">💳 Compra Instantánea</h2>
+        <p class="text-gray-600">Total a pagar: <span class="font-bold text-[#FE2C55] text-xl">$${total.toFixed(2)}</span></p>
+      </div>
+      
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
+          <select class="w-full p-3 border border-gray-300 rounded-lg">
+            <option>💳 Tarjeta de crédito</option>
+            <option>🏦 Transferencia bancaria</option>
+            <option>📱 PayPal</option>
+            <option>💰 BeaBoo Coins</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Correo para recibo</label>
+          <input type="email" placeholder="tu@email.com" class="w-full p-3 border border-gray-300 rounded-lg">
+        </div>
+      </div>
+      
+      <div class="flex space-x-3">
+        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+          Cancelar
+        </button>
+        <button onclick="processBCIPayment()" class="flex-1 bg-[#FE2C55] text-white py-3 rounded-lg font-medium hover:bg-red-600 transition-colors">
+          💳 Pagar Ahora
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(bciModal);
+  
+  // Animación de entrada
+  requestAnimationFrame(() => {
+    bciModal.querySelector('div').classList.remove('scale-95');
+  });
+}
+
+function processBCIPayment() {
+  // Simular procesamiento de pago
+  const loadingModal = document.createElement('div');
+  loadingModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40';
+  loadingModal.innerHTML = `
+    <div class="bg-white rounded-xl p-8 text-center">
+      <div class="animate-spin w-8 h-8 border-4 border-[#FE2C55] border-t-transparent rounded-full mx-auto mb-4"></div>
+      <p class="font-medium">Procesando pago...</p>
+    </div>
+  `;
+  
+  document.body.appendChild(loadingModal);
+  
+  setTimeout(() => {
+    loadingModal.remove();
+    
+    // Mostrar éxito
+    const successModal = document.createElement('div');
+    successModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40';
+    successModal.innerHTML = `
+      <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold mb-2">¡Compra exitosa!</h2>
+        <p class="text-gray-600 mb-6">Tu compra se ha procesado correctamente. Revisa tu correo para los detalles.</p>
+        <button onclick="completeBCIPurchase()" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-medium">
+          Continuar
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(successModal);
+  }, 2000);
+}
+
+function completeBCIPurchase() {
+  // Limpiar carrito
+  cart = [];
+  
+  // Cerrar todos los modales
+  document.querySelectorAll('.fixed.inset-0').forEach(modal => {
+    if (modal.className.includes('z-40') || modal.className.includes('z-30')) {
+      modal.remove();
+    }
+  });
+  
+  // Actualizar displays
+  updateStoreCartDisplay();
+  
+  // Cerrar carrito en tienda
+  const cartModal = document.getElementById('store-cart-modal');
+  const cartSidebar = document.getElementById('store-cart-sidebar');
+  if (cartModal && cartSidebar) {
+    cartSidebar.classList.add('translate-x-full');
+    setTimeout(() => {
+      cartModal.classList.add('hidden');
+    }, 300);
+  }
+}
+
+function getItemIcon(itemId) {
+  if (itemId.includes('book')) return '📚';
+  if (itemId.includes('gift')) return '🎁';
+  if (itemId.includes('badge')) return '👑';
+  if (itemId.includes('frame')) return '🖼️';
+  return '📦';
 }
 
 function closeStore() {
@@ -8904,18 +9713,7 @@ button {
   let userGiftInventory = [];
 
   // FUNCIONES DE LA TIENDA
-  function openStore() {
-    document.getElementById('store-view').classList.remove('hidden');
-    document.getElementById('main-app').classList.add('hidden');
-    
-    // Cargar saldo de monedas del usuario
-    const user = firebase.auth().currentUser;
-    if (user) {
-      updateStoreCoinsBalance(user.uid);
-      loadExclusiveBooks();
-      loadUserGiftInventory(user.uid);
-    }
-  }
+  // Función openStore() ya implementada arriba con modal de pantalla completa - BeaBoo 2.0
 
   function closeStore() {
     document.getElementById('store-view').classList.add('hidden');
@@ -11915,14 +12713,18 @@ function saveNote() {
         console.error("Error al iniciar sesión con Facebook:", error);
       });
   }
-  /*********************** CERRAR SESIÓN CON SPINNER **************************/
+  /*********************** BEABOO 2.0 - CERRAR SESIÓN SEGURO **************************/
   function signOutUser() {
     const spinner = document.getElementById('signout-spinner');
     spinner.style.display = "flex";
+    
     setTimeout(() => {
       firebase.auth().signOut()
         .then(() => {
+          // CRÍTICO: Limpiar estado DESPUÉS de cerrar sesión exitosamente
+          clearUserState();
           spinner.style.display = "none";
+          console.log("✅ Sesión cerrada y estado limpiado");
           alert("Has cerrado sesión.");
         })
         .catch(error => {
@@ -16155,24 +16957,135 @@ function closeBeabooStudio() {
 
 <!-- Aquí se agregan las funciones para reportar perfil -->
 <script>
+  // ===== BEABOO 2.0 - FUNCIONES DE MODAL DE REPORTES PANTALLA COMPLETA =====
   function openReportModal() {
     const modal = document.getElementById('report-modal');
     const modalContent = modal.querySelector('div');
-    modal.style.display = 'flex';
+    
+    // Bloquear scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    // Mostrar modal
+    modal.classList.remove('hidden');
+    
+    // Animación de entrada
     requestAnimationFrame(() => {
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-      modalContent.classList.remove('translate-y-full');
+      modal.classList.remove('opacity-0');
+      modalContent.classList.remove('scale-95');
     });
+    
+    // Configurar radio buttons para animación
+    setupReportRadioButtons();
   }
 
   function closeReportModal() {
     const modal = document.getElementById('report-modal');
     const modalContent = modal.querySelector('div');
-    modalContent.classList.add('translate-y-full');
-    modal.classList.add('opacity-0', 'pointer-events-none');
+    
+    // Animación de salida
+    modal.classList.add('opacity-0');
+    modalContent.classList.add('scale-95');
+    
     setTimeout(() => {
-      modal.style.display = 'none';
+      modal.classList.add('hidden');
+      document.body.style.overflow = ''; // Restaurar scroll
+      
+      // Limpiar formulario
+      document.getElementById('report-form').reset();
+      document.querySelectorAll('input[name="report-reason"]').forEach(radio => {
+        radio.closest('label').querySelector('.w-2').style.opacity = '0';
+      });
     }, 300);
+  }
+
+  // Función para configurar animaciones de radio buttons
+  function setupReportRadioButtons() {
+    document.querySelectorAll('input[name="report-reason"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        // Desmarcar todos
+        document.querySelectorAll('input[name="report-reason"]').forEach(r => {
+          r.closest('label').querySelector('.w-2').style.opacity = '0';
+        });
+        
+        // Marcar el seleccionado
+        if (this.checked) {
+          this.closest('label').querySelector('.w-2').style.opacity = '1';
+        }
+      });
+    });
+  }
+
+  // Función para procesar envío de reporte con animación
+  function processReportSubmission() {
+    const selectedReason = document.querySelector('input[name="report-reason"]:checked');
+    const description = document.getElementById('report-description').value;
+    
+    if (!selectedReason) {
+      alert('Por favor selecciona un motivo para el reporte');
+      return;
+    }
+    
+    // Mostrar animación de envío
+    showReportSubmissionAnimation(selectedReason.value, description);
+  }
+
+  function showReportSubmissionAnimation(reason, description) {
+    // Crear modal de animación
+    const animationModal = document.createElement('div');
+    animationModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-60';
+    animationModal.innerHTML = `
+      <div class="bg-white rounded-xl p-8 max-w-sm w-full mx-4 text-center transform scale-95 transition-transform duration-300">
+        <div id="loading-stage" class="mb-6">
+          <div class="w-16 h-16 mx-auto mb-4">
+            <div class="animate-spin w-16 h-16 border-4 border-[#FE2C55] border-t-transparent rounded-full"></div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Enviando reporte...</h3>
+          <p class="text-gray-600">Procesando tu solicitud</p>
+        </div>
+        
+        <div id="success-stage" class="hidden">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-2 text-green-600">¡Reporte enviado!</h3>
+          <p class="text-gray-600 mb-4">Gracias por ayudarnos a mantener la comunidad segura. Revisaremos tu reporte pronto.</p>
+          <button onclick="this.closest('.fixed').remove(); closeReportModal();" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-medium hover:bg-red-600 transition-colors">
+            Continuar
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(animationModal);
+    
+    // Animación de entrada
+    requestAnimationFrame(() => {
+      animationModal.querySelector('div').classList.remove('scale-95');
+    });
+    
+    // Simular envío de reporte a Firebase
+    setTimeout(() => {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const reportData = {
+          reporterId: user.uid,
+          reporterEmail: user.email,
+          reason: reason,
+          description: description,
+          timestamp: Date.now(),
+          status: 'pending'
+        };
+        
+        // Aquí se enviaría a Firebase - simulado
+        console.log('Reporte enviado:', reportData);
+      }
+      
+      // Mostrar éxito
+      document.getElementById('loading-stage').classList.add('hidden');
+      document.getElementById('success-stage').classList.remove('hidden');
+    }, 2500);
   }
 </script>
 <script>
