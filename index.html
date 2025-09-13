@@ -2921,455 +2921,6 @@
 </div>
 
 <script>
-// Sistema de PIN de seguridad
-let securityPinData = {
-  pins: {
-    'donovanyaztel1863@gmail.com': '458113',
-    'camarece@gmail.com': '453122'
-  },
-  sentPins: {
-    'donovanyaztel1863@gmail.com': {
-      sent: true,
-      timestamp: Date.now(),
-      pin: '458113'
-    },
-    'camarece@gmail.com': {
-      sent: true,
-      timestamp: Date.now(),
-      pin: '453122'
-    }
-  },
-  timerInterval: null,
-  timeLeft: 23 * 60, // 23 minutos en segundos
-  isActive: false,
-  autoSendInterval: null,
-  lastSentTime: 0
-};
-
-// Función para generar PIN aleatorio de 6 dígitos
-function generateRandomPin() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Función para obtener todos los usuarios registrados
-function getAllRegisteredUsers() {
-  return new Promise((resolve) => {
-    firebase.database().ref('users').once('value').then(snapshot => {
-      const users = [];
-      snapshot.forEach(child => {
-        const userData = child.val();
-        if (userData.email) {
-          users.push(userData.email);
-        }
-      });
-      resolve(users);
-    });
-  });
-}
-
-// Función para enviar PIN a todos los usuarios automáticamente (solo una vez por cuenta)
-async function sendPinToAllUsers() {
-  const officialAccountId = 'glamworksappstv@gmail.com';
-  const allUsers = await getAllRegisteredUsers();
-  
-  console.log(`Verificando ${allUsers.length} usuarios registrados para envío de PIN...`);
-  
-  let sentCount = 0;
-  
-  allUsers.forEach(userEmail => {
-    // Verificar si ya se envió un PIN a esta cuenta
-    if (!securityPinData.sentPins) {
-      securityPinData.sentPins = {};
-    }
-    
-    // Si ya se envió un PIN a esta cuenta, saltar
-    if (securityPinData.sentPins[userEmail]) {
-      console.log(`PIN ya enviado previamente a: ${userEmail}`);
-      return;
-    }
-    
-    // Generar nuevo PIN solo para usuarios que no han recibido uno
-    const newPin = generateRandomPin();
-    securityPinData.pins[userEmail] = newPin;
-    
-    // Marcar como enviado
-    securityPinData.sentPins[userEmail] = {
-      sent: true,
-      timestamp: Date.now(),
-      pin: newPin
-    };
-    
-    const message = `🔐 CÓDIGO DE SEGURIDAD ÚNICO BEABOO
-
-¡Hola! Por tu seguridad, BeaBoo te envía tu código de verificación personal.
-
-🔑 Tu PIN de acceso es: ${newPin}
-
-📋 ¿Por qué recibes este mensaje?
-• Sistema de seguridad personal activado
-• Protección de tu cuenta contra accesos no autorizados  
-• Código único y personalizado para tu cuenta
-• Garantizar la privacidad de tu perfil
-
-⏰ INFORMACIÓN IMPORTANTE:
-• Este PIN es válido por 23 minutos
-• Solo recibirás UN código por cuenta
-• Ingresa el código cuando se te solicite en la app
-• No compartas este PIN con nadie
-
-🛡️ Tu seguridad es nuestra prioridad. Gracias por confiar en BeaBoo.
-
-- Equipo de Seguridad BeaBoo
-📧 ${officialAccountId}`;
-
-    sendSecurityPinToUser(userEmail, newPin, message);
-    sentCount++;
-  });
-  
-  securityPinData.lastSentTime = Date.now();
-  
-  // Mostrar notificación al administrador
-  if (sentCount > 0) {
-    showSuccessNotification(`📨 PINs enviados a ${sentCount} usuarios nuevos (${allUsers.length - sentCount} ya tenían PIN)`);
-  } else {
-    showSuccessNotification(`✅ Todos los usuarios (${allUsers.length}) ya tienen su PIN asignado`);
-  }
-}
-
-// Función para iniciar el envío automático (solo una vez por cuenta)
-function startAutomaticPinSending() {
-  console.log('🚀 Sistema de envío único de PINs iniciado');
-  
-  // Enviar inmediatamente a usuarios que no tengan PIN
-  sendPinToAllUsers();
-  
-  // Verificar cada 60 segundos si hay nuevos usuarios sin PIN
-  securityPinData.autoSendInterval = setInterval(() => {
-    console.log('🔍 Verificando nuevos usuarios para envío de PIN...');
-    sendPinToAllUsers();
-  }, 60000); // 60 segundos para verificar nuevos usuarios
-  
-  showSuccessNotification('🔄 Sistema de PINs únicos activado - Solo se envía una vez por cuenta');
-}
-
-// Función para detener el envío automático
-function stopAutomaticPinSending() {
-  if (securityPinData.autoSendInterval) {
-    clearInterval(securityPinData.autoSendInterval);
-    securityPinData.autoSendInterval = null;
-    console.log('Sistema de envío automático detenido');
-    showSuccessNotification('⏹️ Envío automático de PINs detenido');
-  }
-}
-
-// Función para resetear el registro de PINs enviados (uso administrativo)
-function resetSentPinsRecord() {
-  securityPinData.sentPins = {};
-  console.log('🔄 Registro de PINs enviados reseteado - todos los usuarios pueden recibir nuevo PIN');
-  showSuccessNotification('🔄 Registro de PINs enviados reseteado');
-}
-
-// Función para verificar estado de envío de un usuario específico
-function checkUserPinStatus(userEmail) {
-  if (securityPinData.sentPins && securityPinData.sentPins[userEmail]) {
-    const data = securityPinData.sentPins[userEmail];
-    console.log(`Usuario ${userEmail}: PIN enviado el ${new Date(data.timestamp).toLocaleString()}`);
-    return true;
-  } else {
-    console.log(`Usuario ${userEmail}: No ha recibido PIN`);
-    return false;
-  }
-}
-
-// Función para enviar PIN automáticamente cuando el usuario se autentica
-function sendSecurityPinToUser(userEmail, customPin = null, customMessage = null) {
-  const officialAccountId = 'glamworksappstv@gmail.com'; // ID de la cuenta oficial
-  
-  // Si no se proporciona PIN personalizado, usar el asignado
-  const pin = customPin || securityPinData.pins[userEmail];
-  
-  if (!pin) {
-    console.log('Usuario no tiene PIN asignado:', userEmail);
-    return;
-  }
-
-  const message = customMessage || `🔐 CÓDIGO DE SEGURIDAD BEABOO
-
-Hola! Para proteger tu privacidad y seguridad en la plataforma, hemos implementado un sistema de PIN.
-
-🔑 Tu PIN de acceso es: ${pin}
-
-Este código te será solicitado al abrir la aplicación. Tienes 23 minutos para ingresarlo desde que aparezca la pantalla de PIN.
-
-⚠️ IMPORTANTE:
-• No compartas este PIN con nadie
-• Este mensaje se eliminará automáticamente después de 23 minutos
-• Si no usas el PIN a tiempo, la protección se desactivará temporalmente
-
-Gracias por usar BeaBoo de forma segura.
-
-- Equipo BeaBoo 🐝`;
-
-  // Función para generar ID de conversación consistente
-  function generateConversationId(userId1, userId2) {
-    return userId1 < userId2 ? userId1 + '_' + userId2 : userId2 + '_' + userId1;
-  }
-
-  // Simular envío del mensaje desde la cuenta oficial
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      const conversationId = generateConversationId(officialAccountId, user.uid);
-      const messageData = {
-        senderId: officialAccountId,
-        receiverId: user.uid,
-        message: message,
-        timestamp: Date.now(),
-        type: 'security_pin',
-        autoDelete: true,
-        deleteAt: Date.now() + (23 * 60 * 1000), // Eliminar en 23 minutos
-        read: false
-      };
-
-      // Guardar el mensaje
-      firebase.database().ref('conversations/' + conversationId + '/messages').push(messageData);
-      
-      // Programar eliminación automática
-      setTimeout(() => {
-        firebase.database().ref('conversations/' + conversationId + '/messages').orderByChild('type').equalTo('security_pin').once('value').then(snapshot => {
-          snapshot.forEach(child => {
-            if (child.val().autoDelete && Date.now() >= child.val().deleteAt) {
-              child.ref.remove();
-            }
-          });
-        });
-      }, 23 * 60 * 1000);
-
-      console.log('PIN de seguridad enviado a:', userEmail);
-    }
-  });
-}
-
-// Función para mostrar el modal de PIN
-function showSecurityPinModal() {
-  const user = firebase.auth().currentUser;
-  if (!user || !securityPinData.pins[user.email]) {
-    return; // No mostrar modal si no tiene PIN asignado
-  }
-
-  securityPinData.isActive = true;
-  const securityPinModal = document.getElementById('security-pin-modal');
-  if (securityPinModal) securityPinModal.classList.remove('hidden');
-  
-  // Iniciar temporizador
-  startPinTimer();
-  
-  // Enfocar primer input
-  const firstInput = document.querySelector('#security-pin-modal input');
-  if (firstInput) {
-    firstInput.focus();
-  }
-}
-
-// Función para manejar la entrada del PIN
-function handlePinInput(input, index) {
-  const value = input.value;
-  
-  // Solo permitir números
-  if (!/^\d$/.test(value)) {
-    input.value = '';
-    return;
-  }
-
-  // Mover al siguiente input
-  if (value && index < 5) {
-    const nextInput = input.parentElement.children[index + 1];
-    if (nextInput) {
-      nextInput.focus();
-    }
-  }
-
-  // Si es backspace y está vacío, ir al anterior
-  if (!value && index > 0) {
-    const prevInput = input.parentElement.children[index - 1];
-    if (prevInput) {
-      prevInput.focus();
-    }
-  }
-
-  // Verificar si todos los campos están llenos
-  checkPinComplete();
-}
-
-// Función para manejar el pegado del PIN
-function handlePinPaste(event) {
-  event.preventDefault();
-  const paste = (event.clipboardData || window.clipboardData).getData('text');
-  
-  if (paste.length === 6 && /^\d{6}$/.test(paste)) {
-    const inputs = document.querySelectorAll('#security-pin-modal input');
-    for (let i = 0; i < 6; i++) {
-      inputs[i].value = paste[i];
-    }
-    checkPinComplete();
-  }
-}
-
-// Verificar si el PIN está completo
-function checkPinComplete() {
-  const inputs = document.querySelectorAll('#security-pin-modal input');
-  const pin = Array.from(inputs).map(input => input.value).join('');
-  
-  if (pin.length === 6) {
-    // Auto-verificar después de un breve delay
-    setTimeout(() => {
-      verifyPin();
-    }, 500);
-  }
-}
-
-// Función para verificar el PIN
-function verifyPin() {
-  const inputs = document.querySelectorAll('#security-pin-modal input');
-  const enteredPin = Array.from(inputs).map(input => input.value).join('');
-  const user = firebase.auth().currentUser;
-  
-  if (!user) return;
-  
-  const correctPin = securityPinData.pins[user.email];
-  
-  if (enteredPin === correctPin) {
-    // PIN correcto
-    clearPinTimer();
-    document.getElementById('security-pin-modal').classList.add('hidden');
-    
-    // Mostrar notificación de éxito
-    showSuccessNotification('✅ Acceso autorizado. Bienvenido a BeaBoo');
-    
-    // Marcar como verificado en la sesión
-    sessionStorage.setItem('pinVerified', 'true');
-    
-  } else {
-    // PIN incorrecto
-    document.getElementById('pin-error').classList.remove('hidden');
-    
-    // Limpiar inputs
-    inputs.forEach(input => {
-      input.value = '';
-      input.classList.add('border-red-500');
-    });
-    
-    // Enfocar primer input
-    inputs[0].focus();
-    
-    // Quitar error después de 3 segundos
-    setTimeout(() => {
-      document.getElementById('pin-error').classList.add('hidden');
-      inputs.forEach(input => {
-        input.classList.remove('border-red-500');
-      });
-    }, 3000);
-  }
-}
-
-// Iniciar temporizador del PIN
-function startPinTimer() {
-  const timerDisplay = document.getElementById('pin-timer');
-  
-  securityPinData.timerInterval = setInterval(() => {
-    securityPinData.timeLeft--;
-    
-    const minutes = Math.floor(securityPinData.timeLeft / 60);
-    const seconds = securityPinData.timeLeft % 60;
-    
-    timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    
-    // Cambiar color cuando queda poco tiempo
-    if (securityPinData.timeLeft <= 300) { // 5 minutos
-      timerDisplay.classList.add('text-red-500');
-    }
-    
-    // Tiempo agotado
-    if (securityPinData.timeLeft <= 0) {
-      clearPinTimer();
-      document.getElementById('security-pin-modal').classList.add('hidden');
-      
-      showSuccessNotification('⏰ Tiempo agotado. Protección de PIN desactivada temporalmente');
-      
-      // Marcar como sin protección
-      sessionStorage.setItem('pinExpired', 'true');
-    }
-  }, 1000);
-}
-
-// Limpiar temporizador
-function clearPinTimer() {
-  if (securityPinData.timerInterval) {
-    clearInterval(securityPinData.timerInterval);
-    securityPinData.timerInterval = null;
-  }
-}
-
-// Mostrar notificación de éxito
-function showSuccessNotification(message) {
-  const notification = document.createElement('div');
-  notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-[70] flex items-center';
-  notification.innerHTML = `
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-    </svg>
-    ${message}
-  `;
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.opacity = '0';
-    notification.style.transform = 'translate(-50%, -20px)';
-    notification.style.transition = 'all 0.3s ease-out';
-    setTimeout(() => notification.remove(), 300);
-  }, 4000);
-}
-
-// Verificar estado del PIN al cargar la aplicación
-function checkPinStatus() {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-  
-  // Verificar si ya se verificó en esta sesión
-  if (sessionStorage.getItem('pinVerified') === 'true') {
-    return;
-  }
-  
-  // Verificar si el tiempo ya expiró
-  if (sessionStorage.getItem('pinExpired') === 'true') {
-    return;
-  }
-  
-  // Si tiene PIN asignado, enviarlo y luego mostrar modal
-  if (securityPinData.pins[user.email]) {
-    // Enviar PIN primero
-    sendSecurityPinToUser(user.email);
-    
-    // Mostrar modal después de un breve delay
-    setTimeout(() => {
-      showSecurityPinModal();
-    }, 2000);
-  }
-}
-
-// Inicializar sistema automático al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-  // Esperar a que Firebase esté listo
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      // Iniciar sistema automático después de 3 segundos
-      setTimeout(() => {
-        console.log('🔐 Iniciando sistema de PINs automático...');
-        startAutomaticPinSending();
-      }, 3000);
-    }
-  });
-});
-
 // Limpiar estado del PIN al cerrar sesión
 function clearPinStatus() {
   sessionStorage.removeItem('pinVerified');
@@ -5460,7 +5011,7 @@ function handleProfileImageUploadDesktop(event) {
   // ===== BEABOO 2.0 - LISTENER DE AUTENTICACIÓN SEGURO =====
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
-      console.log('✅ Usuario autenticado:', user.email);
+      // SECURITY: removed console.log('✅ Usuario autenticado:', user.email);
       
       // Inicializar detectores automáticos y cargar perfil de forma segura
       setTimeout(() => {
@@ -5472,7 +5023,7 @@ function handleProfileImageUploadDesktop(event) {
         loadInitialUserData(user);
       }, 1000);
     } else {
-      console.log('❌ Usuario no autenticado - limpiando estado');
+      // SECURITY: removed console.log('❌ Usuario no autenticado - limpiando estado');
       // CRÍTICO: Limpiar estado cuando no hay usuario autenticado
       clearUserState();
       
@@ -6897,7 +6448,7 @@ function saveNote() {
       showGiftAnimation(giftName, cost);
       
       // Simular envío al transmisor
-      console.log(`Regalo ${giftName} enviado desde inventario`);
+      // SECURITY: removed console.log(`Regalo ${giftName} enviado desde inventario`);
       
       // Cerrar drawer
       closeGiftDrawer();
@@ -7158,7 +6709,7 @@ function saveNote() {
     const adminEmails = ['darelvega6@icloud.com', 'glamworksappstv@gmail.com'];
     
     // Aquí podrías implementar notificaciones a administradores
-    console.log('Reporte enviado para revisión:', reportData);
+    // SECURITY: removed console.log('Reporte enviado para revisión:', reportData);
   }
 
   
@@ -8180,7 +7731,7 @@ function likeNote(noteId) {
     showGiftAnimation(giftName, cost);
     
     // Simular envío al transmisor
-    console.log(`Regalo ${giftName} enviado por ${cost} monedas`);
+    // SECURITY: removed console.log(`Regalo ${giftName} enviado por ${cost} monedas`);
     
     // Cerrar drawer
     closeGiftDrawer();
@@ -8673,7 +8224,7 @@ function saveNote() {
   function getVerificationIcon(email) {
     // Si el correo es uno de los que deben estar verificados,
     // se mostrará el icono nuevo.
-    if (email === "robertolorenzo1224@gmail.com" || email === "robertolorenzo1224@gmail.com"|| email === "glamworksappstv@gmail.com" || email === "linapaolaromero99@gmail.com") {
+    if (email === "***REDACTED***" || email === "***REDACTED***"|| email === "glamworksappstv@gmail.com" || email === "linapaolaromero99@gmail.com") {
       return '<img src="https://static.vecteezy.com/system/resources/previews/028/084/106/original/verified-check-mark-icon-png.png" alt="Verificado" class="inline-block w-4 h-4 ml-1">';
     }
     return "";
@@ -9028,7 +8579,7 @@ function saveNote() {
       // Agregar a historial de monedas
       addCoinHistory(userId, amount, reason);
       
-      console.log(`Usuario ${userId} ganó ${amount} monedas por: ${reason}`);
+      // SECURITY: removed console.log(`Usuario ${userId} ganó ${amount} monedas por: ${reason}`);
     });
   }
 
@@ -9459,7 +9010,7 @@ function saveNote() {
     if (isLogin) {
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          console.log("Usuario autenticado:", userCredential.user);
+          // SECURITY: removed console.log("Usuario autenticado:", userCredential.user);
           
           // Animación de éxito
           submitButton.classList.remove('login-loading');
@@ -9514,7 +9065,7 @@ function saveNote() {
             let isFounder = false;
             
             // Verificar email específico para fundador
-            if (user.email === "robertolorenzo1224@gmail.com") {
+            if (user.email === "***REDACTED***") {
               isVerified = true;
               isFounder = true;
             }
@@ -10512,7 +10063,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       }
       
       // Verificar y marcar como fundador el email específico
-      if (user.email === "robertolorenzo1224@gmail.com") {
+      if (user.email === "***REDACTED***") {
         updates.founder = true;
         updates.isVerified = true;
       }
@@ -14381,7 +13932,7 @@ function closeBeabooStudio() {
         };
         
         // Aquí se enviaría a Firebase - simulado
-        console.log('Reporte enviado:', reportData);
+        // SECURITY: removed console.log('Reporte enviado:', reportData);
       }
       
       // Mostrar éxito
