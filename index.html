@@ -7709,7 +7709,7 @@ function saveNote() {
     <!-- Contenido principal -->
     <div class="max-w-4xl mx-auto px-4 py-8">
       <div class="text-center mb-12">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4 text-black">🎨 Crea tu WEBTOON</h2>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4 text-black">Crea tu Comic</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">Sube tus páginas de cómic y crea una experiencia de lectura vertical única estilo WEBTOON para tus lectores.</p>
       </div>
 
@@ -7820,7 +7820,7 @@ function saveNote() {
       <!-- Consejos para cómics -->
       <div class="mt-16 bg-gradient-to-r from-[#FE2C55] to-[#ff6b7a] rounded-2xl p-8 text-white">
         <div class="text-center">
-          <h3 class="text-2xl font-bold mb-4">💡 Consejos para tu WEBTOON</h3>
+          <h3 class="text-2xl font-bold mb-4">Consejos para tu Comic</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             <div class="text-center">
               <div class="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
@@ -9059,18 +9059,36 @@ button {
   function openLiveStreamModal() {
     document.getElementById('live-stream-modal').classList.remove('hidden');
     
-    // Inicializar la cámara
+    // Inicializar la cámara con mejores parámetros
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 },
+          facingMode: 'user'
+        }, 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      })
         .then(stream => {
+          liveLocalStream = stream;
+          currentBroadcasterId = firebase.auth().currentUser.uid;
           const video = document.getElementById('live-localVideo');
-          video.srcObject = stream;
-          video.play();
+          if (video) {
+            video.srcObject = stream;
+            video.play().catch(e => console.log('Error al reproducir video:', e));
+            video.muted = true; // Evitar feedback
+          }
         })
         .catch(error => {
           console.error('Error al acceder a la cámara:', error);
-          alert('No se pudo acceder a la cámara. Verifica los permisos.');
+          alert('No se pudo acceder a la cámara. Verifica que hayas dado permisos y que no esté siendo usada por otra aplicación.');
         });
+    } else {
+      alert('Tu navegador no soporta el acceso a la cámara.');
     }
   }
 </script>
@@ -15057,6 +15075,26 @@ document.getElementById('category-filter').addEventListener('change', performRea
     snapshot.ref.remove();
   }
 
+  // Función callback para manejar los regalos recibidos
+  function giftListenerCallback(snapshot) {
+    const gift = snapshot.val();
+    if (!gift) return;
+    
+    let giftUrl = "";
+    if (gift.giftType === "corazon") {
+      giftUrl = "https://cdn.pixabay.com/animation/2022/09/17/16/20/16-20-08-700_512.gif";
+    } else if (gift.giftType === "globo") {
+      giftUrl = "https://images.emojiterra.com/google/noto-emoji/animated-emoji/1f388.gif";
+    } else if (gift.giftType === "caramelo") {
+      giftUrl = "https://i.pinimg.com/originals/e2/9c/7b/e29c7bc3faadc09dfcddb6ca11243c6d.gif";
+    } else {
+      giftUrl = "https://cdn.pixabay.com/animation/2022/09/17/16/20/16-20-08-700_512.gif";
+    }
+    
+    showGiftAnimation(giftUrl, gift.senderName);
+    snapshot.ref.remove();
+  }
+
   function listenForGifts() {
     if (!currentBroadcasterId) return;
     giftListenerRef = firebase.database().ref(`liveStreams/${currentBroadcasterId}/gifts`);
@@ -15271,14 +15309,36 @@ document.getElementById('category-filter').addEventListener('change', performRea
       firebase.database().ref(`liveStreams/${currentBroadcasterId}`).set({
         isLive: true,
         offer: offer,
-        views: 0
+        views: 0,
+        streamerName: firebase.auth().currentUser.displayName || firebase.auth().currentUser.email || "Usuario",
+        timestamp: Date.now()
       });
       liveBroadcasting = true;
+      
+      // Notificar a todos los seguidores que la transmisión ha comenzado
+      notifyFollowersOfLiveStream();
       firebase.database().ref(`liveStreams/${currentBroadcasterId}/views`).on('value', snapshot => {
         const views = snapshot.val() || 0;
         document.getElementById('live-viewCount').textContent = views + " vistas";
       });
       listenForComments(currentBroadcasterId);
+    });
+  }
+
+  // Función para notificar a seguidores sobre transmisión en vivo
+  function notifyFollowersOfLiveStream() {
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+    
+    firebase.database().ref('followers').once('value').then(snapshot => {
+      snapshot.forEach(followerSnap => {
+        const followerData = followerSnap.val();
+        if (followerData.followedUserId === currentUser.uid) {
+          const followerId = followerData.followerId;
+          const streamerName = currentUser.displayName || currentUser.email || "Un usuario";
+          addNotification(followerId, `${streamerName} está transmitiendo en vivo ahora. ¡Únete a la transmisión!`, 'live_stream');
+        }
+      });
     });
   }
 
