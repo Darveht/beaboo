@@ -2828,6 +2828,11 @@ Gracias por usar BeaBoo de forma segura.
 
 - Equipo BeaBoo 🐝`;
 
+  // Función para generar ID de conversación consistente
+  function generateConversationId(userId1, userId2) {
+    return userId1 < userId2 ? userId1 + '_' + userId2 : userId2 + '_' + userId1;
+  }
+
   // Simular envío del mensaje desde la cuenta oficial
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
@@ -15103,6 +15108,13 @@ document.getElementById('category-filter').addEventListener('change', performRea
       alert("Debes estar autenticado para transmitir en vivo.");
       return;
     }
+    
+    // Verificación adicional de seguridad para evitar errores null
+    if (!user.uid) {
+      alert("Error de autenticación. Inicia sesión nuevamente.");
+      return;
+    }
+    
     // Todos los usuarios pueden transmitir en vivo
     if (!user.email) {
       alert("Por favor verifica tu correo electrónico para transmitir en vivo.");
