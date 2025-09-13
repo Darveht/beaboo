@@ -1557,6 +1557,9 @@
     }
   </style>
   <script>
+    /*********************** CONFIGURACIÓN GLOBAL ***********************/
+    const STORE_ENABLED = false; // Tienda completamente deshabilitada
+    
     /*********************** SISTEMA DE GESTIÓN DE FIREBASE (PREVIENE DUPLICADOS) ***********************/
     let firebaseListeners = {
       authListener: null,
@@ -1585,14 +1588,13 @@
         if (!firebaseListeners.initialized) {
           firebaseListeners.initialized = true;
           setupUserListeners(user);
-          initializeStore();
+          // initializeStore() removido - tienda deshabilitada
           loadFollowingStories();
           listenForUnreadMessages();
         }
       } else {
-        // Usuario no autenticado
-        cleanupAllListeners();
-        firebaseListeners.initialized = false;
+        // Usuario no autenticado - teardown completo
+        teardownApp();
       }
     }
 
@@ -1602,6 +1604,12 @@
         unsubscribe();
       });
       firebaseListeners.databaseListeners.clear();
+      
+      // Limpiar intervals para prevenir memory leaks
+      clearAllIntervals();
+      
+      // CRÍTICO: Reset initialized flag para permitir setup en siguiente login
+      firebaseListeners.initialized = false;
     }
 
     // Agregar listener de database con gestión automática
@@ -1713,29 +1721,91 @@
         }
       });
     }
-    // Sistema de inicialización unificado (corrige múltiples listeners)
+    // Sistema de inicialización unificado y seguro (CORRIGE BLOQUEOS)
     let appInitialized = false;
-    function initializeApp() {
-      if (appInitialized) return;
-      appInitialized = true;
+    let appInitPromise = null;
+    
+    function initAppOnce() {
+      // Prevenir múltiples inicializaciones concurrentes
+      if (appInitPromise) return appInitPromise;
+      if (appInitialized) return Promise.resolve();
       
-      setThemeBasedOnTime();
-      
-      if (window.innerWidth >= 1024) {
-        document.body.classList.add('desktop');
-      }
-      
-      organizeCarousels();
-      initializeLanguage();
-      
-      // Inicializar detectores con delay
-      setTimeout(() => {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          setupAutoDetectors();
-          forceProfileUpdate();
+      appInitPromise = new Promise((resolve) => {
+        // Marcar como inicializado inmediatamente para prevenir race conditions
+        appInitialized = true;
+        
+        console.log('Iniciando aplicación (modo seguro)');
+        
+        // Configuración básica
+        setThemeBasedOnTime();
+        
+        if (window.innerWidth >= 1024) {
+          document.body.classList.add('desktop');
         }
-      }, 2000);
+        
+        organizeCarousels();
+        initializeLanguage();
+        setupUniversalModalEscape();
+        
+        // Setup hardened overlays
+        hardenAllOverlays();
+        
+        resolve();
+      });
+      
+      return appInitPromise;
+    }
+    
+    // Función legacy mantenida por compatibilidad
+    function initializeApp() {
+      return initAppOnce();
+    }
+    
+    // Hardening de overlays para prevenir bloqueos (ALLOWLIST ESPECÍFICA)
+    function hardenAllOverlays() {
+      // Solo hardear modales conocidos que pueden causar bloqueos
+      const problematicModals = [
+        'blocked-error-modal',
+        'store-fullscreen-modal', 
+        'gift-drawer',
+        'live-stream-modal',
+        'admin-response-modal'
+      ];
+      
+      problematicModals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (modal && (!modal.style.display || modal.style.display === '')) {
+          modal.style.display = 'none';
+          modal.classList.add('hidden');
+          // NO establecer pointer-events para permitir interacción cuando se abra
+        }
+      });
+      
+      console.log('Overlays problemáticos hardeados:', problematicModals.length);
+    }
+    
+    // Teardown completo al desconectar (PREVIENE MEMORY LEAKS)
+    function teardownApp() {
+      console.log('Limpiando aplicación...');
+      
+      // Limpiar listeners y intervals
+      cleanupAllListeners();
+      clearAllIntervals();
+      
+      // Cerrar todos los overlays
+      document.querySelectorAll('[id*="modal"]:not(.hidden)').forEach(modal => {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+      });
+      
+      // Restaurar scroll
+      document.body.style.overflow = 'auto';
+      
+      // CRÍTICO: Reset flags para permitir re-inicialización en siguiente login
+      firebaseListeners.initialized = false;
+      
+      // App init se mantiene una vez por carga de página (no se resetea)
+      // appInitialized y appInitPromise permanecen para evitar re-init global
     }
 
     function organizeCarousels() {
@@ -1801,15 +1871,21 @@
       }
     }
 
-    // Una sola llamada de inicialización
+    // INICIALIZACIÓN PRINCIPAL - UNA SOLA VEZ (CORRIGE BLOQUEOS)
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function() {
-        initializeApp();
-        setupUniversalModalEscape();
+        initAppOnce().then(() => {
+          console.log('Aplicación inicializada exitosamente');
+        }).catch(error => {
+          console.error('Error al inicializar aplicación:', error);
+        });
       }, { once: true });
     } else {
-      initializeApp();
-      setupUniversalModalEscape();
+      initAppOnce().then(() => {
+        console.log('Aplicación inicializada exitosamente (ready state)');
+      }).catch(error => {
+        console.error('Error al inicializar aplicación:', error);
+      });
     }
     // Inicialización única de idioma
     let languageInitialized = false;
@@ -3558,8 +3634,9 @@ firebase.auth().onAuthStateChanged(user => {
           <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
         </svg>
       </button>
-      <button onclick="openStore()" class="flex flex-col items-center justify-center text-[#161823] hover:text-[#FE2C55] transition">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Tienda deshabilitada -->
+      <button class="flex flex-col items-center justify-center text-gray-400 cursor-not-allowed" disabled>
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" opacity="0.5">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
       </button>
@@ -5868,8 +5945,12 @@ function handleProfileImageUploadDesktop(event) {
 let cart = [];
 let storeBalance = 0;
 
-// Inicializar tienda
+// Inicializar tienda (DESHABILITADA)
 function initializeStore() {
+  if (!STORE_ENABLED) {
+    console.log('Tienda deshabilitada');
+    return;
+  }
   loadStoreBalance();
   updateCartDisplay();
   startOfferCountdown();
@@ -6276,6 +6357,10 @@ function startOfferCountdown() {
 // Funciones existentes modificadas
 // ===== BEABOO 2.0 - SISTEMA DE MODAL DE TIENDA PANTALLA COMPLETA =====
 function openStore() {
+  if (!STORE_ENABLED) {
+    alert('La tienda está temporalmente deshabilitada.');
+    return;
+  }
   const storeModal = createStoreModal();
   document.body.appendChild(storeModal);
   
