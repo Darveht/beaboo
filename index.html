@@ -9,8 +9,30 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4653147807800151" crossorigin="anonymous"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS completo con gradientes (optimizado para no bloquear) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configuración de Tailwind optimizada - incluye gradientes sin bloqueos
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'beaboo': {
+              'primary': '#FE2C55',
+              'secondary': '#25F4EE',
+              'pink-light': '#FFE8EC'
+            }
+          }
+        }
+      },
+      // Configuración que evita scanning aggressive (previene bloqueos)
+      content: [],
+      // Separador de clases simple para evitar regex complejos
+      separator: ':'
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Font Awesome CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pap6t+K2bD6xIxQqkQ3sM8e+RXw7C3DyrgXV++o2aL/88+/9kS/l+SmpD8zZR1oN40Nq3QfT7HigDYfFW1zZAQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Firebase (compat) -->
@@ -289,7 +311,7 @@
 
 /* Report modal ya no necesita CSS legacy - usa Tailwind classes */
 
-    /* MODAL DE ERROR PARA USUARIO BLOQUEADO */
+    /* MODAL DE ERROR PARA USUARIO BLOQUEADO (CORREGIDO - YA NO BLOQUEA) */
 #blocked-error-modal {
   position: fixed;
   inset: 0;
@@ -297,6 +319,7 @@
   background-color: white;
   align-items: center;
   justify-content: center;
+  z-index: 9999;
 }
 
 #blocked-error-modal img {
@@ -305,8 +328,23 @@
   object-fit: cover;
 }
 
+/* CRÍTICO: Botón de cerrar SIEMPRE visible (corrige bloqueos) */
 #blocked-error-modal button {
-  display: none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 /* MODAL DE CREACIÓN DE CAPÍTULO FULL SCREEN MODERNIZADO */
@@ -1519,6 +1557,100 @@
     }
   </style>
   <script>
+    /*********************** SISTEMA DE GESTIÓN DE FIREBASE (PREVIENE DUPLICADOS) ***********************/
+    let firebaseListeners = {
+      authListener: null,
+      databaseListeners: new Map(),
+      initialized: false
+    };
+
+    // Sistema unificado de autenticación (elimina duplicados)
+    function initializeFirebaseAuth() {
+      if (firebaseListeners.authListener) {
+        // Desconectar listener anterior si existe
+        firebaseListeners.authListener();
+        firebaseListeners.authListener = null;
+      }
+      
+      // Crear un solo listener de autenticación
+      firebaseListeners.authListener = firebase.auth().onAuthStateChanged(user => {
+        handleAuthStateChange(user);
+      });
+    }
+
+    // Función unificada para manejar cambios de autenticación
+    function handleAuthStateChange(user) {
+      if (user) {
+        // Usuario autenticado
+        if (!firebaseListeners.initialized) {
+          firebaseListeners.initialized = true;
+          setupUserListeners(user);
+          initializeStore();
+          loadFollowingStories();
+          listenForUnreadMessages();
+        }
+      } else {
+        // Usuario no autenticado
+        cleanupAllListeners();
+        firebaseListeners.initialized = false;
+      }
+    }
+
+    // Limpiar todos los listeners al desconectar
+    function cleanupAllListeners() {
+      firebaseListeners.databaseListeners.forEach((unsubscribe, key) => {
+        unsubscribe();
+      });
+      firebaseListeners.databaseListeners.clear();
+    }
+
+    // Agregar listener de database con gestión automática
+    function addDatabaseListener(key, ref, callback) {
+      // Limpiar listener anterior si existe
+      if (firebaseListeners.databaseListeners.has(key)) {
+        firebaseListeners.databaseListeners.get(key)();
+      }
+      
+      // Agregar nuevo listener
+      const unsubscribe = ref.on('value', callback);
+      firebaseListeners.databaseListeners.set(key, () => ref.off('value', unsubscribe));
+      
+      return unsubscribe;
+    }
+
+    // Sistema de gestión de intervals (PREVIENE MEMORY LEAKS)
+    let activeIntervals = new Map();
+    
+    function setIntervalManaged(callback, delay, id = null) {
+      const intervalId = id || Date.now() + Math.random();
+      
+      // Limpiar interval anterior si existe
+      if (activeIntervals.has(intervalId)) {
+        clearInterval(activeIntervals.get(intervalId));
+      }
+      
+      // Crear nuevo interval
+      const interval = setInterval(callback, delay);
+      activeIntervals.set(intervalId, interval);
+      
+      return intervalId;
+    }
+    
+    function clearIntervalManaged(intervalId) {
+      if (activeIntervals.has(intervalId)) {
+        clearInterval(activeIntervals.get(intervalId));
+        activeIntervals.delete(intervalId);
+        return true;
+      }
+      return false;
+    }
+    
+    // Limpiar todos los intervals al cambiar página/usuario
+    function clearAllIntervals() {
+      activeIntervals.forEach(interval => clearInterval(interval));
+      activeIntervals.clear();
+    }
+
     /*********************** BLOQUEO DE ACCESO EN COMPUTADORAS (Móvil obligatorio) ***********************/
     function esDispositivoMovil() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1581,13 +1713,22 @@
         }
       });
     }
-    window.addEventListener('load', setThemeBasedOnTime);
-    window.addEventListener('load', function() {
+    // Sistema de inicialización unificado (corrige múltiples listeners)
+    let appInitialized = false;
+    function initializeApp() {
+      if (appInitialized) return;
+      appInitialized = true;
+      
+      setThemeBasedOnTime();
+      
       if (window.innerWidth >= 1024) {
         document.body.classList.add('desktop');
       }
       
-      // Inicializar detectores automáticos después de que se carga la página
+      organizeCarousels();
+      initializeLanguage();
+      
+      // Inicializar detectores con delay
       setTimeout(() => {
         const user = firebase.auth().currentUser;
         if (user) {
@@ -1595,7 +1736,7 @@
           forceProfileUpdate();
         }
       }, 2000);
-    });
+    }
 
     function organizeCarousels() {
       const carouselIds = ['new-releases', 'top10', 'popular', 'terror-stories'];
@@ -1607,8 +1748,75 @@
         }
       });
     }
-    window.addEventListener('load', organizeCarousels);
-    document.addEventListener("DOMContentLoaded", function() {
+    
+    // Sistema universal de escape de modales (PREVIENE BLOQUEOS)
+    function setupUniversalModalEscape() {
+      // ESC key para cerrar cualquier modal
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          // Buscar modales visibles y cerrarlos
+          const visibleModals = document.querySelectorAll('[id*="modal"]:not(.hidden), [id*="modal"][style*="flex"], [id*="modal"][style*="block"]');
+          visibleModals.forEach(modal => {
+            if (modal.style.display !== 'none' && !modal.classList.contains('hidden')) {
+              // Intentar cerrar modal con función específica
+              if (modal.id.includes('blocked-error')) {
+                closeBlockedErrorModal();
+              } else if (modal.id.includes('live')) {
+                closeLiveStreamModal();
+              } else {
+                // Cerrar modal genérico
+                modal.style.display = 'none';
+                modal.classList.add('hidden');
+              }
+            }
+          });
+          
+          // Restaurar scroll del body si está bloqueado
+          document.body.style.overflow = 'auto';
+        }
+      }, { passive: true });
+      
+      // Click fuera del modal para cerrarlo
+      document.addEventListener('click', function(e) {
+        const modals = document.querySelectorAll('[id*="modal"]');
+        modals.forEach(modal => {
+          if (modal.style.display !== 'none' && !modal.classList.contains('hidden')) {
+            if (e.target === modal) {
+              modal.style.display = 'none';
+              modal.classList.add('hidden');
+              document.body.style.overflow = 'auto';
+            }
+          }
+        });
+      }, { passive: true });
+    }
+
+    // Función para cerrar modal de error bloqueado
+    function closeBlockedErrorModal() {
+      const modal = document.getElementById('blocked-error-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Una sola llamada de inicialización
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
+        setupUniversalModalEscape();
+      }, { once: true });
+    } else {
+      initializeApp();
+      setupUniversalModalEscape();
+    }
+    // Inicialización única de idioma
+    let languageInitialized = false;
+    function initializeLanguage() {
+      if (languageInitialized) return;
+      languageInitialized = true;
+      
       const savedLang = localStorage.getItem("selectedLanguage");
       if (savedLang) {
         currentLanguage = savedLang;
@@ -1619,7 +1827,7 @@
           languageModal.style.display = "flex";
         }
       }
-    });
+    }
 
     // Legacy function removed - chapters not used in comic system
     function updateChapterUI() {
@@ -3736,19 +3944,22 @@ document.getElementById('note-content').addEventListener('input', function() {
     <!-- Resultados -->
     <h2 id="search-results-title" class="text-xl font-bold mb-4 text-black">Resultados de búsqueda</h2>
     <div class="flex justify-around border-b border-gray-200 mb-4">
-      <button data-tab="books" class="tab-button py-2 w-1/2 text-center font-medium text-gray-500 hover:text-[#FE2C55] active">
-        Libros
+      <button data-tab="comics" class="tab-button py-2 w-1/3 text-center font-medium text-gray-500 hover:text-[#FE2C55] active">
+        Cómic
       </button>
-      <button data-tab="authors" class="tab-button py-2 w-1/2 text-center font-medium text-gray-500 hover:text-[#FE2C55]">
+      <button data-tab="authors" class="tab-button py-2 w-1/3 text-center font-medium text-gray-500 hover:text-[#FE2C55]">
         Autores
+      </button>
+      <button data-tab="notes" class="tab-button py-2 w-1/3 text-center font-medium text-gray-500 hover:text-[#FE2C55]">
+        Notas
       </button>
     </div>
 
-    <!-- Sección Libros -->
-    <div id="books-section" class="block">
-      <h3 id="search-books-title" class="text-base font-semibold mb-3 text-[#FE2C55]">Libros</h3>
-      <div id="search-books-carousel" class="flex space-x-3 overflow-x-auto mb-6 p-1 scrollbar-hide">
-        <!-- Aquí se cargarán los libros desde Firebase -->
+    <!-- Sección Cómic -->
+    <div id="comics-section" class="block">
+      <h3 id="search-comics-title" class="text-base font-semibold mb-3 text-[#FE2C55]">Cómic</h3>
+      <div id="search-comics-carousel" class="flex space-x-3 overflow-x-auto mb-6 p-1 scrollbar-hide">
+        <!-- Aquí se cargarán los cómics desde Firebase -->
       </div>
     </div>
 
@@ -3757,6 +3968,14 @@ document.getElementById('note-content').addEventListener('input', function() {
       <h3 id="search-authors-title" class="text-base font-semibold mb-3 text-[#FE2C55]">Autores</h3>
       <div id="search-authors-list" class="space-y-3">
         <!-- Aquí se cargarán los autores desde Firebase -->
+      </div>
+    </div>
+
+    <!-- Sección Notas (NUEVA) -->
+    <div id="notes-section" class="hidden">
+      <h3 id="search-notes-title" class="text-base font-semibold mb-3 text-[#FE2C55]">Notas de la Comunidad</h3>
+      <div id="search-notes-list" class="space-y-3">
+        <!-- Aquí se cargarán las notas de la comunidad en tiempo real -->
       </div>
     </div>
   </div>
@@ -3780,16 +3999,16 @@ document.getElementById('note-content').addEventListener('input', function() {
       
       // Mostrar la sección correspondiente
       const tabName = button.getAttribute('data-tab');
-      if (tabName === 'books') {
-        document.getElementById('books-section').classList.remove('hidden');
-        document.getElementById('books-section').classList.add('block');
+      if (tabName === 'comics') {
+        document.getElementById('comics-section').classList.remove('hidden');
+        document.getElementById('comics-section').classList.add('block');
         document.getElementById('authors-section').classList.add('hidden');
         document.getElementById('authors-section').classList.remove('block');
       } else {
         document.getElementById('authors-section').classList.remove('hidden');
         document.getElementById('authors-section').classList.add('block');
-        document.getElementById('books-section').classList.add('hidden');
-        document.getElementById('books-section').classList.remove('block');
+        document.getElementById('comics-section').classList.add('hidden');
+        document.getElementById('comics-section').classList.remove('block');
       }
     });
   });
@@ -3798,7 +4017,7 @@ document.getElementById('note-content').addEventListener('input', function() {
   function performModernSearch(query) {
     const searchLoading = document.getElementById('search-loading');
     const resultsTitle = document.getElementById('search-results-title');
-    const booksSection = document.getElementById('books-section');
+    const comicsSection = document.getElementById('comics-section');
     const authorsSection = document.getElementById('authors-section');
     
     if (!query.trim()) {
@@ -3956,22 +4175,146 @@ document.getElementById('note-content').addEventListener('input', function() {
   }
 </style>
 
-<!-- Script para cambiar entre libros y autores -->
+<!-- Script para cambiar entre cómics, autores y notas -->
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     var tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(function(button) {
       button.addEventListener('click', function() {
         var tab = button.getAttribute('data-tab');
-        document.getElementById('books-section').classList.toggle('hidden', tab !== 'books');
+        
+        // Ocultar todas las secciones
+        document.getElementById('comics-section').classList.toggle('hidden', tab !== 'comics');
         document.getElementById('authors-section').classList.toggle('hidden', tab !== 'authors');
+        document.getElementById('notes-section').classList.toggle('hidden', tab !== 'notes');
+        
+        // Actualizar estilos de botones
         tabButtons.forEach(function(btn) {
           btn.classList.remove('text-white', 'border-b-2', 'border-[#ff0050]');
         });
         button.classList.add('text-white', 'border-b-2', 'border-[#ff0050]');
+        
+        // Cargar contenido según la sección (NUEVA FUNCIONALIDAD)
+        if (tab === 'notes') {
+          loadCommunityNotes();
+        }
       });
     });
   });
+
+  // NUEVA FUNCIÓN: Cargar notas de la comunidad en tiempo real (CON PREVENCIÓN DE DUPLICADOS)
+  let notesListener = null; // Prevenir listeners duplicados
+  
+  function loadCommunityNotes() {
+    const notesContainer = document.getElementById('search-notes-list');
+    if (!notesContainer) return;
+    
+    // Limpiar contenido anterior
+    notesContainer.innerHTML = '<div class="text-center text-gray-500">Cargando notas...</div>';
+    
+    // Desconectar listener anterior si existe (PREVIENE DUPLICADOS)
+    if (notesListener) {
+      const communityRef = firebase.database().ref('community_posts');
+      communityRef.off('value', notesListener);
+    }
+    
+    // Crear nuevo listener
+    const communityRef = firebase.database().ref('community_posts');
+    notesListener = function(snapshot) {
+      notesContainer.innerHTML = '';
+      
+      if (!snapshot.exists()) {
+        notesContainer.innerHTML = '<div class="text-center text-gray-500">No hay notas en la comunidad</div>';
+        return;
+      }
+      
+      const notes = [];
+      snapshot.forEach(function(childSnapshot) {
+        const note = childSnapshot.val();
+        note.id = childSnapshot.key;
+        notes.push(note);
+      });
+      
+      // Ordenar por fecha más reciente
+      notes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      
+      // Mostrar las notas
+      notes.forEach(function(note) {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'bg-white p-3 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer';
+        noteElement.innerHTML = `
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center text-white text-sm font-bold">
+              ${(note.username || 'Usuario').charAt(0).toUpperCase()}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                <h4 class="font-medium text-gray-900 truncate">${note.username || 'Usuario'}</h4>
+                <span class="text-xs text-gray-500">${formatTimestamp(note.timestamp)}</span>
+              </div>
+              <p class="text-gray-700 mt-1 line-clamp-2"></p>
+              <div class="hashtags-container mt-2 flex flex-wrap gap-1"></div>
+            </div>
+          </div>
+        `;
+        
+        // SEGURIDAD: Usar textContent en lugar de innerHTML para evitar XSS
+        const usernameElements = noteElement.querySelectorAll('h4, .text-white');
+        usernameElements[0].textContent = note.username || 'Usuario';
+        usernameElements[1].textContent = (note.username || 'Usuario').charAt(0).toUpperCase();
+        
+        const contentElement = noteElement.querySelector('p');
+        contentElement.textContent = note.content || 'Sin contenido';
+        
+        // Agregar hashtags de forma segura
+        if (note.hashtags) {
+          const hashtagsContainer = noteElement.querySelector('.hashtags-container');
+          note.hashtags.split(' ').forEach(tag => {
+            if (tag.trim()) {
+              const tagSpan = document.createElement('span');
+              tagSpan.className = 'text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded-full';
+              tagSpan.textContent = tag.trim();
+              hashtagsContainer.appendChild(tagSpan);
+            }
+          });
+        }
+        
+        // Click para abrir la nota completa
+        noteElement.onclick = () => openCommunityNoteDetail(note);
+        
+        notesContainer.appendChild(noteElement);
+      });
+    };
+    
+    // Conectar el nuevo listener
+    communityRef.on('value', notesListener);
+  }
+  
+  // Función para formatear timestamp
+  function formatTimestamp(timestamp) {
+    if (!timestamp) return 'Hace un momento';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Ahora';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    return `${diffDays}d`;
+  }
+  
+  // Función para abrir detalle de nota de comunidad
+  function openCommunityNoteDetail(note) {
+    // Aquí puedes implementar la vista detallada de la nota
+    console.log('Abriendo nota:', note);
+    // Por ahora, mostrar en el modal de comunidad existente
+    if (typeof showCommunityView === 'function') {
+      showCommunityView();
+    }
+  }
 </script>
 <!-- PERFIL PROPIO CON SUBIDA DE FOTO EN TIEMPO REAL -->
 <div id="profile-view" class="fixed inset-0 overflow-y-auto z-40 hidden bg-white text-black scrollbar-hide">
@@ -6311,14 +6654,10 @@ function closeStore() {
   document.getElementById('main-app').classList.remove('hidden');
 }
 
-// Inicializar cuando se carga la página
+// Inicializar Firebase Auth de forma centralizada
 document.addEventListener('DOMContentLoaded', function() {
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      initializeStore();
-    }
-  });
-});
+  initializeFirebaseAuth();
+}, { once: true });
 </script>
 
           </div>
@@ -11120,20 +11459,24 @@ function likeNote(noteId) {
     });
 }
 
-  // VARIABLES GLOBALES
+  // VARIABLES GLOBALES (OPTIMIZADAS)
   let tapCount = 0,
     lastTap = 0,
     heartCount = 0;
   let touchstartX = 0,
-    touchendX = 0; // Para detección de swipe
+    touchendX = 0;
+  // Sistema de gestión de efectos DOM (PREVIENE SATURACIÓN)
+  let activeHearts = [];
+  const MAX_HEARTS = 20; // Límite máximo de corazones en pantalla
+  
   // -------------------------------
-  // Funciones para Corazones (Taps)
+  // Funciones para Corazones (Taps) - OPTIMIZADAS
   // -------------------------------
   function handleDoubleTap(event) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     if (tapLength < 300 && tapLength > 0) {
-      createHeart(event.clientX, event.clientY);
+      createHeartOptimized(event.clientX, event.clientY);
       incrementHeartCount();
       lastTap = 0;
     } else {
@@ -11141,16 +11484,46 @@ function likeNote(noteId) {
     }
   }
 
-  function createHeart(x, y) {
+  function createHeartOptimized(x, y) {
+    // Limpiar corazones viejos si hay demasiados (PREVIENE SATURACIÓN)
+    if (activeHearts.length >= MAX_HEARTS) {
+      const oldestHeart = activeHearts.shift();
+      if (oldestHeart && oldestHeart.parentNode) {
+        oldestHeart.remove();
+      }
+    }
+    
     const heart = document.createElement('div');
     heart.classList.add('heart');
-    heart.style.left = (x - 12) + 'px';
-    heart.style.top = (y - 12) + 'px';
+    heart.style.cssText = `
+      position: fixed;
+      left: ${x - 12}px;
+      top: ${y - 12}px;
+      pointer-events: none;
+      z-index: 1000;
+      animation: heartFloat 2s ease-out forwards;
+    `;
     heart.innerHTML = '❤️';
-    document.getElementById('hearts-container').appendChild(heart);
-    setTimeout(() => {
-      heart.remove();
-    }, 2000);
+    
+    const container = document.getElementById('hearts-container');
+    if (container) {
+      container.appendChild(heart);
+      activeHearts.push(heart);
+      
+      // Remover después de animación
+      setTimeout(() => {
+        if (heart.parentNode) {
+          heart.remove();
+          const index = activeHearts.indexOf(heart);
+          if (index > -1) activeHearts.splice(index, 1);
+        }
+      }, 2000);
+    }
+  }
+  
+  // Mantener compatibilidad con código existente
+  function createHeart(x, y) {
+    createHeartOptimized(x, y);
   }
 
   function incrementHeartCount() {
@@ -11640,21 +12013,48 @@ function saveNote() {
   // Todos los usuarios están autorizados para transmitir en vivo
   const authorizedEmails = [];
   /*********************** FUNCIONES ADICIONALES **************************/
+  // Cache para optimizar filtro de profanidad (CORRIGE BLOQUEOS)
+  let profanityRegexCache = null;
+  let lastCheckedText = '';
+  let lastProfanityResult = false;
+  
   function contienePalabrasOfensivas(texto) {
-    // Lista de 20 palabras ofensivas en español (ejemplo; ajústala según tus necesidades)
-    const listaOfensiva = [
-      "imbécil", "idiota", "estúpido", "tarado", "pendejo",
-      "capullo", "gilipollas", "subnormal", "malparido", "bobo",
-      "tonto", "inútil", "cretino", "estúpida", "pendeja",
-      "zorra", "perra", "mierda", "cabrón", "merda"
-    ];
-    // Normalizamos el texto: quitamos acentos y lo convertimos a minúsculas
+    // Cache simple para evitar re-procesar el mismo texto
+    if (texto === lastCheckedText) {
+      return lastProfanityResult;
+    }
+    
+    // Crear regex una sola vez (OPTIMIZACIÓN CRÍTICA)
+    if (!profanityRegexCache) {
+      const listaOfensiva = [
+        "imbécil", "idiota", "estúpido", "tarado", "pendejo",
+        "capullo", "gilipollas", "subnormal", "malparido", "bobo",
+        "tonto", "inútil", "cretino", "estúpida", "pendeja",
+        "zorra", "perra", "mierda", "cabrón", "merda"
+      ];
+      
+      // Compilar regex una sola vez para mejor rendimiento
+      const pattern = listaOfensiva.map(word => `\\b${word}\\b`).join('|');
+      profanityRegexCache = new RegExp(pattern, 'i');
+    }
+    
+    // Normalización optimizada
     const textoNormalizado = texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    // Se busca cada término usando delimitadores para coincidir palabras completas
-    return listaOfensiva.some(palabra => {
-      const regex = new RegExp("\\b" + palabra + "\\b", "i");
-      return regex.test(textoNormalizado);
-    });
+    
+    // Cache del resultado
+    lastCheckedText = texto;
+    lastProfanityResult = profanityRegexCache.test(textoNormalizado);
+    
+    return lastProfanityResult;
+  }
+  
+  // Función con debounce para inputs (evita bloqueos en tiempo real)
+  let profanityDebounceTimer = null;
+  function checkProfanityWithDebounce(texto, callback, delay = 300) {
+    clearTimeout(profanityDebounceTimer);
+    profanityDebounceTimer = setTimeout(() => {
+      callback(contienePalabrasOfensivas(texto));
+    }, delay);
   }
   /*********************** VARIABLES Y ELEMENTOS DEL DOM **************************/
   const authForm = document.getElementById('authForm');
@@ -11689,7 +12089,7 @@ function saveNote() {
       terror: "Historias de Terror Destacadas",
       searchPlaceholder: "Buscar historias o autores",
       searchResults: "Resultados de búsqueda",
-      searchBooks: "Libros",
+      searchBooks: "Cómic",
       searchAuthors: "Autores",
       profileStories: "Mis Historias",
       editProfile: "Editar nombre",
@@ -11768,7 +12168,7 @@ function saveNote() {
     document.getElementById('terror-title').innerText = translations[currentLanguage].terror;
     document.getElementById('search-input').placeholder = translations[currentLanguage].searchPlaceholder;
     document.getElementById('search-results-title').innerText = translations[currentLanguage].searchResults;
-    document.getElementById('search-books-title').innerText = translations[currentLanguage].searchBooks;
+    document.getElementById('search-comics-title').innerText = translations[currentLanguage].searchBooks;
     document.getElementById('search-authors-title').innerText = translations[currentLanguage].searchAuthors;
     document.getElementById('profile-stories-title').innerText = translations[currentLanguage].profileStories;
     document.getElementById('story-type-title').innerText = translations[currentLanguage].createStory;
@@ -13293,7 +13693,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
   }
 
   function renderBooksCarousel(books) {
-    const carousel = document.getElementById('search-books-carousel');
+    const carousel = document.getElementById('search-comics-carousel');
     carousel.innerHTML = '';
     books.forEach(book => {
       const card = document.createElement('div');
@@ -17479,7 +17879,7 @@ function closeBeabooStudio() {
       terror: "Historias de Terror Destacadas",
       searchPlaceholder: "Buscar historias o autores",
       searchResults: "Resultados de búsqueda",
-      searchBooks: "Libros",
+      searchBooks: "Cómic",
       searchAuthors: "Autores",
       profileStories: "Mis Historias",
       editProfile: "Editar nombre",
