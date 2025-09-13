@@ -6032,18 +6032,6 @@ function showAddToCartAnimation(itemName) {
 }
 
 // Actualizar display del carrito
-function updateCartDisplay() {
-  
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  cartCount.textContent = totalItems;
-  
-  if (cart.length === 0) {
-    cartItems.classList.add('hidden');
-    cartEmpty.classList.remove('hidden');
-    cartSummary.classList.add('hidden');
-    checkoutBtn.disabled = true;
-  } else {
-    cartItems.classList.remove('hidden');
     cartEmpty.classList.add('hidden');
     cartSummary.classList.remove('hidden');
     checkoutBtn.disabled = false;
@@ -6086,9 +6074,7 @@ function updateCartDisplay() {
 }
 
 // Cambiar cantidad
-    updateCartDisplay();
     closeCheckout();
-    toggleCart();
   }, 3000);
 }
 
@@ -6900,8 +6886,6 @@ function saveNote() {
     // Verificar si el usuario tiene el regalo en su inventario
     if (!userGiftInventory[giftName] || userGiftInventory[giftName] <= 0) {
       alert('No tienes este regalo en tu inventario. Ve a la tienda para comprarlo.');
-      openStore();
-      switchStoreCategory('gifts');
       return;
     }
 
@@ -8144,8 +8128,6 @@ function likeNote(noteId) {
         // Si no tiene regalos, mostrar mensaje y redirigir a tienda
         if (confirm('No tienes regalos en tu inventario. ¿Quieres ir a la tienda para comprar regalos?')) {
           closeGiftDrawer();
-          openStore();
-          switchStoreCategory('gifts');
           return;
         }
       }
