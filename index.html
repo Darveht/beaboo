@@ -1765,7 +1765,6 @@
       // Solo hardear modales conocidos que pueden causar bloqueos
       const problematicModals = [
         'blocked-error-modal',
-        'store-fullscreen-modal', 
         'gift-drawer',
         'live-stream-modal',
         'admin-response-modal'
@@ -6071,11 +6070,8 @@ function updateCartDisplay() {
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <button onclick="changeQuantity(${index}, -1)" class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">-</button>
           <span class="text-sm font-medium">${item.quantity}</span>
-          <button onclick="changeQuantity(${index}, 1)" class="w-6 h-6 bg-[#FE2C55] text-white rounded-full flex items-center justify-center text-xs">+</button>
         </div>
-        <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
           </svg>
@@ -6090,56 +6086,6 @@ function updateCartDisplay() {
 }
 
 // Cambiar cantidad
-function changeQuantity(index, change) {
-  cart[index].quantity += change;
-  if (cart[index].quantity <= 0) {
-    cart.splice(index, 1);
-  }
-  updateCartDisplay();
-}
-
-// Remover del carrito
-function removeFromCart(index) {
-  cart.splice(index, 1);
-  updateCartDisplay();
-}
-
-// Actualizar resumen del carrito
-function updateCartSummary() {
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const totalDiscount = cart.reduce((sum, item) => {
-    if (item.originalPrice > 0) {
-      return sum + ((item.originalPrice - item.price) * item.quantity);
-    }
-    return sum;
-  }, 0);
-  const total = subtotal;
-  
-  document.getElementById('cart-subtotal').textContent = '$' + subtotal.toFixed(2);
-  document.getElementById('cart-discount').textContent = '-$' + totalDiscount.toFixed(2);
-  if (cartSidebar) {
-    return;
-  }
-  const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-  
-  // Simular procesamiento de pago
-  const loadingDiv = document.createElement('div');
-  loadingDiv.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[80]';
-  loadingDiv.innerHTML = `
-    <div class="bg-white rounded-xl p-6 text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-[#FE2C55] mx-auto mb-4"></div>
-      <p class="font-medium">Procesando pago...</p>
-      <p class="text-sm text-gray-600">Método: ${paymentMethod}</p>
-    </div>
-  `;
-  document.body.appendChild(loadingDiv);
-  
-  setTimeout(() => {
-    loadingDiv.remove();
-    showPaymentSuccess();
-    
-    // Limpiar carrito y cerrar modals
-    cart = [];
     updateCartDisplay();
     closeCheckout();
     toggleCart();
@@ -6261,89 +6207,10 @@ function startOfferCountdown() {
   });
 }
 
-function processBCIPayment() {
-  // Simular procesamiento de pago
-  const loadingModal = document.createElement('div');
-  loadingModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40';
-  loadingModal.innerHTML = `
-    <div class="bg-white rounded-xl p-8 text-center">
-      <div class="animate-spin w-8 h-8 border-4 border-[#FE2C55] border-t-transparent rounded-full mx-auto mb-4"></div>
-      <p class="font-medium">Procesando pago...</p>
-    </div>
-  `;
-  
-  document.body.appendChild(loadingModal);
-  
-  setTimeout(() => {
-    loadingModal.remove();
-    
-    // Mostrar éxito
-    const successModal = document.createElement('div');
-    successModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40';
-    successModal.innerHTML = `
-      <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center">
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold mb-2">¡Compra exitosa!</h2>
-        <p class="text-gray-600 mb-6">Tu compra se ha procesado correctamente. Revisa tu correo para los detalles.</p>
-        <button onclick="completeBCIPurchase()" class="w-full bg-[#FE2C55] text-white py-3 rounded-lg font-medium">
-          Continuar
-        </button>
-      </div>
     `;
     
     document.body.appendChild(successModal);
   }, 2000);
-}
-
-function completeBCIPurchase() {
-  // Limpiar carrito
-  cart = [];
-  
-  // Cerrar todos los modales
-  document.querySelectorAll('.fixed.inset-0').forEach(modal => {
-    if (modal.className.includes('z-40') || modal.className.includes('z-30')) {
-      modal.remove();
-    }
-  });
-  
-  // Actualizar displays
-  updateStoreCartDisplay();
-  
-  // Cerrar carrito en tienda
-  const cartModal = document.getElementById('store-cart-modal');
-  const cartSidebar = document.getElementById('store-cart-sidebar');
-  if (cartModal && cartSidebar) {
-    cartSidebar.classList.add('translate-x-full');
-    setTimeout(() => {
-      cartModal.classList.add('hidden');
-    }, 300);
-  }
-}
-
-function getItemIcon(itemId) {
-  if (itemId.includes('book')) return '📚';
-  if (itemId.includes('gift')) return '🎁';
-  if (itemId.includes('badge')) return '👑';
-  if (itemId.includes('frame')) return '🖼️';
-  return '📦';
-}
-
-function closeStore() {
-    document.getElementById('store-view').classList.add('hidden');
-  }
-  const mainApp = document.getElementById('main-app');
-  if (mainApp) {
-    mainApp.classList.remove('hidden');
-  }
-}
-
-// Inicializar Firebase Auth de forma centralizada
-document.addEventListener('DOMContentLoaded', function() {
-  initializeFirebaseAuth();
 }, { once: true });
 </script>
 
@@ -6356,14 +6223,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
   function handleEditProfileImageUpload(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-      document.getElementById('edit-profile-image').src = e.target.result;
-    }
-    
-    if (file) {
       reader.readAsDataURL(file);
     }
   }
