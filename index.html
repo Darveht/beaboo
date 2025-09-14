@@ -1933,7 +1933,7 @@
     /*************** FIN FUNCIONES DE COMPRA DE MONEDAS ***************/
     /*********************** NUEVAS FUNCIONES PARA SUGERENCIAS Y AUTORES DESTACADOS ***********************/
     function loadSuggestedStories() {
-      firebase.database().ref('stories').once('value').then(snapshot => {
+      getStoriesDB().ref('stories').once('value').then(snapshot => {
         let stories = [];
         snapshot.forEach(child => {
           let story = child.val();
@@ -1964,7 +1964,7 @@
     }
 
     function loadFeaturedAuthors() {
-      firebase.database().ref('stories').once('value').then(snapshot => {
+      getStoriesDB().ref('stories').once('value').then(snapshot => {
         let authorCounts = {};
         snapshot.forEach(child => {
           let story = child.val();
@@ -1985,7 +1985,7 @@
         const container = document.getElementById('featured-authors');
         container.innerHTML = '';
         topAuthors.forEach(author => {
-          firebase.database().ref('users/' + author.uid).once('value').then(userSnap => {
+          getReportsDB().ref('users/' + author.uid).once('value').then(userSnap => {
             const userData = userSnap.val();
             const card = document.createElement('div');
             card.className = 'story-card cursor-pointer';
@@ -3040,18 +3040,18 @@ function loadFollowingStories() {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  firebase.database().ref('following/' + user.uid).once('value').then(followingSnap => {
+  getReportsDB().ref('following/' + user.uid).once('value').then(followingSnap => {
     const followingStoriesDiv = document.getElementById('following-stories');
     followingStoriesDiv.innerHTML = '';
 
     followingSnap.forEach(following => {
       const followedUserId = following.key;
       
-      firebase.database().ref('users/' + followedUserId).once('value').then(userSnap => {
+      getReportsDB().ref('users/' + followedUserId).once('value').then(userSnap => {
         const userData = userSnap.val();
         
         // Verificar actualizaciones recientes (últimas 24 horas)
-        firebase.database().ref('stories').orderByChild('userId').equalTo(followedUserId).once('value').then(storiesSnap => {
+        getStoriesDB().ref('stories').orderByChild('userId').equalTo(followedUserId).once('value').then(storiesSnap => {
           let hasNewContent = false;
           let latestStoryId = null;
           
@@ -3840,12 +3840,12 @@ document.getElementById('note-content').addEventListener('input', function() {
     
     // Desconectar listener anterior si existe (PREVIENE DUPLICADOS)
     if (notesListener) {
-      const communityRef = firebase.database().ref('community_posts');
+      const communityRef = getCommunityDB().ref('community_posts');
       communityRef.off('value', notesListener);
     }
     
     // Crear nuevo listener
-    const communityRef = firebase.database().ref('community_posts');
+    const communityRef = getCommunityDB().ref('community_posts');
     notesListener = function(snapshot) {
       notesContainer.innerHTML = '';
       
@@ -4265,7 +4265,7 @@ function handleProfileImageUploadDesktop(event) {
     // Guardar en Firebase
     const user = firebase.auth().currentUser;
     if (user) {
-      firebase.database().ref('users/' + user.uid).update({
+      getReportsDB().ref('users/' + user.uid).update({
         profileImage: e.target.result
       });
     }
@@ -4303,13 +4303,13 @@ function handleProfileImageUploadDesktop(event) {
     const user = firebase.auth().currentUser;
     if (user) {
       // Cargar imagen inicial
-      firebase.database().ref('users/' + user.uid + '/profileImage').once('value').then(snapshot => {
+      getReportsDB().ref('users/' + user.uid + '/profileImage').once('value').then(snapshot => {
         const profileImage = snapshot.val();
         updateAllProfileImages(profileImage);
       });
 
       // Escuchar cambios en tiempo real
-      firebase.database().ref('users/' + user.uid + '/profileImage').on('value', snapshot => {
+      getReportsDB().ref('users/' + user.uid + '/profileImage').on('value', snapshot => {
         const profileImage = snapshot.val();
         updateAllProfileImages(profileImage);
       });
@@ -4322,7 +4322,7 @@ function handleProfileImageUploadDesktop(event) {
     if (!user) return;
 
     // Detector de cambios en foto de perfil
-    firebase.database().ref('users/' + user.uid).on('value', snapshot => {
+    getReportsDB().ref('users/' + user.uid).on('value', snapshot => {
       const userData = snapshot.val();
       if (userData) {
         // Actualizar foto de perfil automáticamente
@@ -4469,7 +4469,7 @@ function handleProfileImageUploadDesktop(event) {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
-    firebase.database().ref('recentlyRead/' + user.uid).orderByChild('lastRead').limitToLast(20).once('value').then(snapshot => {
+    getStoriesDB().ref('recentlyRead/' + user.uid).orderByChild('lastRead').limitToLast(20).once('value').then(snapshot => {
       const recentList = document.getElementById('recently-read-list');
       const emptyState = document.getElementById('recently-read-empty');
       
@@ -4496,7 +4496,7 @@ function handleProfileImageUploadDesktop(event) {
       updateRecentCount(recentStories.length);
 
       recentStories.forEach(recent => {
-        firebase.database().ref('stories/' + recent.storyId).once('value').then(storySnap => {
+        getStoriesDB().ref('stories/' + recent.storyId).once('value').then(storySnap => {
           const story = storySnap.val();
           if (story) {
             const recentItem = document.createElement('div');
@@ -4567,7 +4567,7 @@ function handleProfileImageUploadDesktop(event) {
       lastRead: Date.now()
     };
 
-    firebase.database().ref('recentlyRead/' + user.uid + '/' + storyId).set(progressData);
+    getStoriesDB().ref('recentlyRead/' + user.uid + '/' + storyId).set(progressData);
   }
 
   // FUNCIONES PARA MEMBRESÍA
@@ -4651,7 +4651,7 @@ function handleProfileImageUploadDesktop(event) {
       // Actualizar estado del usuario en Firebase
       const user = firebase.auth().currentUser;
       if (user) {
-        firebase.database().ref('users/' + user.uid + '/membership').set({
+        getReportsDB().ref('users/' + user.uid + '/membership').set({
           plan: planType,
           subscribedAt: Date.now(),
           active: true
@@ -4719,7 +4719,7 @@ function handleProfileImageUploadDesktop(event) {
       return;
     }
 
-    firebase.database().ref('users/' + user.uid).update({
+    getReportsDB().ref('users/' + user.uid).update({
       profileImage: imageDataUrl,
       profileUpdatedAt: Date.now()
     }).then(() => {
@@ -4767,7 +4767,7 @@ function handleProfileImageUploadDesktop(event) {
       return;
     }
 
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       // Verificar que el usuario sigue siendo el mismo después de la consulta async
       const currentUser = firebase.auth().currentUser;
       if (!currentUser || currentUser.uid !== user.uid) {
@@ -4954,7 +4954,7 @@ function handleProfileImageUploadDesktop(event) {
   function forceProfileUpdate() {
     const user = firebase.auth().currentUser;
     if (user) {
-      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
         const userData = snapshot.val();
         if (userData) {
           updateAllProfileImages(userData.profileImage);
@@ -5039,7 +5039,7 @@ function handleProfileImageUploadDesktop(event) {
 
   // Función para cargar datos iniciales del usuario
   function loadInitialUserData(user) {
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val();
       if (userData) {
         console.log('Datos del usuario cargados:', userData);
@@ -5074,7 +5074,7 @@ function handleProfileImageUploadDesktop(event) {
       following: {}
     };
 
-    firebase.database().ref('users/' + user.uid).set(defaultUserData).then(() => {
+    getReportsDB().ref('users/' + user.uid).set(defaultUserData).then(() => {
       console.log('Perfil de usuario creado exitosamente');
       updateAllProfileImages(defaultUserData.profileImage);
       updateAllUsernames(defaultUserData.username);
@@ -5491,7 +5491,7 @@ function handleProfileImageUploadDesktop(event) {
 function applyProfileFrame(user, itemId, itemName) {
   if (!user) return;
 
-  firebase.database().ref('users/' + user.uid + '/profileFrame').set(itemId).then(() => {
+  getReportsDB().ref('users/' + user.uid + '/profileFrame').set(itemId).then(() => {
     showAddToCartAnimation(`${itemName} aplicado correctamente`);
     
     // Actualizar el marco en la interfaz si está visible
@@ -5870,7 +5870,7 @@ function saveNote() {
   
   if (!noteText || !currentUser) return;
   
-  firebase.database().ref('profileNotes/' + currentUser.uid).set({
+  getReportsDB().ref('profileNotes/' + currentUser.uid).set({
     text: noteText,
     timestamp: Date.now()
   }).then(() => {
@@ -6160,7 +6160,7 @@ function saveNote() {
     const photosContainer = photosFeed.querySelector('.grid');
     photosContainer.innerHTML = '';
 
-    firebase.database().ref('communityNotes').orderByChild('timestamp').once('value').then(snapshot => {
+    getCommunityDB().ref('communityNotes').orderByChild('timestamp').once('value').then(snapshot => {
       const photos = [];
       snapshot.forEach(child => {
         const note = child.val();
@@ -6230,7 +6230,7 @@ function saveNote() {
     if (!user) return;
 
     // Verificar saldo
-    firebase.database().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
       const currentCoins = snapshot.val() || 0;
       
       if (currentCoins < cost) {
@@ -6260,7 +6260,7 @@ function saveNote() {
       updates[`/users/${userId}/giftInventory/${itemId}`] = firebase.database.ServerValue.increment(1);
     }
 
-    firebase.database().ref().update(updates).then(() => {
+    getReportsDB().ref().update(updates).then(() => {
       addCoinHistory(userId, -cost, `Comprar ${itemType}: ${itemId}`);
       
       let message = '';
@@ -6280,7 +6280,7 @@ function saveNote() {
   }
 
   function loadExclusiveBooks() {
-    firebase.database().ref('stories').orderByChild('views').once('value').then(snapshot => {
+    getStoriesDB().ref('stories').orderByChild('views').once('value').then(snapshot => {
       const exclusiveBooks = [];
       
       snapshot.forEach(child => {
@@ -6371,7 +6371,7 @@ function saveNote() {
     if (!user) return;
 
     // Verificar saldo
-    firebase.database().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
       const currentCoins = snapshot.val() || 0;
       
       if (currentCoins < currentBookDetail.price) {
@@ -6388,7 +6388,7 @@ function saveNote() {
         title: currentBookDetail.title
       };
 
-      firebase.database().ref().update(updates).then(() => {
+      getReportsDB().ref().update(updates).then(() => {
         addCoinHistory(user.uid, -currentBookDetail.price, `Comprar libro: ${currentBookDetail.title}`);
         closeBookDetail();
         showPurchaseConfirmation(`¡Has comprado "${currentBookDetail.title}"! Ya puedes leer todos los capítulos.`);
@@ -6408,7 +6408,7 @@ function saveNote() {
         const updates = {};
         updates[`/users/${user.uid}/coins`] = firebase.database.ServerValue.increment(amount);
         
-        firebase.database().ref().update(updates).then(() => {
+        getReportsDB().ref().update(updates).then(() => {
           addCoinHistory(user.uid, amount, `Compra de monedas - $${price}`);
           showPurchaseConfirmation(`¡Compra exitosa! Se agregaron ${amount} monedas a tu cuenta.`);
           updateStoreCoinsBalance(user.uid);
@@ -6442,7 +6442,7 @@ function saveNote() {
   }
 
   function loadUserGiftInventory(userId) {
-    firebase.database().ref('users/' + userId + '/giftInventory').on('value', snapshot => {
+    getReportsDB().ref('users/' + userId + '/giftInventory').on('value', snapshot => {
       userGiftInventory = snapshot.val() || {};
       updateGiftDrawerWithInventory();
     });
@@ -6465,7 +6465,7 @@ function saveNote() {
     }
 
     // Usar el regalo del inventario
-    firebase.database().ref('users/' + user.uid + '/giftInventory/' + giftName).transaction(currentAmount => {
+    getReportsDB().ref('users/' + user.uid + '/giftInventory/' + giftName).transaction(currentAmount => {
       return Math.max(0, (currentAmount || 0) - 1);
     }).then(() => {
       // Mostrar animación de regalo enviado
@@ -6499,7 +6499,7 @@ function saveNote() {
     const blockedUsersList = document.getElementById('blocked-users-list');
     const noBlockedUsers = document.getElementById('no-blocked-users');
 
-    firebase.database().ref('blockedUsers/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('blockedUsers/' + user.uid).once('value').then(snapshot => {
       blockedUsersList.innerHTML = '';
 
       if (!snapshot.exists()) {
@@ -6516,7 +6516,7 @@ function saveNote() {
         const blockedUserId = child.key;
         const blockedData = child.val();
         
-        const promise = firebase.database().ref('users/' + blockedUserId).once('value').then(userSnapshot => {
+        const promise = getReportsDB().ref('users/' + blockedUserId).once('value').then(userSnapshot => {
           const userData = userSnapshot.val();
           if (userData) {
             const userElement = document.createElement('div');
@@ -6558,7 +6558,7 @@ function saveNote() {
         blockedAt: Date.now()
       };
 
-      firebase.database().ref().update(updates).then(() => {
+      getReportsDB().ref().update(updates).then(() => {
         alert('Usuario bloqueado correctamente');
         
         // Actualizar UI si estamos en el perfil del autor
@@ -6595,7 +6595,7 @@ function saveNote() {
       updates[`/blockedUsers/${user.uid}/${userId}`] = null;
       updates[`/blockedBy/${userId}/${user.uid}`] = null;
 
-      firebase.database().ref().update(updates).then(() => {
+      getReportsDB().ref().update(updates).then(() => {
         alert('Usuario desbloqueado correctamente');
         
         // Actualizar UI si estamos en el perfil del autor
@@ -6714,7 +6714,7 @@ function saveNote() {
       status: 'pending'
     };
 
-    firebase.database().ref('storyReports').push(reportData)
+    getReportsDB().ref('storyReports').push(reportData)
       .then(() => {
         closeReportStoryModal();
         document.getElementById('report-story-success-modal').classList.remove('hidden');
@@ -6744,7 +6744,7 @@ function saveNote() {
     if (!user) return;
 
     // Actualizar display de monedas - usar listener en tiempo real
-    firebase.database().ref('users/' + user.uid + '/coins').on('value', snapshot => {
+    getReportsDB().ref('users/' + user.uid + '/coins').on('value', snapshot => {
       const coins = snapshot.val() || 0;
       const frameCoinsElement = document.getElementById('frame-selector-coins');
       if (frameCoinsElement) {
@@ -6831,7 +6831,7 @@ function saveNote() {
     }
 
     // Guardar en Firebase para que otros usuarios lo vean
-    firebase.database().ref('users/' + user.uid).update({
+    getReportsDB().ref('users/' + user.uid).update({
       profileFrame: frameType
     }).then(() => {
       // Verificar que el marco se guardó correctamente
@@ -6877,7 +6877,7 @@ function saveNote() {
       cost: cost
     };
 
-    firebase.database().ref().update(updates).then(() => {
+    getReportsDB().ref().update(updates).then(() => {
       // Agregar al historial de monedas
       addCoinHistory(user.uid, -cost, `Comprar marco: ${frameType}`);
       
@@ -7280,7 +7280,7 @@ function saveNote() {
     publishButton.disabled = true;
     publishButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
 
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val();
       const note = {
         content: content,
@@ -7915,7 +7915,7 @@ function likeNote(noteId) {
     if (!user) return;
     
     // Cargar datos del usuario transmisor
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val();
       if (userData) {
         document.getElementById('streamerName').textContent = userData.username || 'Usuario';
@@ -8022,7 +8022,7 @@ function saveNote() {
   
   if (!noteText || !currentUser) return;
   
-  firebase.database().ref('profileNotes/' + currentUser.uid).set({
+  getReportsDB().ref('profileNotes/' + currentUser.uid).set({
     text: noteText,
     timestamp: Date.now()
   }).then(() => {
@@ -8101,8 +8101,22 @@ function saveNote() {
 
 <!-- JAVASCRIPT -->
 <script>
-  /*********************** CONFIGURACIÓN DE FIREBASE **************************/
-  const firebaseConfig = {
+  /*********************** MULTI-FIREBASE CONFIGURATION **************************/
+  
+  // Stories Firebase (clack-koder) - for story storage
+  const storiesFirebaseConfig = {
+    apiKey: "AIzaSyCFQ_geG0HIv2EZ-bfKc97TJNtf2sdqPzc",
+    authDomain: "clack-koder.firebaseapp.com",
+    databaseURL: "https://clack-koder-default-rtdb.firebaseio.com",
+    projectId: "clack-koder",
+    storageBucket: "clack-koder.firebasestorage.app",
+    messagingSenderId: "478151254938",
+    appId: "1:478151254938:web:e2c00e3a5426bd192b9023",
+    measurementId: "G-P29ME5Z3S1"
+  };
+
+  // Reports Firebase (noble-amp-458106-g0) - for reports, profiles, and virtual coins
+  const reportsFirebaseConfig = {
     apiKey: "AIzaSyBWBr3sud1_lDPmtLJI42pCBZnco5_vyCc",
     authDomain: "noble-amp-458106-g0.firebaseapp.com",
     databaseURL: "https://noble-amp-458106-g0-default-rtdb.firebaseio.com",
@@ -8112,7 +8126,169 @@ function saveNote() {
     appId: "1:744574411059:web:72a70955f1400df6645e46",
     measurementId: "G-XEQ1J354HM"
   };
-  firebase.initializeApp(firebaseConfig);
+
+  // Community Firebase (sample-firebase-ai-app-e9a68) - for community notes
+  const communityFirebaseConfig = {
+    apiKey: "AIzaSyCKF1-tMBs3QCAbDMijCASWXj6YaGQveuo",
+    authDomain: "sample-firebase-ai-app-e9a68.firebaseapp.com",
+    databaseURL: "https://sample-firebase-ai-app-e9a68-default-rtdb.firebaseio.com",
+    projectId: "sample-firebase-ai-app-e9a68",
+    storageBucket: "sample-firebase-ai-app-e9a68.firebasestorage.app",
+    messagingSenderId: "14072453893",
+    appId: "1:14072453893:web:812afd4fb734a98f37f56c"
+  };
+
+  // Initialize Firebase apps
+  const storiesApp = firebase.initializeApp(storiesFirebaseConfig, 'stories');
+  const reportsApp = firebase.initializeApp(reportsFirebaseConfig, 'reports');
+  const communityApp = firebase.initializeApp(communityFirebaseConfig, 'community');
+
+  // Initialize the default app for authentication (using reports config)
+  firebase.initializeApp(reportsFirebaseConfig);
+
+  // Create database references for each Firebase instance
+  const storiesDB = firebase.database(storiesApp);
+  const reportsDB = firebase.database(reportsApp);
+  const communityDB = firebase.database(communityApp);
+
+  // Helper functions to get the appropriate database reference
+  function getStoriesDB() {
+    return storiesDB;
+  }
+
+  function getReportsDB() {
+    return reportsDB;
+  }
+
+  function getCommunityDB() {
+    return communityDB;
+  }
+
+  // Multi-Firebase Authentication Helper Functions
+  let storiesAuth = null;
+  let communityAuth = null;
+  let authenticationStatus = {
+    reports: false,
+    stories: false,
+    community: false
+  };
+
+  // Initialize auth instances for each Firebase app
+  function initializeAuthInstances() {
+    try {
+      storiesAuth = firebase.auth(storiesApp);
+      communityAuth = firebase.auth(communityApp);
+    } catch (error) {
+      console.error('Error initializing auth instances:', error);
+    }
+  }
+
+  // Authenticate with Stories Firebase (anonymous)
+  function authenticateStoriesFirebase() {
+    return new Promise((resolve, reject) => {
+      if (!storiesAuth) {
+        initializeAuthInstances();
+      }
+      
+      storiesAuth.signInAnonymously()
+        .then((userCredential) => {
+          authenticationStatus.stories = true;
+          console.log('✅ Stories Firebase authenticated anonymously');
+          resolve(userCredential);
+        })
+        .catch((error) => {
+          console.error('❌ Stories Firebase authentication failed:', error);
+          authenticationStatus.stories = false;
+          reject(error);
+        });
+    });
+  }
+
+  // Authenticate with Community Firebase (anonymous)
+  function authenticateCommunityFirebase() {
+    return new Promise((resolve, reject) => {
+      if (!communityAuth) {
+        initializeAuthInstances();
+      }
+      
+      communityAuth.signInAnonymously()
+        .then((userCredential) => {
+          authenticationStatus.community = true;
+          console.log('✅ Community Firebase authenticated anonymously');
+          resolve(userCredential);
+        })
+        .catch((error) => {
+          console.error('❌ Community Firebase authentication failed:', error);
+          authenticationStatus.community = false;
+          reject(error);
+        });
+    });
+  }
+
+  // Authenticate all Firebase projects
+  function authenticateAllFirebaseProjects() {
+    return Promise.allSettled([
+      authenticateStoriesFirebase(),
+      authenticateCommunityFirebase()
+    ]).then((results) => {
+      const storiesResult = results[0];
+      const communityResult = results[1];
+      
+      console.log('Multi-Firebase authentication results:');
+      console.log('Stories:', storiesResult.status === 'fulfilled' ? '✅' : '❌');
+      console.log('Community:', communityResult.status === 'fulfilled' ? '✅' : '❌');
+      
+      // Return summary of authentication status
+      return {
+        stories: storiesResult.status === 'fulfilled',
+        community: communityResult.status === 'fulfilled',
+        errors: {
+          stories: storiesResult.status === 'rejected' ? storiesResult.reason : null,
+          community: communityResult.status === 'rejected' ? communityResult.reason : null
+        }
+      };
+    });
+  }
+
+  // Sign out from all Firebase projects
+  function signOutAllFirebaseProjects() {
+    const signOutPromises = [];
+    
+    // Sign out from Reports (main)
+    signOutPromises.push(firebase.auth().signOut());
+    
+    // Sign out from Stories if authenticated
+    if (storiesAuth && authenticationStatus.stories) {
+      signOutPromises.push(storiesAuth.signOut());
+    }
+    
+    // Sign out from Community if authenticated
+    if (communityAuth && authenticationStatus.community) {
+      signOutPromises.push(communityAuth.signOut());
+    }
+    
+    return Promise.allSettled(signOutPromises).then(() => {
+      // Reset authentication status
+      authenticationStatus = {
+        reports: false,
+        stories: false,
+        community: false
+      };
+      console.log('✅ Signed out from all Firebase projects');
+    });
+  }
+
+  // Get authentication status for all projects
+  function getAuthenticationStatus() {
+    return {
+      ...authenticationStatus,
+      allAuthenticated: authenticationStatus.reports && authenticationStatus.stories && authenticationStatus.community
+    };
+  }
+
+  // Initialize auth instances on load
+  initializeAuthInstances();
+
   // Todos los usuarios están autorizados para transmitir en vivo
   const authorizedEmails = [];
   /*********************** FUNCIONES ADICIONALES **************************/
@@ -8872,7 +9048,7 @@ function saveNote() {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
-    firebase.database().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid + '/coins').once('value').then(snapshot => {
       const currentCoins = snapshot.val() || 0;
       
       if (currentCoins < cost) {
@@ -8903,7 +9079,7 @@ function saveNote() {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val();
       const currentCoins = userData.coins || 0;
       const lastChange = userData.lastUsernameChange || 0;
@@ -8951,7 +9127,7 @@ function saveNote() {
       return;
     }
 
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val();
       const currentCoins = userData.coins || 0;
       const lastChange = userData.lastUsernameChange || 0;
@@ -9035,18 +9211,45 @@ function saveNote() {
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then(userCredential => {
           // SECURITY: removed console.log("Usuario autenticado:", userCredential.user);
+          authenticationStatus.reports = true;
           
-          // Animación de éxito
-          submitButton.classList.remove('login-loading');
-          submitButton.classList.add('success-bounce');
-          submitButton.innerHTML = `
-            <div class="flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              ¡Bienvenido!
-            </div>
-          `;
+          // Authenticate with all Firebase projects
+          authenticateAllFirebaseProjects()
+            .then(results => {
+              console.log('Multi-Firebase authentication completed');
+              
+              // Show success regardless of Stories/Community auth status
+              // Main functionality depends on Reports auth which succeeded
+              submitButton.classList.remove('login-loading');
+              submitButton.classList.add('success-bounce');
+              submitButton.innerHTML = `
+                <div class="flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  ¡Bienvenido!
+                </div>
+              `;
+              
+              // Warn if any secondary auth failed (but don't block login)
+              if (!results.stories && !results.community) {
+                console.warn('⚠️ Some features may be limited due to authentication issues');
+              }
+            })
+            .catch(error => {
+              console.error('Error in multi-Firebase auth:', error);
+              // Still show success for main auth, warn about limitations
+              submitButton.classList.remove('login-loading');
+              submitButton.classList.add('success-bounce');
+              submitButton.innerHTML = `
+                <div class="flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  ¡Bienvenido!
+                </div>
+              `;
+            });
         })
         .catch(error => {
           console.error(error);
@@ -9069,45 +9272,72 @@ function saveNote() {
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
           const user = userCredential.user;
+          authenticationStatus.reports = true;
           
-          // Animación de éxito
-          submitButton.classList.remove('login-loading');
-          submitButton.classList.add('success-bounce');
-          submitButton.innerHTML = `
-            <div class="flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              ¡Cuenta creada!
-            </div>
-          `;
-          
-          const userCountRef = firebase.database().ref('userCount');
-          userCountRef.transaction(count => (count || 0) + 1).then(result => {
-            const newCount = result.snapshot.val();
-            let isVerified = newCount <= 100;
-            let isFounder = false;
-            
-            // Verificar email específico para fundador
-            if (user.email === "***REDACTED***") {
-              isVerified = true;
-              isFounder = true;
-            }
-            
-            firebase.database().ref('users/' + user.uid).set({
-              username: "Nuevo Usuario",
-              bio: "",
-              profileImage: "",
-              followersCount: 0,
-              followingCount: 0,
-              ratedCount: 0,
-              coins: 0,
-              isVerified: isVerified,
-              registrationTimestamp: Date.now(),
-              founder: isFounder,
-              email: user.email
+          // Authenticate with all Firebase projects
+          authenticateAllFirebaseProjects()
+            .then(results => {
+              console.log('Multi-Firebase authentication completed for new user');
+              
+              // Show success animation
+              submitButton.classList.remove('login-loading');
+              submitButton.classList.add('success-bounce');
+              submitButton.innerHTML = `
+                <div class="flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  ¡Cuenta creada!
+                </div>
+              `;
+              
+              // Create user profile in Reports database
+              const userCountRef = firebase.database().ref('userCount');
+              userCountRef.transaction(count => (count || 0) + 1).then(result => {
+                const newCount = result.snapshot.val();
+                let isVerified = newCount <= 100;
+                let isFounder = false;
+                
+                // Verificar email específico para fundador
+                if (user.email === "***REDACTED***") {
+                  isVerified = true;
+                  isFounder = true;
+                }
+                
+                firebase.database().ref('users/' + user.uid).set({
+                  username: "Nuevo Usuario",
+                  bio: "",
+                  profileImage: "",
+                  followersCount: 0,
+                  followingCount: 0,
+                  ratedCount: 0,
+                  coins: 0,
+                  isVerified: isVerified,
+                  registrationTimestamp: Date.now(),
+                  founder: isFounder,
+                  email: user.email
+                });
+              });
+              
+              // Warn if any secondary auth failed (but don't block registration)
+              if (!results.stories && !results.community) {
+                console.warn('⚠️ Some features may be limited due to authentication issues');
+              }
+            })
+            .catch(error => {
+              console.error('Error in multi-Firebase auth for new user:', error);
+              // Still show success for main auth
+              submitButton.classList.remove('login-loading');
+              submitButton.classList.add('success-bounce');
+              submitButton.innerHTML = `
+                <div class="flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  ¡Cuenta creada!
+                </div>
+              `;
             });
-          });
         })
         .catch(error => {
           console.error(error);
@@ -9162,7 +9392,7 @@ function saveNote() {
       // CARGAR ESTADÍSTICAS EN TIEMPO REAL
       loadUserStats(user.uid);
       
-      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
         const data = snapshot.val();
         if (data && data.blocked && data.blockedUntil && Date.now() < data.blockedUntil) {
           alert("Tu cuenta ha sido bloqueada por infracciones. Por favor, contacta con el soporte para recuperar el acceso.");
@@ -9226,6 +9456,19 @@ function saveNote() {
     firebase.auth().signInWithPopup(provider)
       .then(result => {
         console.log("Google sign-in successful:", result.user);
+        authenticationStatus.reports = true;
+        
+        // Authenticate with all Firebase projects
+        authenticateAllFirebaseProjects()
+          .then(authResults => {
+            console.log('Multi-Firebase authentication completed for Google sign-in');
+            if (!authResults.stories && !authResults.community) {
+              console.warn('⚠️ Some features may be limited due to authentication issues');
+            }
+          })
+          .catch(error => {
+            console.error('Error in multi-Firebase auth for Google sign-in:', error);
+          });
       })
       .catch(error => {
         console.error("Error al iniciar sesión con Google:", error);
@@ -9237,6 +9480,19 @@ function saveNote() {
     firebase.auth().signInWithPopup(provider)
       .then(result => {
         console.log("Facebook sign-in successful:", result.user);
+        authenticationStatus.reports = true;
+        
+        // Authenticate with all Firebase projects
+        authenticateAllFirebaseProjects()
+          .then(authResults => {
+            console.log('Multi-Firebase authentication completed for Facebook sign-in');
+            if (!authResults.stories && !authResults.community) {
+              console.warn('⚠️ Some features may be limited due to authentication issues');
+            }
+          })
+          .catch(error => {
+            console.error('Error in multi-Firebase auth for Facebook sign-in:', error);
+          });
       })
       .catch(error => {
         console.error("Error al iniciar sesión con Facebook:", error);
@@ -9248,17 +9504,21 @@ function saveNote() {
     spinner.style.display = "flex";
     
     setTimeout(() => {
-      firebase.auth().signOut()
+      // Use multi-Firebase sign out function
+      signOutAllFirebaseProjects()
         .then(() => {
           // CRÍTICO: Limpiar estado DESPUÉS de cerrar sesión exitosamente
           clearUserState();
           spinner.style.display = "none";
-          console.log("✅ Sesión cerrada y estado limpiado");
+          console.log("✅ Sesión cerrada de todos los proyectos Firebase y estado limpiado");
           alert("Has cerrado sesión.");
         })
         .catch(error => {
           spinner.style.display = "none";
-          console.error("Error al cerrar sesión:", error);
+          console.error("Error al cerrar sesión de Firebase:", error);
+          // Still try to clear local state even if Firebase sign out failed
+          clearUserState();
+          alert("Error al cerrar sesión, pero se limpió el estado local.");
         });
     }, 3000);
   }
@@ -9842,7 +10102,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       const user = firebase.auth().currentUser;
       if (!user) return;
       // Guardamos la imagen en base64 en la Realtime Database
-      firebase.database().ref('users/' + user.uid).update({
+      getReportsDB().ref('users/' + user.uid).update({
           profileImage: base64String
         })
         .then(() => {
@@ -9866,7 +10126,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
   function saveBio() {
     const bio = document.getElementById('profile-bio').value;
     const user = firebase.auth().currentUser;
-    firebase.database().ref('users/' + user.uid).update({
+    getReportsDB().ref('users/' + user.uid).update({
         bio
       })
       .then(() => {
@@ -9894,7 +10154,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
   function openProfileEdit() {
     const user = firebase.auth().currentUser;
     if (!user) return;
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const data = snapshot.val() || {};
       
       // Campos móviles
@@ -10031,7 +10291,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       document.getElementById('edit-username-desktop').value;
     
     // Validar cambio de nombre de usuario (solo cada 7 días)
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    getReportsDB().ref('users/' + user.uid).once('value').then(snapshot => {
       const userData = snapshot.val() || {};
       const lastUsernameChange = userData.lastUsernameChange || 0;
       const timeSinceLastChange = Date.now() - lastUsernameChange;
@@ -10126,7 +10386,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       console.error("Error al subir la imagen (edición):", error);
     }, () => {
       uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-        firebase.database().ref('users/' + user.uid).update({
+        getReportsDB().ref('users/' + user.uid).update({
           profileImage: downloadURL
         });
         document.getElementById('edit-profile-image').src = downloadURL;
@@ -12036,7 +12296,7 @@ document.getElementById('category-filter').addEventListener('change', performRea
       timestamp: Date.now(),
       status: "pending"
     };
-    firebase.database().ref('storyReports').push(reportData)
+    getReportsDB().ref('storyReports').push(reportData)
       .then(() => {
         alert("Reporte enviado.");
         closeReportStoryModal();
