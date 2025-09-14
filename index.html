@@ -5487,7 +5487,8 @@ function handleProfileImageUploadDesktop(event) {
 <script>
 // SISTEMA DE CARRITO Y TIENDA MODERNA
 
-// Inicializar tienda (DESHABILITADA)
+// Apply profile frame function
+function applyProfileFrame(user, itemId, itemName) {
   if (!user) return;
 
   firebase.database().ref('users/' + user.uid + '/profileFrame').set(itemId).then(() => {
@@ -5583,12 +5584,20 @@ function showAddToCartAnimation(itemName) {
 }
 
 // Actualizar display del carrito
-    cartEmpty.classList.add('hidden');
-    cartSummary.classList.remove('hidden');
-    checkoutBtn.disabled = false;
-    
-    // Renderizar items del carrito
+function updateCartDisplay() {
+  const cartEmpty = document.getElementById('cart-empty');
+  const cartSummary = document.getElementById('cart-summary');
+  const checkoutBtn = document.getElementById('checkout-btn');
+  const cartItems = document.getElementById('cart-items');
+  
+  if (cartEmpty) cartEmpty.classList.add('hidden');
+  if (cartSummary) cartSummary.classList.remove('hidden');
+  if (checkoutBtn) checkoutBtn.disabled = false;
+  
+  // Renderizar items del carrito
+  if (cartItems) {
     cartItems.innerHTML = '';
+    const cart = getCart(); // Assume this function exists
     cart.forEach((item, index) => {
       const itemElement = document.createElement('div');
       itemElement.className = 'flex items-center space-x-3 p-3 bg-gray-50 rounded-lg';
@@ -5610,11 +5619,12 @@ function showAddToCartAnimation(itemName) {
         </div>
         <div class="flex items-center space-x-2">
           <span class="text-sm font-medium">${item.quantity}</span>
+          <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
         </div>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-        </button>
       `;
       cartItems.appendChild(itemElement);
     });
@@ -5624,7 +5634,9 @@ function showAddToCartAnimation(itemName) {
   }
 }
 
-// Cambiar cantidad
+// Auto close checkout function
+function autoCloseCheckout() {
+  setTimeout(() => {
     closeCheckout();
   }, 3000);
 }
@@ -5687,9 +5699,9 @@ function startOfferCountdown() {
   }, 1000);
 }
 
-// Funciones existentes modificadas
 // ===== BEABOO 2.0 - SISTEMA DE MODAL DE TIENDA PANTALLA COMPLETA =====
-  }
+function openBCIModal() {
+  const cart = getCart(); // Assume this function exists
   if (cart.length === 0) return;
   
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -5744,11 +5756,15 @@ function startOfferCountdown() {
   });
 }
 
-    `;
-    
-    document.body.appendChild(successModal);
+// Process BCI Payment function
+function processBCIPayment() {
+  // Simulate payment processing
+  setTimeout(() => {
+    showPaymentSuccess();
+    // Close modal
+    document.querySelector('.fixed.inset-0.bg-black.bg-opacity-75')?.remove();
   }, 2000);
-}, { once: true });
+}
 </script>
 
           </div>
@@ -5760,8 +5776,16 @@ function startOfferCountdown() {
 
 <script>
   function handleEditProfileImageUpload(event) {
-      reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageDataUrl = e.target.result;
+      updateAllProfileImages(imageDataUrl);
+      saveProfileImageToFirebase(imageDataUrl);
     }
+    reader.readAsDataURL(file);
   }
 </script>
 
